@@ -1,5 +1,5 @@
 import React from "react";
-import Profile from "./profile.jpg";
+import Profile from "./portrait.png";
 
 export default function About() {
   return (
