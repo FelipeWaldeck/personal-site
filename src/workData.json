@@ -23,6 +23,11 @@
           "caption": "First half of the film"
         },
         {
+          "link": "https://player.vimeo.com/video/1075660299",
+          "type": "video",
+          "caption": "Second half of the film"
+        },
+        {
           "link": "../images/land/still2.png",
           "type": "image",
           "caption": "Point clouds from Khewra Salt Mines"
