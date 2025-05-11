@@ -23,7 +23,7 @@ export default function About() {
           and fractured.
         </p>
         <a
-          href="./Aakarsh_Singh_Resume_230325.pdf"
+          href="./Aakarsh_Singh_Resume.pdf"
           target="_blank"
           rel="noreferrer"
           className="pr-2 font-bold underline underline-offset-4"
