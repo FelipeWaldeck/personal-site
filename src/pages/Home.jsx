@@ -27,7 +27,7 @@ export default function Home(props) {
               setWordList(workData.data[0].tags);
             }}
           >
-            work
+            Work
           </span>
           {" | "}
           <span
@@ -37,7 +37,7 @@ export default function Home(props) {
               setWordList([]);
             }}
           >
-            about
+            About
           </span>
         </h2>
         {about ? <About></About> : <Work setWordList={setWordList}></Work>}
