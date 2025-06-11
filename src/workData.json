@@ -2,7 +2,14 @@
   "data": [
     {
       "name": "LAND",
-      "tags": ["new media", "immersive", "technology", "arts", "game engine"],
+      "tags": [
+        "new media",
+        "immersive",
+        "technology",
+        "arts",
+        "game engine",
+        "identity"
+      ],
       "date": "November 2024 - Present",
       "technology": "Unreal Engine, Photogrammetry, custom trained AI model",
       "description": [
@@ -35,6 +42,32 @@
           "link": "../images/land/still1.png",
           "type": "image",
           "caption": "Katas Raj Temple Complex in Unreal Engine"
+        },
+        {
+          "link": "../images/land/photogrammetryDocu.webp",
+          "type": "image",
+          "caption": "Hanuman Temple being processed for photogrammetry in RealityCapture"
+        },
+        {
+          "link": "https://www.youtube.com/embed/v7Eyg1kNp68?si=wBdi9QnrGRGEjWfx",
+          "type": "video",
+          "caption": "Actor engaged in motion capture"
+        },
+
+        {
+          "link": "../images/land/AIDocu.png",
+          "type": "image",
+          "caption": "Flora AI web platform used for generating game-like videos from images of the site"
+        },
+        {
+          "link": "../images/land/FinalExhibitionDocu.JPG",
+          "type": "image",
+          "caption": "Final capstone exhibition"
+        },
+        {
+          "link": "../images/land/PrintedPoster.webp",
+          "type": "image",
+          "caption": "Poster used for promotion and distribution"
         }
       ]
     },
