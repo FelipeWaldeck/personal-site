@@ -1,0 +1,76 @@
+{
+  "data": [
+    {
+      "name": "MARE: Conditions of Interiority",
+      "tags": [
+        "writing",
+        "philosophy",
+        "technology",
+        "memory"
+      ],
+      "date": "2024",
+      "technology": "Essay series",
+      "description": [
+        {
+          "text": "A series examining the erosion of interiority under cybernetics, prediction, and computational subjecthood."
+        }
+      ],
+      "media": [
+        {
+          "link": "https://placehold.co/800x400/1a1a1a/666666?text=MARE",
+          "type": "image",
+          "caption": "MARE: Conditions of Interiority"
+        }
+      ],
+      "externalLink": "https://substack.com/@maredotrun"
+    },
+    {
+      "name": "Adaptive Reuse of Abandoned Rail Infrastructure",
+      "tags": [
+        "design",
+        "policy",
+        "urban",
+        "technology"
+      ],
+      "date": "2023",
+      "technology": "Publication",
+      "description": [
+        {
+          "text": "A policy and design playbook on repurposing disused rail corridors for public space, mobility, and urban life."
+        }
+      ],
+      "media": [
+        {
+          "link": "https://placehold.co/800x400/1a1a1a/666666?text=Rail+Infrastructure",
+          "type": "image",
+          "caption": "Adaptive Reuse of Abandoned Rail Infrastructure"
+        }
+      ],
+      "externalLink": "https://lkycic.sutd.edu.sg/publications/books/adaptive-reuse-of-abandoned-rail-infrastructure-playbook/"
+    },
+    {
+      "name": "Long Peace & Ant War",
+      "tags": [
+        "writing",
+        "politics",
+        "history",
+        "identity"
+      ],
+      "date": "2025",
+      "technology": "Essay",
+      "description": [
+        {
+          "text": "A political and historical reflection on stability, conflict, and asymmetry in contemporary global order."
+        }
+      ],
+      "media": [
+        {
+          "link": "https://placehold.co/800x400/1a1a1a/666666?text=Long+Peace",
+          "type": "image",
+          "caption": "Long Peace & Ant War"
+        }
+      ],
+      "externalLink": "https://substack.com/@felipewaldeck"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+    "summary": "Software engineer and new media artist with experience in interactive media, web development, and creative technology. Passionate about exploring the intersection of art and technology.",
+    "experience": [
+        {
+            "title": "Software Engineer",
+            "company": "Example Company",
+            "location": "New York, NY",
+            "period": "2022 – Present",
+            "bullets": [
+                "Led migration to React 19 and Vite, improving build times by 60%",
+                "Developed interactive web experiences using Three.js and WebGL",
+                "Mentored junior developers and established code review practices"
+            ]
+        },
+        {
+            "title": "Creative Technologist Intern",
+            "company": "Design Studio",
+            "location": "Abu Dhabi, UAE",
+            "period": "2021 – 2022",
+            "bullets": [
+                "Built interactive installations using TouchDesigner and Arduino",
+                "Created generative art pieces for gallery exhibitions",
+                "Collaborated with artists on immersive multimedia experiences"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "degree": "B.S. Computer Science & Interactive Media",
+            "institution": "New York University Abu Dhabi",
+            "location": "Abu Dhabi, UAE",
+            "period": "2019 – 2023",
+            "notes": "Minor in Art History, Sound and Music Computing focus"
+        }
+    ],
+    "projects": [
+        {
+            "name": "Memory Fragments",
+            "description": "VR experience exploring post-colonial identity through fragmented memories",
+            "technologies": [
+                "Unity",
+                "Oculus",
+                "Blender"
+            ]
+        },
+        {
+            "name": "Generative Sound Installation",
+            "description": "Interactive sound-light installation responding to audience movement",
+            "technologies": [
+                "TouchDesigner",
+                "Max/MSP",
+                "Arduino"
+            ]
+        }
+    ],
+    "writing": [
+        {
+            "title": "The Ephemeral Nature of Digital Memory",
+            "venue": "Interactive Media Conference 2023",
+            "type": "talk"
+        }
+    ],
+    "links": [
+        {
+            "label": "GitHub",
+            "url": "https://github.com/AakSin"
+        },
+        {
+            "label": "Email",
+            "url": "mailto:aakarsh@nyu.edu"
+        },
+        {
+            "label": "LinkedIn",
+            "url": "https://linkedin.com/in/example"
+        }
+    ]
+}

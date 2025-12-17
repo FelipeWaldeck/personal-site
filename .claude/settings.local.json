@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build:*)",
+      "Bash(rm:*)",
+      "Bash(pnpm install:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec husky:*)",
+      "Bash(pnpm update:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm remove:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

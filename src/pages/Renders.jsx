@@ -1,15 +1,14 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
 import Zoom from "react-medium-image-zoom";
-import "./Zoom.css";
+import "../styles/Zoom.css";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-// import required modules
-import { Navigation } from "swiper";
-import renderData from "../renderData.json";
-renderData = renderData.data;
+import renderDataJson from "../data/renderData.json";
+const renderData = renderDataJson.data;
 
 export default function Renders() {
   return (

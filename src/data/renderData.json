@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "name": "Miscellaneous Project One",
+      "id": "misc-1",
+      "date": "2024",
+      "technology": "Various tools",
+      "description": "Placeholder for miscellaneous work. Replace with your own content.",
+      "media": [
+        {
+          "link": "https://placehold.co/800x400/e2e8f0/64748b?text=Misc+1",
+          "type": "image",
+          "caption": "Replace with your own image"
+        }
+      ]
+    },
+    {
+      "name": "Miscellaneous Project Two",
+      "id": "misc-2",
+      "date": "2023",
+      "technology": "Various tools",
+      "description": "Placeholder for miscellaneous work. Replace with your own content.",
+      "media": [
+        {
+          "link": "https://placehold.co/800x400/e2e8f0/64748b?text=Misc+2",
+          "type": "image",
+          "caption": "Replace with your own image"
+        }
+      ]
+    }
+  ]
+}

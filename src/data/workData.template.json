@@ -1,0 +1,66 @@
+{
+  "data": [
+    {
+      "name": "Project Name",
+      "tags": [
+        "tag1",
+        "tag2",
+        "tag3"
+      ],
+      "date": "Month Year - Month Year",
+      "technology": "Tech stack used (e.g., React, Node.js, Python)",
+      "description": [
+        {
+          "text": "First paragraph of your project description. Explain what the project is, what problem it solves, and what makes it interesting."
+        },
+        {
+          "text": "Optional second paragraph with more details, technical challenges, or outcomes."
+        }
+      ],
+      "media": [
+        {
+          "link": "/images/project-name/screenshot1.png",
+          "type": "image",
+          "caption": "Description of this image"
+        },
+        {
+          "link": "https://www.youtube.com/embed/VIDEO_ID",
+          "type": "video",
+          "caption": "Description of this video"
+        },
+        {
+          "link": "https://player.vimeo.com/video/VIDEO_ID",
+          "type": "video",
+          "caption": "Or use Vimeo videos"
+        },
+        {
+          "link": "/images/project-name/screenshot2.png",
+          "type": "image",
+          "caption": "Another image"
+        }
+      ]
+    },
+    {
+      "name": "Another Project",
+      "tags": [
+        "design",
+        "web",
+        "frontend"
+      ],
+      "date": "January 2024 - Present",
+      "technology": "Figma, React, Tailwind CSS",
+      "description": [
+        {
+          "text": "Description of your second project..."
+        }
+      ],
+      "media": [
+        {
+          "link": "/images/another-project/main.jpg",
+          "type": "image",
+          "caption": "Main project screenshot"
+        }
+      ]
+    }
+  ]
+}

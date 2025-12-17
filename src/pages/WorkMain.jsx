@@ -1,17 +1,16 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
 import Zoom from "react-medium-image-zoom";
-import "./Zoom.css";
+import "../styles/Zoom.css";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-// import required modules
-import { Navigation, Pagination } from "swiper";
 
 import { useParams } from "react-router-dom";
 
-import workData from "../workData.json";
+import workData from "../data/workData.json";
 
 export default function WorkMain() {
   const { name } = useParams();
