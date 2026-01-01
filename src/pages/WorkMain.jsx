@@ -1,16 +1,16 @@
-import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import Zoom from "react-medium-image-zoom";
-import "../styles/Zoom.css";
+import React from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import Zoom from 'react-medium-image-zoom';
+import '../styles/Zoom.css';
 // Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 
-import workData from "../data/workData.json";
+import workData from '../data/workData.json';
 
 export default function WorkMain() {
   const { name } = useParams();
@@ -38,7 +38,7 @@ export default function WorkMain() {
             slidesPerView: 3,
           },
         }}
-        style={{ padding: "3rem", height: "60vh", width: "95%" }}
+        style={{ padding: '3rem', height: '60vh', width: '95%' }}
         navigation={true}
         slidesPerView={1}
         spaceBetween={30}
@@ -49,15 +49,15 @@ export default function WorkMain() {
         className="mySwiper h-1/2"
       >
         {workInfo.media.map((media, key) =>
-          media.type === "image" ? (
+          media.type === 'image' ? (
             <SwiperSlide
-              style={{ display: "flex" }}
+              style={{ display: 'flex' }}
               className="flex flex-col justify-center items-center p-7"
               key={key}
             >
-              <Zoom style={{ height: "100%", objectFit: "contain" }}>
+              <Zoom style={{ height: '100%', objectFit: 'contain' }}>
                 <img
-                  style={{ height: "100%", objectFit: "contain" }}
+                  style={{ height: '100%', objectFit: 'contain' }}
                   src={media.link}
                   alt={media.caption}
                   loading="lazy"
@@ -68,13 +68,13 @@ export default function WorkMain() {
             </SwiperSlide>
           ) : (
             <SwiperSlide
-              style={{ display: "flex" }}
+              style={{ display: 'flex' }}
               className="flex justify-center items-center p-7 flex-col"
               key={key}
             >
               {/* <YouTubeEmbed link={media.link}></YouTubeEmbed> */}
               <iframe
-                style={{ height: "100%", width: "100%" }}
+                style={{ height: '100%', width: '100%' }}
                 width="853"
                 height="480"
                 src={media.link}
@@ -91,7 +91,7 @@ export default function WorkMain() {
       <div className="flex justify-center pt-3">
         <div className="md:w-1/2 w-5/6 text-lg">
           <p className="py-4">
-            <span className="font-bold">Technologies Used: </span>{" "}
+            <span className="font-bold">Technologies Used: </span>{' '}
             {workInfo.technology}
           </p>
           {workInfo.sourceCode ? (
@@ -104,7 +104,7 @@ export default function WorkMain() {
               Project Files
             </a>
           ) : null}
-          {"    "}
+          {'    '}
           {workInfo.liveLink ? (
             <a
               href={workInfo.liveLink}
@@ -115,8 +115,8 @@ export default function WorkMain() {
               Project Link
             </a>
           ) : null}
-          {workInfo.description.map((info) => (
-            <div>
+          {workInfo.description.map((info, index) => (
+            <div key={index}>
               {info.header ? (
                 <h3 className="font-bold pt-4">{info.header}</h3>
               ) : null}

@@ -1,0 +1,903 @@
+[
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\eslint.config.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\postcss.config.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\scripts\\fetch-goodreads.js",
+    "messages": [
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'require' is not defined.",
+        "line": 15,
+        "column": 12,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 15,
+        "endColumn": 19
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'require' is not defined.",
+        "line": 16,
+        "column": 14,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 16,
+        "endColumn": 21
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'__dirname' is not defined.",
+        "line": 19,
+        "column": 37,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 19,
+        "endColumn": 46
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'process' is not defined.",
+        "line": 156,
+        "column": 9,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 156,
+        "endColumn": 16
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 4,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "/**\r\n * Goodreads RSS Fetch Script\r\n * \r\n * Usage: node scripts/fetch-goodreads.js\r\n * \r\n * This script fetches books from Goodreads RSS feeds and updates reading.json.\r\n * \r\n * Cover Image Extraction (in order of priority):\r\n * 1. book_large_image_url (largest)\r\n * 2. book_medium_image_url\r\n * 3. book_image_url\r\n * 4. book_small_image_url\r\n */\r\n\r\nconst fs = require('fs');\r\nconst path = require('path');\r\n\r\n// Path to reading.json\r\nconst READING_JSON_PATH = path.join(__dirname, '..', 'src', 'data', 'reading.json');\r\n\r\n/**\r\n * Extract content from a tag, handling CDATA wrappers\r\n */\r\nfunction extractTagContent(xml, tagName) {\r\n    // Pattern handles both CDATA-wrapped and plain content\r\n    const patterns = [\r\n        // CDATA wrapped: <tag><![CDATA[content]]></tag>\r\n        new RegExp(`<${tagName}><!\\\\[CDATA\\\\[([^\\\\]]*?)\\\\]\\\\]></${tagName}>`, 's'),\r\n        // Plain content: <tag>content</tag>\r\n        new RegExp(`<${tagName}>([^<]*)</${tagName}>`, 's'),\r\n    ];\r\n\r\n    for (const pattern of patterns) {\r\n        const match = xml.match(pattern);\r\n        if (match && match[1]) {\r\n            const content = match[1].trim();\r\n            if (content && content.length > 0) {\r\n                return content;\r\n            }\r\n        }\r\n    }\r\n    return null;\r\n}\r\n\r\n/**\r\n * Extract cover image URL from RSS item XML\r\n * Tries image tags in order of size preference\r\n */\r\nfunction extractCoverUrl(itemXml) {\r\n    // Try each image tag, largest first\r\n    const imageTags = [\r\n        'book_large_image_url',\r\n        'book_medium_image_url',\r\n        'book_image_url',\r\n        'book_small_image_url',\r\n    ];\r\n\r\n    for (const tag of imageTags) {\r\n        const url = extractTagContent(itemXml, tag);\r\n        if (url && url.startsWith('http') && !url.includes('nophoto')) {\r\n            return url;\r\n        }\r\n    }\r\n\r\n    return null;\r\n}\r\n\r\n/**\r\n * Parse a single RSS item\r\n */\r\nfunction parseRssItem(itemXml) {\r\n    const title = extractTagContent(itemXml, 'title');\r\n    const authorName = extractTagContent(itemXml, 'author_name');\r\n    const link = extractTagContent(itemXml, 'link');\r\n    const bookId = extractTagContent(itemXml, 'book_id');\r\n    const cover = extractCoverUrl(itemXml);\r\n\r\n    return { title, author: authorName, link, cover, bookId };\r\n}\r\n\r\n/**\r\n * Parse RSS feed XML\r\n */\r\nfunction parseRssFeed(xml) {\r\n    const items = [];\r\n    const itemRegex = /<item>([\\s\\S]*?)<\\/item>/g;\r\n    let match;\r\n\r\n    while ((match = itemRegex.exec(xml)) !== null) {\r\n        const parsed = parseRssItem(match[1]);\r\n        if (parsed.title) {\r\n            items.push(parsed);\r\n        }\r\n    }\r\n\r\n    return items;\r\n}\r\n\r\n/**\r\n * Fetch a shelf from Goodreads RSS\r\n */\r\nasync function fetchShelf(url, shelfName) {\r\n    console.log(`\\nFetching shelf: ${shelfName}...`);\r\n\r\n    try {\r\n        const response = await fetch(url, {\r\n            headers: {\r\n                'User-Agent': 'Mozilla/5.0 (compatible; BookShelfSync/1.0)',\r\n            },\r\n        });\r\n\r\n        if (!response.ok) {\r\n            throw new Error(`HTTP ${response.status}`);\r\n        }\r\n\r\n        const xml = await response.text();\r\n        const items = parseRssFeed(xml);\r\n\r\n        console.log(`  Found ${items.length} books`);\r\n\r\n        const coversFound = items.filter(i => i.cover).length;\r\n        console.log(`  Covers found: ${coversFound}/${items.length}`);\r\n\r\n        // Log first few for verification\r\n        items.slice(0, 3).forEach((item, i) => {\r\n            console.log(`    ${i + 1}. \"${item.title.slice(0, 40)}...\" - Cover: ${item.cover ? '✓' : '✗'}`);\r\n        });\r\n\r\n        return items.map((item, index) => ({\r\n            id: `book-${shelfName}-${index}`,\r\n            title: item.title,\r\n            author: item.author,\r\n            cover: item.cover,\r\n            link: item.link,\r\n        }));\r\n    } catch (error) {\r\n        console.error(`  Error fetching ${shelfName}: ${error.message}`);\r\n        return [];\r\n    }\r\n}\r\n\r\n/**\r\n * Main function\r\n */\r\nasync function main() {\r\n    console.log('='.repeat(50));\r\n    console.log('Goodreads RSS Fetch Script');\r\n    console.log('='.repeat(50));\r\n\r\n    // Read current reading.json\r\n    const readingData = JSON.parse(fs.readFileSync(READING_JSON_PATH, 'utf8'));\r\n    const rssConfig = readingData._rssConfig;\r\n\r\n    if (!rssConfig || !rssConfig.shelves) {\r\n        console.error('No RSS config found in reading.json');\r\n        process.exit(1);\r\n    }\r\n\r\n    // Fetch each shelf\r\n    for (const shelfConfig of rssConfig.shelves) {\r\n        const books = await fetchShelf(shelfConfig.url, shelfConfig.name);\r\n\r\n        if (books.length > 0) {\r\n            const shelfKeyMap = {\r\n                'currently-reading': 'currently-reading',\r\n                'to-read': 'to-read',\r\n                'read': 'finished',\r\n            };\r\n\r\n            const localShelfKey = shelfKeyMap[shelfConfig.name] || shelfConfig.name;\r\n\r\n            if (readingData.shelves[localShelfKey]) {\r\n                readingData.shelves[localShelfKey].books = books;\r\n                console.log(`  Replaced ${localShelfKey} with ${books.length} books`);\r\n            }\r\n        }\r\n    }\r\n\r\n    // Write updated reading.json\r\n    fs.writeFileSync(READING_JSON_PATH, JSON.stringify(readingData, null, 2));\r\n    console.log('\\n' + '='.repeat(50));\r\n    console.log('Updated reading.json');\r\n    console.log('='.repeat(50));\r\n}\r\n\r\nmain().catch(console.error);\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\scripts\\merge_hexagrams.js",
+    "messages": [
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'require' is not defined.",
+        "line": 1,
+        "column": 12,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 1,
+        "endColumn": 19
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'require' is not defined.",
+        "line": 2,
+        "column": 14,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 2,
+        "endColumn": 21
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'__dirname' is not defined.",
+        "line": 4,
+        "column": 26,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 4,
+        "endColumn": 35
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'__dirname' is not defined.",
+        "line": 5,
+        "column": 28,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 5,
+        "endColumn": 37
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'process' is not defined.",
+        "line": 17,
+        "column": 9,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 17,
+        "endColumn": 16
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'process' is not defined.",
+        "line": 88,
+        "column": 5,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 88,
+        "endColumn": 12
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 6,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "const fs = require('fs');\r\nconst path = require('path');\r\n\r\nconst tsPath = path.join(__dirname, '../src/data/hexagrams.ts');\r\nconst jsonPath = path.join(__dirname, '../src/data/scraped_hexagrams.json');\r\n\r\ntry {\r\n    const tsContent = fs.readFileSync(tsPath, 'utf8');\r\n    const scrapedContent = fs.readFileSync(jsonPath, 'utf8');\r\n    const scrapedData = JSON.parse(scrapedContent);\r\n\r\n    // Extract the array content using Regex to avoid full file eval issues\r\n    const arrayMatch = tsContent.match(/export const hexagrams: Hexagram\\[\\] = \\[\\s*([\\s\\S]*?)\\];/);\r\n\r\n    if (!arrayMatch) {\r\n        console.error(\"Could not find hexagrams array in ts file\");\r\n        process.exit(1);\r\n    }\r\n\r\n    const arrayBody = arrayMatch[1];\r\n\r\n    // Evaluate the array body to get objects\r\n    // We assume the body is valid JS/JSON-like structure\r\n    const oldHexagrams = eval(`[${arrayBody}]`);\r\n\r\n    // Merge Data\r\n    const newHexagrams = oldHexagrams.map(old => {\r\n        const scraped = scrapedData.find(s => s.number === old.number);\r\n\r\n        if (scraped) {\r\n            // Merge logic\r\n            return {\r\n                number: old.number,\r\n                name: scraped.name, // Use new name (e.g. \"Qian\")\r\n                hanzi: old.hanzi,   // Keep existing Hanzi\r\n                lines: old.lines,   // Keep existing lines (Critical)\r\n                summary: scraped.description, // Use new description\r\n                tags: old.tags      // Keep existing tags\r\n            };\r\n        }\r\n        return old;\r\n    });\r\n\r\n    // Reconstruct File\r\n    // We want output similar to the original formatting if possible, but JSON is fine.\r\n    // We mask the JSON.stringify to remove quotes from keys to look like TS? \r\n    // JSON is valid TS.\r\n\r\n    const newContent = `/**\r\n * Hexagram data with TypeScript types\r\n * Minimal data for I-Ching lens display\r\n */\r\n\r\nexport interface Hexagram {\r\n    number: number;\r\n    name: string;\r\n    hanzi: string;\r\n    lines: (0 | 1)[]; // 6 lines bottom->top, 1=yang solid, 0=yin broken\r\n    summary: string;\r\n    tags: string[];\r\n}\r\n\r\n/**\r\n * All 64 hexagrams with summaries\r\n */\r\nexport const hexagrams: Hexagram[] = ${JSON.stringify(newHexagrams, null, 4)\r\n            .replace(/\"(\\w+)\":/g, '$1:') // Remove quotes from keys\r\n            .replace(/\"/g, '\"')          // meaningful quotes stay\r\n            .replace(/lines:\\s*\\[\\s*([\\d,\\s]+)\\s*\\]/g, (match, content) => {\r\n                // Compact lines array: lines: [1, 1, 1, 1, 1, 1]\r\n                return `lines: [${content.replace(/\\s+/g, ' ').trim()}]`;\r\n            })\r\n        };\r\n\r\n/**\r\n * Get hexagram by number\r\n */\r\nexport function getHexagram(number: number): Hexagram {\r\n    return hexagrams.find((h) => h.number === number) || hexagrams[0];\r\n}\r\n`;\r\n\r\n    fs.writeFileSync(tsPath, newContent);\r\n    console.log(`Successfully merged ${newHexagrams.length} hexagrams.`);\r\n\r\n} catch (err) {\r\n    console.error(\"Error during merge:\", err);\r\n    process.exit(1);\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\App.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\nimport { BrowserRouter as Router, Routes, Route } from \"react-router-dom\";\r\nimport Home from \"./pages/Home.tsx\";\r\nimport WorkMain from \"./pages/WorkMain\";\r\nimport Error from \"./pages/Error\";\r\nimport Renders from \"./pages/Renders\";\r\nimport Reading from \"./pages/Reading\";\r\nimport CV from \"./pages/CV\";\r\nimport BouncingAscii from \"./components/BouncingAscii\";\r\n\r\nexport default function App() {\r\n  return (\r\n    <Router>\r\n      <BouncingAscii />\r\n      <Routes>\r\n        <Route exact path=\"/\" element={<Home />}></Route>\r\n        <Route exact path=\"/work/:name\" element={<WorkMain></WorkMain>}></Route>\r\n        <Route\r\n          exact\r\n          path=\"/Miscellaneous\"\r\n          element={<Renders></Renders>}\r\n        ></Route>\r\n        <Route exact path=\"/reading\" element={<Reading></Reading>}></Route>\r\n        <Route exact path=\"/cv\" element={<CV></CV>}></Route>\r\n\r\n        <Route path=\"*\" element={<Error></Error>}></Route>\r\n      </Routes>\r\n    </Router>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\App.test.js",
+    "messages": [
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'test' is not defined.",
+        "line": 4,
+        "column": 1,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 4,
+        "endColumn": 5
+      },
+      {
+        "ruleId": "no-undef",
+        "severity": 2,
+        "message": "'expect' is not defined.",
+        "line": 7,
+        "column": 3,
+        "nodeType": "Identifier",
+        "messageId": "undef",
+        "endLine": 7,
+        "endColumn": 9
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import { render, screen } from '@testing-library/react';\r\nimport App from './App.jsx';\r\n\r\ntest('renders learn react link', () => {\r\n  render(<App />);\r\n  const linkElement = screen.getByText(/learn react/i);\r\n  expect(linkElement).toBeInTheDocument();\r\n});\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\About.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\n\r\nexport default function About() {\r\n  return (\r\n    <div className=\"flex justify-left items-left flex-col px-8\">\r\n      <div className=\"w-5/6 md:w-3/4 pb-4\">\r\n        <p className=\"pt-8\" style={{ color: \"var(--text-secondary)\" }}>\r\n          Felipe Waldeck is a researcher, writer, and a co-founder of MARE,\r\n          a media-agnostic research platform for organising and navigating large, heterogeneous archives.\r\n          Through MARE, he works on the design of computational tools and workflows that support research, cultural\r\n          analysis, and creative inquiry across disciplines.\r\n        </p>\r\n        <p className=\"pt-4 pb-2\" style={{ color: \"var(--text-secondary)\" }}>\r\n          Previously, Felipe has worked on academic and policy-oriented research in urban studies, with a focus on public space,\r\n          infrastructure, and adolescent wellbeing.\r\n          He is the co-author of Adaptive Reuse of Abandoned Rail Infrastructure,\r\n          a playbook examining the transformation of disused rail corridors into\r\n          public and civic spaces. Alongside institutional research, he writes essays on technology,\r\n          subjectivity, and contemporary political conditions.\r\n        </p>\r\n        <div className=\"pt-4\">\r\n          <a\r\n            href=\"mailto:felipe@example.com\"\r\n            target=\"_blank\"\r\n            rel=\"noreferrer\"\r\n            className=\"pr-4 underline underline-offset-4\"\r\n            style={{ color: \"var(--text-primary)\" }}\r\n          >\r\n            Email\r\n          </a>\r\n          <a\r\n            href=\"https://substack.com/@felipewaldeck\"\r\n            target=\"_blank\"\r\n            rel=\"noreferrer\"\r\n            className=\"pr-4 underline underline-offset-4\"\r\n            style={{ color: \"var(--text-primary)\" }}\r\n          >\r\n            Substack\r\n          </a>\r\n          <a\r\n            href=\"https://github.com/\"\r\n            target=\"_blank\"\r\n            rel=\"noreferrer\"\r\n            className=\"pr-4 underline underline-offset-4\"\r\n            style={{ color: \"var(--text-primary)\" }}\r\n          >\r\n            GitHub\r\n          </a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\BouncingAscii.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\n  31 |     // Mutable state for the animation loop\n  32 |     const state = useRef({\n> 33 |         x: typeof window !== 'undefined' ? Math.random() * (window.innerWidth - 300) : 100,\n     |                                            ^^^^^^^^^^^^^ Cannot call impure function\n  34 |         y: typeof window !== 'undefined' ? Math.random() * (window.innerHeight - 300) : 100,\n  35 |         vx: (Math.random() - 0.5) * 1.5,\n  36 |         vy: (Math.random() - 0.5) * 1.5,",
+        "line": 33,
+        "column": 44,
+        "nodeType": null,
+        "endLine": 33,
+        "endColumn": 57
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\n  32 |     const state = useRef({\n  33 |         x: typeof window !== 'undefined' ? Math.random() * (window.innerWidth - 300) : 100,\n> 34 |         y: typeof window !== 'undefined' ? Math.random() * (window.innerHeight - 300) : 100,\n     |                                            ^^^^^^^^^^^^^ Cannot call impure function\n  35 |         vx: (Math.random() - 0.5) * 1.5,\n  36 |         vy: (Math.random() - 0.5) * 1.5,\n  37 |     });",
+        "line": 34,
+        "column": 44,
+        "nodeType": null,
+        "endLine": 34,
+        "endColumn": 57
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\n  33 |         x: typeof window !== 'undefined' ? Math.random() * (window.innerWidth - 300) : 100,\n  34 |         y: typeof window !== 'undefined' ? Math.random() * (window.innerHeight - 300) : 100,\n> 35 |         vx: (Math.random() - 0.5) * 1.5,\n     |              ^^^^^^^^^^^^^ Cannot call impure function\n  36 |         vy: (Math.random() - 0.5) * 1.5,\n  37 |     });\n  38 |",
+        "line": 35,
+        "column": 14,
+        "nodeType": null,
+        "endLine": 35,
+        "endColumn": 27
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\n  34 |         y: typeof window !== 'undefined' ? Math.random() * (window.innerHeight - 300) : 100,\n  35 |         vx: (Math.random() - 0.5) * 1.5,\n> 36 |         vy: (Math.random() - 0.5) * 1.5,\n     |              ^^^^^^^^^^^^^ Cannot call impure function\n  37 |     });\n  38 |\n  39 |     useEffect(() => {",
+        "line": 36,
+        "column": 14,
+        "nodeType": null,
+        "endLine": 36,
+        "endColumn": 27
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 4,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useEffect, useRef } from 'react';\r\n\r\n// ASCII Art defined as array of strings to avoid template literal escape hell\r\n// Each backslash must be escaped as \\\\\r\n// Each single quote must be escaped as \\'\r\nconst ASCII_LINES = [\r\n    '           /\\\\,%,_',\r\n    '           \\\\%%%/,,\\\\',\r\n    '         _.-\"%%|//%',\r\n    '       .\\'  .-\"  /%%%',\r\n    '   _.-\\'_.-\" 0)   \\\\%%%',\r\n    '  /.\\\\.\\'           \\\\%%%',\r\n    '  \\\\ /      _,      %%%',\r\n    '   `\"---\"~`\\\\   _,*\\'\\\\%%\\'   _,--\"\"\"\"-,%%,',\r\n    '            )*^     `\"\"~~`          \\\\%%%,',\r\n    '          _/                         \\\\%%%',\r\n    '      _.-`/                           |%%,___',\r\n    '  _.-\"   /      ,           ,        ,|%%   .`\\\\',\r\n    ' /\\\\     /      /             `\\\\       \\\\%\\'   \\\\ /',\r\n    ' \\\\ \\\\ _,/      /`~-._         _,`\\\\      \\\\`\"\"~~`',\r\n    '  `\"` /-.,_ /\\'      `~\"----\"~    `\\\\     \\\\',\r\n    '      \\\\___,\\'                       \\\\.-\"`/',\r\n    '                                    `--\\''\r\n];\r\n\r\nconst ASCII_ART = ASCII_LINES.join('\\n');\r\n\r\nexport default function BouncingAscii() {\r\n    const containerRef = useRef(null);\r\n\r\n    // Mutable state for the animation loop\r\n    const state = useRef({\r\n        x: typeof window !== 'undefined' ? Math.random() * (window.innerWidth - 300) : 100,\r\n        y: typeof window !== 'undefined' ? Math.random() * (window.innerHeight - 300) : 100,\r\n        vx: (Math.random() - 0.5) * 1.5,\r\n        vy: (Math.random() - 0.5) * 1.5,\r\n    });\r\n\r\n    useEffect(() => {\r\n        let animationFrameId;\r\n        const el = containerRef.current;\r\n\r\n        const animate = () => {\r\n            if (!el) return;\r\n\r\n            const { innerWidth, innerHeight } = window;\r\n            const rect = el.getBoundingClientRect();\r\n            const s = state.current;\r\n\r\n            // Update position\r\n            s.x += s.vx;\r\n            s.y += s.vy;\r\n\r\n            // Wall collision - Bounce\r\n            if (s.x + rect.width >= innerWidth) {\r\n                s.x = innerWidth - rect.width;\r\n                s.vx *= -1;\r\n            } else if (s.x <= 0) {\r\n                s.x = 0;\r\n                s.vx *= -1;\r\n            }\r\n\r\n            if (s.y + rect.height >= innerHeight) {\r\n                s.y = innerHeight - rect.height;\r\n                s.vy *= -1;\r\n            } else if (s.y <= 0) {\r\n                s.y = 0;\r\n                s.vy *= -1;\r\n            }\r\n\r\n            // Apply transform\r\n            el.style.transform = `translate(${s.x}px, ${s.y}px)`;\r\n\r\n            animationFrameId = requestAnimationFrame(animate);\r\n        };\r\n\r\n        animationFrameId = requestAnimationFrame(animate);\r\n        return () => cancelAnimationFrame(animationFrameId);\r\n    }, []);\r\n\r\n    return (\r\n        <pre\r\n            ref={containerRef}\r\n            className=\"fixed top-0 left-0 z-[9999] pointer-events-none font-mono text-[10px] leading-[10px] text-green opacity-20 md:opacity-80 select-none whitespace-pre print:hidden\"\r\n            aria-hidden=\"true\"\r\n        >\r\n            {ASCII_ART}\r\n        </pre>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\ContextualLens.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "react-hooks/immutability",
+        "severity": 2,
+        "message": "Error: This value cannot be modified\n\nModifying a variable defined outside a component or hook is not allowed. Consider using an effect.\n\n  28 |             window.open(project.link, \"_blank\", \"noopener,noreferrer\");\n  29 |         } else if (project.route) {\n> 30 |             window.location.href = project.route;\n     |             ^^^^^^^^^^^^^^^ value cannot be modified\n  31 |         }\n  32 |     };\n  33 |",
+        "line": 30,
+        "column": 13,
+        "nodeType": null,
+        "endLine": 30,
+        "endColumn": 28
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useMemo } from \"react\";\r\nimport { getDailyHexagramNumber, getResonantProjects } from \"../data/siteContent\";\r\nimport { getHexagram } from \"../data/hexagrams\";\r\n\r\n/**\r\n * ContextualLens - Structured right panel with I-Ching lens + resonant projects\r\n * \r\n * Section A: DAILY LENS - Hexagram info (number, name, description, keywords)\r\n * Section B: RESONANT PROJECTS - 2-3 projects selected by hexagram\r\n * \r\n * Vertically centered in the right half of the screen.\r\n */\r\n\r\nexport default function ContextualLens() {\r\n    // Get daily hexagram info\r\n    const hexagramNumber = useMemo(() => getDailyHexagramNumber(), []);\r\n    const hexagram = useMemo(() => getHexagram(hexagramNumber), [hexagramNumber]);\r\n\r\n    // Accent color (even = green, odd = pink)\r\n    const accentColor = hexagramNumber % 2 === 0 ? \"var(--accent-green)\" : \"var(--accent-pink)\";\r\n\r\n    // Get resonant projects (2-3)\r\n    const resonantProjects = useMemo(() => getResonantProjects(3), []);\r\n\r\n    // Handle project click\r\n    const handleProjectClick = (project) => {\r\n        if (project.isExternal && project.link) {\r\n            window.open(project.link, \"_blank\", \"noopener,noreferrer\");\r\n        } else if (project.route) {\r\n            window.location.href = project.route;\r\n        }\r\n    };\r\n\r\n    return (\r\n        <div\r\n            className=\"flex flex-col justify-center w-full px-8 md:px-12\"\r\n            style={{ maxWidth: \"520px\", margin: \"0 auto\" }}\r\n        >\r\n            {/* ============================================ */}\r\n            {/* SECTION A: DAILY LENS */}\r\n            {/* ============================================ */}\r\n            <section className=\"mb-10\">\r\n                {/* Section label */}\r\n                <div\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"10px\",\r\n                        color: accentColor,\r\n                        textTransform: \"uppercase\",\r\n                        letterSpacing: \"0.15em\",\r\n                        marginBottom: \"20px\",\r\n                    }}\r\n                >\r\n                    Daily Lens\r\n                </div>\r\n\r\n                {/* Hexagram header */}\r\n                <div className=\"mb-6\">\r\n                    <h2\r\n                        className=\"text-xl md:text-2xl mb-2\"\r\n                        style={{ color: \"var(--text-primary)\", lineHeight: 1.3 }}\r\n                    >\r\n                        <span\r\n                            style={{\r\n                                fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                                color: accentColor,\r\n                                fontWeight: 600,\r\n                                marginRight: \"10px\",\r\n                            }}\r\n                        >\r\n                            {hexagram.number}\r\n                        </span>\r\n                        {hexagram.name_en}\r\n                        <span\r\n                            className=\"ml-2\"\r\n                            style={{ fontSize: \"1.1rem\", opacity: 0.6 }}\r\n                        >\r\n                            {hexagram.name_zh}\r\n                        </span>\r\n                    </h2>\r\n                </div>\r\n\r\n                {/* Description */}\r\n                <p\r\n                    className=\"mb-6\"\r\n                    style={{\r\n                        fontSize: \"14px\",\r\n                        color: \"var(--text-secondary)\",\r\n                        lineHeight: 1.7,\r\n                    }}\r\n                >\r\n                    {hexagram.description}\r\n                </p>\r\n\r\n                {/* Keywords */}\r\n                <div\r\n                    className=\"flex flex-wrap gap-2\"\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"10px\",\r\n                        color: \"var(--text-muted)\",\r\n                        letterSpacing: \"0.05em\",\r\n                    }}\r\n                >\r\n                    {(Array.isArray(hexagram.keywords) ? hexagram.keywords : hexagram.keywords?.split(\", \") || []).slice(0, 5).map((kw, i) => (\r\n                        <span\r\n                            key={i}\r\n                            style={{\r\n                                padding: \"3px 8px\",\r\n                                backgroundColor: \"var(--bg-primary)\",\r\n                                borderRadius: \"3px\",\r\n                                border: \"1px solid var(--border-subtle)\",\r\n                            }}\r\n                        >\r\n                            {kw}\r\n                        </span>\r\n                    ))}\r\n                </div>\r\n            </section>\r\n\r\n            {/* ============================================ */}\r\n            {/* SECTION B: RESONANT PROJECTS */}\r\n            {/* ============================================ */}\r\n            <section>\r\n                {/* Section label */}\r\n                <div\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"10px\",\r\n                        color: \"var(--text-muted)\",\r\n                        textTransform: \"uppercase\",\r\n                        letterSpacing: \"0.15em\",\r\n                        marginBottom: \"20px\",\r\n                    }}\r\n                >\r\n                    Resonant Projects\r\n                </div>\r\n\r\n                {/* Project list */}\r\n                <div className=\"space-y-6\">\r\n                    {resonantProjects.map((project) => (\r\n                        <div\r\n                            key={project.id}\r\n                            className=\"group\"\r\n                        >\r\n                            {/* Type */}\r\n                            <div\r\n                                style={{\r\n                                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                                    fontSize: \"9px\",\r\n                                    color: accentColor,\r\n                                    textTransform: \"uppercase\",\r\n                                    letterSpacing: \"0.1em\",\r\n                                    marginBottom: \"6px\",\r\n                                }}\r\n                            >\r\n                                {project.type}\r\n                            </div>\r\n\r\n                            {/* Title */}\r\n                            <h3\r\n                                className=\"text-base mb-2\"\r\n                                style={{\r\n                                    color: \"var(--text-primary)\",\r\n                                    fontWeight: 500,\r\n                                    lineHeight: 1.4,\r\n                                }}\r\n                            >\r\n                                {project.title}\r\n                            </h3>\r\n\r\n                            {/* Blurb */}\r\n                            <p\r\n                                className=\"mb-3\"\r\n                                style={{\r\n                                    fontSize: \"13px\",\r\n                                    color: \"var(--text-secondary)\",\r\n                                    lineHeight: 1.6,\r\n                                }}\r\n                            >\r\n                                {project.blurb}\r\n                            </p>\r\n\r\n                            {/* Action link */}\r\n                            <button\r\n                                onClick={() => handleProjectClick(project)}\r\n                                className=\"cursor-pointer\"\r\n                                style={{\r\n                                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                                    fontSize: \"11px\",\r\n                                    color: accentColor,\r\n                                    background: \"none\",\r\n                                    border: \"none\",\r\n                                    padding: 0,\r\n                                    letterSpacing: \"0.05em\",\r\n                                    transition: \"opacity 0.15s ease\",\r\n                                }}\r\n                                onMouseEnter={(e) => e.currentTarget.style.opacity = \"0.7\"}\r\n                                onMouseLeave={(e) => e.currentTarget.style.opacity = \"1\"}\r\n                            >\r\n                                View →\r\n                            </button>\r\n                        </div>\r\n                    ))}\r\n                </div>\r\n            </section>\r\n        </div>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\DailyIndex.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "jsx-a11y/click-events-have-key-events",
+        "severity": 2,
+        "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener.",
+        "line": 200,
+        "column": 25,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 224,
+        "endColumn": 26
+      },
+      {
+        "ruleId": "jsx-a11y/no-static-element-interactions",
+        "severity": 2,
+        "message": "Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.",
+        "line": 200,
+        "column": 25,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 224,
+        "endColumn": 26
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useState, useMemo } from \"react\";\r\nimport { getProjectsOnly, getDailyProjectIds, getSeededRandoms } from \"../data/siteContent\";\r\n\r\n/**\r\n * ProjectField - Left panel showing projects only (no reading)\r\n * \r\n * Daily projects are highlighted with higher opacity and closer to center.\r\n * Clicking a project triggers the Inspector view (via onItemSelect).\r\n * \r\n * CONFIG:\r\n * - DAILY_OPACITY/NON_DAILY_OPACITY: visibility levels\r\n * - DAILY_SIZE/NON_DAILY_SIZE: font sizes\r\n */\r\n\r\n// === APPEARANCE ===\r\nconst DAILY_OPACITY = 0.6;\r\nconst NON_DAILY_OPACITY = 0.3;\r\nconst FOCUSED_OPACITY = 0.95;\r\nconst DAILY_SIZE = 0.95;\r\nconst NON_DAILY_SIZE = 0.75;\r\n\r\n// === COLLISION / DISPERSION ===\r\nconst MIN_WORD_PADDING = 18;\r\nconst MAX_PLACEMENT_ATTEMPTS = 200;\r\nconst WORD_HEIGHT_ESTIMATE = 24;\r\nconst CHAR_WIDTH_ESTIMATE = 7;\r\n\r\n// === EXCLUSION ZONES ===\r\nconst EXCLUSION_NAME_TOP = 14;\r\nconst EXCLUSION_NAME_LEFT = 35;\r\nconst EXCLUSION_CENTER_X = 50;\r\nconst EXCLUSION_CENTER_Y = 50;\r\nconst EXCLUSION_CENTER_RADIUS = 26;\r\nconst EDGE_MARGIN = 6;\r\n\r\n// Estimate word bounding box\r\nfunction estimateWordBox(title, x, y, isDaily) {\r\n    const widthPx = title.length * CHAR_WIDTH_ESTIMATE * (isDaily ? 1.1 : 1);\r\n    const widthPercent = widthPx / 8;\r\n    const heightPercent = WORD_HEIGHT_ESTIMATE / 8;\r\n    return { left: x, right: x + widthPercent, top: y, bottom: y + heightPercent };\r\n}\r\n\r\n// Check box overlap\r\nfunction boxesOverlap(box1, box2, padding = 0) {\r\n    const paddingPercent = padding / 8;\r\n    return !(\r\n        box1.right + paddingPercent < box2.left ||\r\n        box1.left > box2.right + paddingPercent ||\r\n        box1.bottom + paddingPercent < box2.top ||\r\n        box1.top > box2.bottom + paddingPercent\r\n    );\r\n}\r\n\r\n// Exclusion zone checks\r\nfunction inSiteMarkZone(x, y) {\r\n    return y < EXCLUSION_NAME_TOP && x < EXCLUSION_NAME_LEFT;\r\n}\r\n\r\nfunction inHexagramZone(x, y) {\r\n    const dx = x - EXCLUSION_CENTER_X;\r\n    const dy = y - EXCLUSION_CENTER_Y;\r\n    return Math.sqrt(dx * dx + dy * dy) < EXCLUSION_CENTER_RADIUS;\r\n}\r\n\r\nfunction isValidPlacement(box) {\r\n    if (box.left < EDGE_MARGIN || box.right > 100 - EDGE_MARGIN) return false;\r\n    if (box.top < EDGE_MARGIN || box.bottom > 100 - EDGE_MARGIN) return false;\r\n    const centerX = (box.left + box.right) / 2;\r\n    const centerY = (box.top + box.bottom) / 2;\r\n    if (inSiteMarkZone(centerX, centerY)) return false;\r\n    if (inHexagramZone(centerX, centerY)) return false;\r\n    return true;\r\n}\r\n\r\nexport default function DailyIndex({\r\n    isFocused = false,\r\n    selectedItem = null,\r\n    onItemSelect = () => { },\r\n    focusModeActive = false\r\n}) {\r\n    const [hoveredItem, setHoveredItem] = useState(null);\r\n\r\n    // Get projects only (no reading)\r\n    const allProjects = useMemo(() => getProjectsOnly(), []);\r\n    const dailyProjectIds = useMemo(() => getDailyProjectIds(), []);\r\n    const randomValues = useMemo(() => getSeededRandoms(3000), []);\r\n\r\n    // Calculate positions for all projects\r\n    const positions = useMemo(() => {\r\n        const placed = [];\r\n        const posMap = {};\r\n\r\n        // Sort: daily projects first for central placement priority\r\n        const sortedProjects = [...allProjects].sort((a, b) => {\r\n            const aDaily = dailyProjectIds.has(a.id) ? 0 : 1;\r\n            const bDaily = dailyProjectIds.has(b.id) ? 0 : 1;\r\n            return aDaily - bDaily;\r\n        });\r\n\r\n        sortedProjects.forEach((project, i) => {\r\n            const isDaily = dailyProjectIds.has(project.id);\r\n            let bestPosition = null;\r\n            let attempt = 0;\r\n\r\n            while (attempt < MAX_PLACEMENT_ATTEMPTS && !bestPosition) {\r\n                const randIdx = (i * MAX_PLACEMENT_ATTEMPTS + attempt) * 2;\r\n\r\n                let candidateX, candidateY;\r\n                if (isDaily) {\r\n                    // Daily projects: more central placement\r\n                    candidateX = EDGE_MARGIN + randomValues[randIdx % randomValues.length] * (100 - EDGE_MARGIN * 2 - 15);\r\n                    candidateY = EDGE_MARGIN + randomValues[(randIdx + 1) % randomValues.length] * (100 - EDGE_MARGIN * 2 - 10);\r\n                } else {\r\n                    // Non-daily: full dispersion\r\n                    candidateX = EDGE_MARGIN + randomValues[(randIdx + 500) % randomValues.length] * (100 - EDGE_MARGIN * 2);\r\n                    candidateY = EDGE_MARGIN + randomValues[(randIdx + 501) % randomValues.length] * (100 - EDGE_MARGIN * 2);\r\n                }\r\n\r\n                const box = estimateWordBox(project.title, candidateX, candidateY, isDaily);\r\n\r\n                if (!isValidPlacement(box)) {\r\n                    attempt++;\r\n                    continue;\r\n                }\r\n\r\n                let hasCollision = false;\r\n                for (const placedItem of placed) {\r\n                    if (boxesOverlap(box, placedItem.box, MIN_WORD_PADDING)) {\r\n                        hasCollision = true;\r\n                        break;\r\n                    }\r\n                }\r\n\r\n                if (!hasCollision) {\r\n                    bestPosition = { x: candidateX, y: candidateY, box };\r\n                }\r\n                attempt++;\r\n            }\r\n\r\n            // Fallback position\r\n            if (!bestPosition) {\r\n                const row = Math.floor(i / 4);\r\n                const col = i % 4;\r\n                const x = EDGE_MARGIN + col * 22;\r\n                const y = EDGE_MARGIN + 15 + row * 10;\r\n                const box = estimateWordBox(project.title, x, y, isDaily);\r\n                bestPosition = { x, y, box };\r\n            }\r\n\r\n            placed.push(bestPosition);\r\n            posMap[project.id] = { x: bestPosition.x, y: bestPosition.y };\r\n        });\r\n\r\n        return posMap;\r\n    }, [allProjects, dailyProjectIds, randomValues]);\r\n\r\n    return (\r\n        <>\r\n            {/* Project field */}\r\n            <div\r\n                style={{\r\n                    position: \"absolute\",\r\n                    top: 0,\r\n                    left: 0,\r\n                    width: \"100%\",\r\n                    height: \"100%\",\r\n                    pointerEvents: \"none\",\r\n                    overflow: \"hidden\",\r\n                }}\r\n            >\r\n                {allProjects.map((project) => {\r\n                    const pos = positions[project.id];\r\n                    if (!pos) return null;\r\n\r\n                    const isDaily = dailyProjectIds.has(project.id);\r\n                    const isHovered = hoveredItem === project.id;\r\n                    const isSelected = selectedItem?.id === project.id;\r\n\r\n                    // In focus mode, dim all except selected\r\n                    if (focusModeActive && selectedItem && !isSelected) {\r\n                        return null;\r\n                    }\r\n\r\n                    // Determine opacity\r\n                    let opacity = isDaily ? DAILY_OPACITY : NON_DAILY_OPACITY;\r\n                    if (isHovered || isSelected) opacity = FOCUSED_OPACITY;\r\n                    else if (isFocused && isDaily) opacity = DAILY_OPACITY + 0.1;\r\n\r\n                    // Determine color\r\n                    const accentColor = isSelected\r\n                        ? \"var(--accent-pink)\"\r\n                        : isHovered\r\n                            ? \"var(--accent-green)\"\r\n                            : \"var(--text-primary)\";\r\n\r\n                    const fontSize = isDaily ? DAILY_SIZE : NON_DAILY_SIZE;\r\n\r\n                    return (\r\n                        <span\r\n                            key={project.id}\r\n                            onMouseEnter={() => setHoveredItem(project.id)}\r\n                            onMouseLeave={() => setHoveredItem(null)}\r\n                            onClick={() => onItemSelect(project)}\r\n                            style={{\r\n                                position: \"absolute\",\r\n                                top: `${pos.y}%`,\r\n                                left: `${pos.x}%`,\r\n                                fontSize: `${fontSize}rem`,\r\n                                fontFamily: \"inherit\",\r\n                                color: accentColor,\r\n                                opacity,\r\n                                whiteSpace: \"nowrap\",\r\n                                userSelect: \"none\",\r\n                                letterSpacing: \"0.02em\",\r\n                                cursor: \"pointer\",\r\n                                pointerEvents: \"auto\",\r\n                                transition: \"opacity 0.2s ease, color 0.15s ease\",\r\n                                textDecoration: isHovered || isSelected ? \"underline\" : \"none\",\r\n                                textUnderlineOffset: \"4px\",\r\n                                textDecorationColor: isHovered ? \"var(--accent-green)\" : \"var(--accent-pink)\",\r\n                                fontWeight: isDaily ? 500 : 400,\r\n                            }}\r\n                        >\r\n                            {project.title}\r\n                        </span>\r\n                    );\r\n                })}\r\n            </div>\r\n\r\n            {/* Hover preview (only when no item selected) */}\r\n            {hoveredItem && !selectedItem && (\r\n                <div\r\n                    style={{\r\n                        position: \"absolute\",\r\n                        bottom: \"24px\",\r\n                        left: \"50%\",\r\n                        transform: \"translateX(-50%)\",\r\n                        zIndex: 10,\r\n                        backgroundColor: \"var(--bg-secondary)\",\r\n                        border: \"1px solid var(--border-subtle)\",\r\n                        padding: \"10px 14px\",\r\n                        borderRadius: \"4px\",\r\n                        maxWidth: \"320px\",\r\n                        pointerEvents: \"none\",\r\n                    }}\r\n                >\r\n                    {(() => {\r\n                        const project = allProjects.find(p => p.id === hoveredItem);\r\n                        if (!project) return null;\r\n                        return (\r\n                            <>\r\n                                <div\r\n                                    style={{\r\n                                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                                        fontSize: \"9px\",\r\n                                        color: \"var(--accent-green)\",\r\n                                        textTransform: \"uppercase\",\r\n                                        letterSpacing: \"0.1em\",\r\n                                        marginBottom: \"6px\",\r\n                                    }}\r\n                                >\r\n                                    {project.type}\r\n                                </div>\r\n                                <div style={{ fontSize: \"12px\", color: \"var(--text-secondary)\", lineHeight: 1.5 }}>\r\n                                    {project.blurb}\r\n                                </div>\r\n                            </>\r\n                        );\r\n                    })()}\r\n                </div>\r\n            )}\r\n        </>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\HexagramBackdrop.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "react-hooks/purity",
+        "severity": 2,
+        "message": "Error: Cannot call impure function during render\n\n`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).\n\n  21 |     // Generate random hexagram once per session (useMemo with empty deps)\n  22 |     const hexagramNumber = useMemo(() => {\n> 23 |         return Math.floor(Math.random() * 64) + 1;\n     |                           ^^^^^^^^^^^^^ Cannot call impure function\n  24 |     }, []);\n  25 |\n  26 |     const hexagram = hexagrams.find((h) => h.number === hexagramNumber) || hexagrams[0];",
+        "line": 23,
+        "column": 27,
+        "nodeType": null,
+        "endLine": 23,
+        "endColumn": 40
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useState, useMemo } from \"react\";\r\nimport { hexagrams, getHexagramLines } from \"../data/hexagrams\";\r\n\r\n/**\r\n * HexagramBackdrop - Subtle I Ching hexagram behind the name\r\n * \r\n * Configuration:\r\n * - DOT_MATRIX_MODE: Set to true for dot-matrix style lines\r\n * - Accent colors: Defined in CSS variables --accent-pink, --accent-green\r\n * - Opacity: Adjust LINE_OPACITY_DEFAULT and LINE_OPACITY_HOVER\r\n */\r\n\r\n// Configuration toggles\r\nconst DOT_MATRIX_MODE = false; // Set to true for dot-matrix style\r\nconst LINE_OPACITY_DEFAULT = 0.12;\r\nconst LINE_OPACITY_HOVER = 0.35;\r\n\r\nexport default function HexagramBackdrop() {\r\n    const [isHovered, setIsHovered] = useState(false);\r\n\r\n    // Generate random hexagram once per session (useMemo with empty deps)\r\n    const hexagramNumber = useMemo(() => {\r\n        return Math.floor(Math.random() * 64) + 1;\r\n    }, []);\r\n\r\n    const hexagram = hexagrams.find((h) => h.number === hexagramNumber) || hexagrams[0];\r\n    const lines = getHexagramLines(hexagramNumber);\r\n\r\n    // Render a single line (yang = solid, yin = broken)\r\n    const renderLine = (isYang, index) => {\r\n        const lineHeight = 6;\r\n        const lineGap = 14;\r\n        const lineWidth = 80;\r\n\r\n        if (DOT_MATRIX_MODE) {\r\n            // Dot-matrix style\r\n            const dotCount = 12;\r\n            const dots = [];\r\n            for (let i = 0; i < dotCount; i++) {\r\n                // For yin (broken), skip middle dots\r\n                if (!isYang && i >= 5 && i <= 6) continue;\r\n                dots.push(\r\n                    <circle\r\n                        key={i}\r\n                        cx={8 + i * 7}\r\n                        cy={lineHeight / 2}\r\n                        r={2.5}\r\n                        fill=\"currentColor\"\r\n                    />\r\n                );\r\n            }\r\n            return (\r\n                <g\r\n                    key={index}\r\n                    transform={`translate(0, ${(5 - index) * lineGap})`}\r\n                >\r\n                    {dots}\r\n                </g>\r\n            );\r\n        } else {\r\n            // Pure lines style (default)\r\n            if (isYang) {\r\n                // Solid line\r\n                return (\r\n                    <rect\r\n                        key={index}\r\n                        x={0}\r\n                        y={(5 - index) * lineGap}\r\n                        width={lineWidth}\r\n                        height={lineHeight}\r\n                        fill=\"currentColor\"\r\n                        rx={1}\r\n                    />\r\n                );\r\n            } else {\r\n                // Broken line (two segments with gap)\r\n                const segmentWidth = (lineWidth - 12) / 2;\r\n                return (\r\n                    <g key={index}>\r\n                        <rect\r\n                            x={0}\r\n                            y={(5 - index) * lineGap}\r\n                            width={segmentWidth}\r\n                            height={lineHeight}\r\n                            fill=\"currentColor\"\r\n                            rx={1}\r\n                        />\r\n                        <rect\r\n                            x={lineWidth - segmentWidth}\r\n                            y={(5 - index) * lineGap}\r\n                            width={segmentWidth}\r\n                            height={lineHeight}\r\n                            fill=\"currentColor\"\r\n                            rx={1}\r\n                        />\r\n                    </g>\r\n                );\r\n            }\r\n        }\r\n    };\r\n\r\n    return (\r\n        <div\r\n            className=\"hexagram-backdrop\"\r\n            onMouseEnter={() => setIsHovered(true)}\r\n            onMouseLeave={() => setIsHovered(false)}\r\n            style={{\r\n                position: \"absolute\",\r\n                top: \"50%\",\r\n                left: \"50%\",\r\n                transform: \"translate(-50%, -50%)\",\r\n                zIndex: 0,\r\n                pointerEvents: \"auto\",\r\n                display: \"flex\",\r\n                flexDirection: \"column\",\r\n                alignItems: \"center\",\r\n                gap: \"12px\",\r\n            }}\r\n        >\r\n            {/* Hexagram SVG */}\r\n            <svg\r\n                width=\"80\"\r\n                height=\"90\"\r\n                viewBox=\"0 0 80 90\"\r\n                style={{\r\n                    color: isHovered\r\n                        ? \"var(--accent-green, #00C78B)\"\r\n                        : \"rgba(0,0,0,1)\",\r\n                    opacity: isHovered ? LINE_OPACITY_HOVER : LINE_OPACITY_DEFAULT,\r\n                    transition: \"opacity 0.15s ease, color 0.15s ease\",\r\n                }}\r\n                aria-hidden=\"true\"\r\n            >\r\n                {lines.map((isYang, index) => renderLine(isYang, index))}\r\n            </svg>\r\n\r\n            {/* Metadata - visible on hover */}\r\n            <div\r\n                style={{\r\n                    opacity: isHovered ? 1 : 0,\r\n                    transition: \"opacity 0.15s ease\",\r\n                    textAlign: \"center\",\r\n                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                    fontSize: \"11px\",\r\n                    color: \"var(--accent-pink, #FF4FD8)\",\r\n                    pointerEvents: \"none\",\r\n                    userSelect: \"none\",\r\n                }}\r\n            >\r\n                <div style={{ fontWeight: 600 }}>\r\n                    {hexagram.number}. {hexagram.name_en}\r\n                </div>\r\n                <div style={{ fontSize: \"14px\", marginTop: \"2px\" }}>\r\n                    {hexagram.name_zh}\r\n                </div>\r\n                {hexagram.keywords && (\r\n                    <div style={{ marginTop: \"4px\", opacity: 0.7 }}>\r\n                        {hexagram.keywords}\r\n                    </div>\r\n                )}\r\n            </div>\r\n        </div>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\Inspector.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\nimport { Link } from \"react-router-dom\";\r\n\r\n/**\r\n * Inspector - Detail view for a selected project\r\n * \r\n * Shows when a project is clicked in the project field.\r\n * Displays title, type, description, and action link.\r\n */\r\n\r\nexport default function Inspector({ item, onBack, accentColor }) {\r\n    if (!item) return null;\r\n\r\n    const handlePrimaryAction = () => {\r\n        if (item.isExternal && item.link) {\r\n            window.open(item.link, \"_blank\", \"noopener,noreferrer\");\r\n        } else if (item.route) {\r\n            window.location.href = item.route;\r\n        } else if (item.link) {\r\n            window.open(item.link, \"_blank\", \"noopener,noreferrer\");\r\n        }\r\n    };\r\n\r\n    // Determine action text based on type\r\n    const actionText = item.type?.toLowerCase().includes(\"essay\")\r\n        ? \"Read Essay →\"\r\n        : item.type?.toLowerCase().includes(\"publication\")\r\n            ? \"View Publication →\"\r\n            : \"View Project →\";\r\n\r\n    return (\r\n        <div\r\n            className=\"flex flex-col w-full h-full px-8 md:px-12 py-8\"\r\n            style={{ maxWidth: \"520px\", margin: \"0 auto\" }}\r\n        >\r\n            {/* Back button */}\r\n            <button\r\n                onClick={onBack}\r\n                className=\"self-start mb-10 cursor-pointer\"\r\n                style={{\r\n                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                    fontSize: \"11px\",\r\n                    color: \"var(--text-muted)\",\r\n                    letterSpacing: \"0.05em\",\r\n                    background: \"none\",\r\n                    border: \"none\",\r\n                    padding: 0,\r\n                    transition: \"color 0.15s ease\",\r\n                }}\r\n                onMouseEnter={(e) => e.currentTarget.style.color = accentColor}\r\n                onMouseLeave={(e) => e.currentTarget.style.color = \"var(--text-muted)\"}\r\n            >\r\n                ← Back to Daily Lens\r\n            </button>\r\n\r\n            {/* Inspector label */}\r\n            <div\r\n                style={{\r\n                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                    fontSize: \"10px\",\r\n                    color: accentColor,\r\n                    textTransform: \"uppercase\",\r\n                    letterSpacing: \"0.15em\",\r\n                    marginBottom: \"20px\",\r\n                }}\r\n            >\r\n                Inspector\r\n            </div>\r\n\r\n            {/* Type badge */}\r\n            <div\r\n                style={{\r\n                    fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                    fontSize: \"9px\",\r\n                    color: \"var(--text-muted)\",\r\n                    textTransform: \"uppercase\",\r\n                    letterSpacing: \"0.1em\",\r\n                    marginBottom: \"12px\",\r\n                }}\r\n            >\r\n                {item.type}\r\n            </div>\r\n\r\n            {/* Title */}\r\n            <h2\r\n                className=\"text-xl md:text-2xl mb-6\"\r\n                style={{ color: \"var(--text-primary)\", lineHeight: 1.3 }}\r\n            >\r\n                {item.title}\r\n            </h2>\r\n\r\n            {/* Description */}\r\n            <p\r\n                className=\"mb-8\"\r\n                style={{\r\n                    fontSize: \"14px\",\r\n                    color: \"var(--text-secondary)\",\r\n                    lineHeight: 1.7,\r\n                }}\r\n            >\r\n                {item.blurb}\r\n            </p>\r\n\r\n            {/* Category tag */}\r\n            {item.category && (\r\n                <div className=\"mb-8\">\r\n                    <span\r\n                        style={{\r\n                            fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                            fontSize: \"10px\",\r\n                            color: \"var(--text-muted)\",\r\n                            backgroundColor: \"var(--bg-primary)\",\r\n                            padding: \"4px 10px\",\r\n                            borderRadius: \"3px\",\r\n                            border: \"1px solid var(--border-subtle)\",\r\n                        }}\r\n                    >\r\n                        {item.category}\r\n                    </span>\r\n                </div>\r\n            )}\r\n\r\n            {/* Primary action */}\r\n            {(item.link || item.route) && (\r\n                <button\r\n                    onClick={handlePrimaryAction}\r\n                    className=\"cursor-pointer self-start px-6 py-3\"\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"12px\",\r\n                        color: \"var(--bg-primary)\",\r\n                        backgroundColor: accentColor,\r\n                        border: \"none\",\r\n                        borderRadius: \"4px\",\r\n                        letterSpacing: \"0.05em\",\r\n                        transition: \"opacity 0.15s ease\",\r\n                    }}\r\n                    onMouseEnter={(e) => e.currentTarget.style.opacity = \"0.85\"}\r\n                    onMouseLeave={(e) => e.currentTarget.style.opacity = \"1\"}\r\n                >\r\n                    {actionText}\r\n                </button>\r\n            )}\r\n\r\n            {/* Spacer */}\r\n            <div className=\"flex-1\" />\r\n\r\n            {/* Footer */}\r\n            <section\r\n                className=\"pt-6\"\r\n                style={{ borderTop: \"1px solid var(--border-subtle)\" }}\r\n            >\r\n                <div\r\n                    className=\"flex justify-center gap-6\"\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"11px\",\r\n                    }}\r\n                >\r\n                    <Link\r\n                        to=\"/cv\"\r\n                        className=\"underline underline-offset-4\"\r\n                        style={{ color: \"var(--text-muted)\" }}\r\n                    >\r\n                        CV\r\n                    </Link>\r\n                </div>\r\n            </section>\r\n        </div>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\InstrumentBackdrop.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "jsx-a11y/click-events-have-key-events",
+        "severity": 2,
+        "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener.",
+        "line": 138,
+        "column": 9,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 154,
+        "endColumn": 10
+      },
+      {
+        "ruleId": "jsx-a11y/no-static-element-interactions",
+        "severity": 2,
+        "message": "Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.",
+        "line": 138,
+        "column": 9,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 154,
+        "endColumn": 10
+      },
+      {
+        "ruleId": "react-refresh/only-export-components",
+        "severity": 1,
+        "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+        "line": 231,
+        "column": 17,
+        "nodeType": "Identifier",
+        "messageId": "namedExport",
+        "endLine": 231,
+        "endColumn": 32
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 2,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useState, useMemo, useEffect } from \"react\";\r\nimport { hexagrams, getHexagramLines } from \"../data/hexagrams\";\r\nimport { getDailyHexagramNumber } from \"../data/siteContent\";\r\n\r\n/**\r\n * InstrumentBackdrop - Minimalist hexagram display (no rings)\r\n * \r\n * Features:\r\n * - Large, centered hexagram\r\n * - Line-by-line reveal with accent pulse\r\n * - Clean hover metadata\r\n */\r\n\r\n// === CONFIGURATION ===\r\nconst INSTRUMENT_SCALE = 1.8;\r\nconst DEFAULT_OPACITY = 0.2;\r\nconst HOVER_OPACITY = 0.45;\r\nconst FOCUS_OPACITY = 0.6;\r\n\r\n// Animation timing (ms)\r\nconst LINE_REVEAL_DELAY = 180;\r\nconst LINE_REVEAL_DURATION = 220;\r\nconst PULSE_DURATION = 350;\r\n\r\n// Geometry\r\nconst HEXAGRAM_WIDTH = 80;\r\nconst SVG_SIZE = 200;\r\n\r\nexport default function InstrumentBackdrop({ onFocusChange }) {\r\n    const [isHovered, setIsHovered] = useState(false);\r\n    const [isFocused, setIsFocused] = useState(false);\r\n    const [visibleLines, setVisibleLines] = useState(0);\r\n    const [pulsingLine, setPulsingLine] = useState(-1);\r\n\r\n    // Check for reduced motion preference\r\n    const prefersReducedMotion = useMemo(() => {\r\n        if (typeof window === \"undefined\") return false;\r\n        return window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\r\n    }, []);\r\n\r\n    // Daily hexagram\r\n    const hexagramNumber = useMemo(() => getDailyHexagramNumber(), []);\r\n    const accentColor = hexagramNumber % 2 === 0 ? \"var(--accent-green)\" : \"var(--accent-pink)\";\r\n    const hexagram = hexagrams.find((h) => h.number === hexagramNumber) || hexagrams[0];\r\n    const lines = getHexagramLines(hexagramNumber);\r\n\r\n    const center = SVG_SIZE / 2;\r\n\r\n    // Line-by-line reveal with per-line accent pulse\r\n    useEffect(() => {\r\n        if (prefersReducedMotion) {\r\n            setVisibleLines(6);\r\n            return;\r\n        }\r\n\r\n        const timers = [];\r\n\r\n        for (let i = 0; i < 6; i++) {\r\n            const revealTime = i * LINE_REVEAL_DELAY;\r\n\r\n            timers.push(setTimeout(() => {\r\n                setVisibleLines(i + 1);\r\n                setPulsingLine(i);\r\n            }, revealTime));\r\n\r\n            timers.push(setTimeout(() => {\r\n                setPulsingLine((current) => current === i ? -1 : current);\r\n            }, revealTime + PULSE_DURATION));\r\n        }\r\n\r\n        return () => timers.forEach(clearTimeout);\r\n    }, [prefersReducedMotion]);\r\n\r\n    // Handle click to toggle focus\r\n    const handleClick = () => {\r\n        const newFocused = !isFocused;\r\n        setIsFocused(newFocused);\r\n        if (onFocusChange) onFocusChange(newFocused);\r\n    };\r\n\r\n    // Render hexagram line with pulse support\r\n    const renderHexagramLine = (isYang, index) => {\r\n        const lineHeight = 6;\r\n        const lineGap = 14;\r\n        const totalHeight = 6 * lineGap;\r\n        const startY = center - totalHeight / 2 + 6;\r\n        const y = startY + (5 - index) * lineGap;\r\n        const x = center - HEXAGRAM_WIDTH / 2;\r\n\r\n        const isVisible = index < visibleLines;\r\n        const isPulsing = pulsingLine === index;\r\n\r\n        const fillColor = isPulsing ? accentColor : \"currentColor\";\r\n        const opacity = isVisible ? 1 : 0;\r\n\r\n        const filter = isPulsing\r\n            ? `drop-shadow(0 0 6px ${accentColor === \"var(--accent-pink)\" ? \"#FF4FD8\" : \"#00C78B\"})`\r\n            : \"none\";\r\n\r\n        const lineStyle = {\r\n            opacity,\r\n            filter,\r\n            transition: prefersReducedMotion ? \"none\" : `opacity ${LINE_REVEAL_DURATION}ms ease-out, filter ${PULSE_DURATION}ms ease-in-out`,\r\n        };\r\n\r\n        if (isYang) {\r\n            return (\r\n                <rect\r\n                    key={index}\r\n                    x={x}\r\n                    y={y}\r\n                    width={HEXAGRAM_WIDTH}\r\n                    height={lineHeight}\r\n                    fill={fillColor}\r\n                    rx={1}\r\n                    style={lineStyle}\r\n                />\r\n            );\r\n        } else {\r\n            const segmentWidth = (HEXAGRAM_WIDTH - 12) / 2;\r\n            return (\r\n                <g key={index} style={lineStyle}>\r\n                    <rect x={x} y={y} width={segmentWidth} height={lineHeight} fill={fillColor} rx={1} />\r\n                    <rect x={x + HEXAGRAM_WIDTH - segmentWidth} y={y} width={segmentWidth} height={lineHeight} fill={fillColor} rx={1} />\r\n                </g>\r\n            );\r\n        }\r\n    };\r\n\r\n    const currentOpacity = isFocused ? FOCUS_OPACITY : isHovered ? HOVER_OPACITY : DEFAULT_OPACITY;\r\n\r\n    // Format keywords for display\r\n    const keywordsText = Array.isArray(hexagram.keywords)\r\n        ? hexagram.keywords.slice(0, 3).join(\" · \")\r\n        : hexagram.keywords;\r\n\r\n    return (\r\n        <div\r\n            className=\"instrument-backdrop\"\r\n            onMouseEnter={() => setIsHovered(true)}\r\n            onMouseLeave={() => setIsHovered(false)}\r\n            onClick={handleClick}\r\n            style={{\r\n                position: \"absolute\",\r\n                top: \"50%\",\r\n                left: \"50%\",\r\n                transform: `translate(-50%, -50%) scale(${INSTRUMENT_SCALE})`,\r\n                zIndex: 1,\r\n                cursor: \"pointer\",\r\n                display: \"flex\",\r\n                flexDirection: \"column\",\r\n                alignItems: \"center\",\r\n            }}\r\n        >\r\n            <svg\r\n                width={SVG_SIZE}\r\n                height={SVG_SIZE}\r\n                viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}\r\n                style={{\r\n                    color: \"var(--text-primary)\",\r\n                    opacity: currentOpacity,\r\n                    transition: prefersReducedMotion ? \"none\" : \"opacity 0.15s ease\",\r\n                }}\r\n                aria-hidden=\"true\"\r\n            >\r\n                {/* Hexagram lines only - no rings */}\r\n                {lines.map((isYang, index) => renderHexagramLine(isYang, index))}\r\n            </svg>\r\n\r\n            {/* Metadata on hover - cleaner and more legible */}\r\n            <div\r\n                style={{\r\n                    position: \"absolute\",\r\n                    bottom: \"-55px\",\r\n                    opacity: isHovered ? 1 : 0,\r\n                    transition: prefersReducedMotion ? \"none\" : \"opacity 0.15s ease\",\r\n                    textAlign: \"center\",\r\n                    pointerEvents: \"none\",\r\n                    userSelect: \"none\",\r\n                    whiteSpace: \"nowrap\",\r\n                }}\r\n            >\r\n                {/* Number and Name */}\r\n                <div\r\n                    style={{\r\n                        fontSize: \"15px\",\r\n                        color: \"var(--text-primary)\",\r\n                        letterSpacing: \"0.02em\",\r\n                        marginBottom: \"4px\",\r\n                    }}\r\n                >\r\n                    <span\r\n                        style={{\r\n                            fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                            color: accentColor,\r\n                            fontWeight: 600,\r\n                            marginRight: \"8px\",\r\n                        }}\r\n                    >\r\n                        {hexagram.number}\r\n                    </span>\r\n                    {hexagram.name_en}\r\n                    <span\r\n                        style={{\r\n                            marginLeft: \"8px\",\r\n                            fontSize: \"14px\",\r\n                            opacity: 0.5,\r\n                        }}\r\n                    >\r\n                        {hexagram.name_zh}\r\n                    </span>\r\n                </div>\r\n\r\n                {/* Keywords */}\r\n                <div\r\n                    style={{\r\n                        fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                        fontSize: \"11px\",\r\n                        color: \"var(--text-muted)\",\r\n                        letterSpacing: \"0.05em\",\r\n                    }}\r\n                >\r\n                    {keywordsText}\r\n                </div>\r\n            </div>\r\n        </div>\r\n    );\r\n}\r\n\r\n// Export hexagram data for contextual lens\r\nexport function getHexagramInfo() {\r\n    const hexagramNumber = getDailyHexagramNumber();\r\n    const hexagram = hexagrams.find((h) => h.number === hexagramNumber) || hexagrams[0];\r\n    const accentColor = hexagramNumber % 2 === 0 ? \"var(--accent-green)\" : \"var(--accent-pink)\";\r\n\r\n    return {\r\n        number: hexagramNumber,\r\n        name_en: hexagram.name_en,\r\n        name_zh: hexagram.name_zh,\r\n        keywords: hexagram.keywords,\r\n        accentColor,\r\n    };\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\TextCloud.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useMemo } from \"react\";\r\nimport { getDailyHexagramNumber, getDailyMode, getSeededRandoms } from \"../data/vocabulary\";\r\n\r\n/**\r\n * TextCloud - Felipe's daily vocabulary words\r\n * \r\n * Displays 6-8 words from the daily mode, positioned around the left panel.\r\n * Words are sparse, low opacity, and never overlap the name.\r\n * \r\n * Configuration:\r\n * - WORD_COUNT: Number of words to display (6-10)\r\n * - BASE_OPACITY: Default word opacity\r\n * - HIGHLIGHT_OPACITY: Opacity for 1-2 highlighted words\r\n * - WORD_SIZE: Font size in rem\r\n */\r\n\r\n// === CONFIGURATION ===\r\nconst WORD_COUNT = 8;              // Words to display from mode\r\nconst BASE_OPACITY = 0.12;         // Very subtle\r\nconst HIGHLIGHT_OPACITY = 0.4;     // Slightly more visible for highlighted\r\nconst WORD_SIZE = 0.9;             // rem\r\nconst HIGHLIGHT_COUNT = 2;         // Number of words to highlight with accent\r\n\r\nexport default function TextCloud() {\r\n  // Get daily hexagram and mode\r\n  const hexagramNumber = useMemo(() => getDailyHexagramNumber(), []);\r\n  const dailyMode = useMemo(() => getDailyMode(hexagramNumber), [hexagramNumber]);\r\n\r\n  // Accent color based on hexagram (even = green, odd = pink)\r\n  const accentColor = hexagramNumber % 2 === 0\r\n    ? \"var(--accent-green, #00C78B)\"\r\n    : \"var(--accent-pink, #FF4FD8)\";\r\n\r\n  // Get seeded random positions (stable for the day)\r\n  const randomValues = useMemo(() => {\r\n    return getSeededRandoms(WORD_COUNT * 3); // Need x, y, and selection randoms\r\n  }, []);\r\n\r\n  // Select words to display\r\n  const wordsToShow = useMemo(() => {\r\n    const words = [...dailyMode.words];\r\n    // Shuffle deterministically using seeded randoms\r\n    for (let i = words.length - 1; i > 0; i--) {\r\n      const j = Math.floor(randomValues[i] * (i + 1));\r\n      [words[i], words[j]] = [words[j], words[i]];\r\n    }\r\n    return words.slice(0, WORD_COUNT);\r\n  }, [dailyMode.words, randomValues]);\r\n\r\n  // Determine which words to highlight (first HIGHLIGHT_COUNT based on seed)\r\n  const highlightedIndices = useMemo(() => {\r\n    const indices = new Set();\r\n    for (let i = 0; i < HIGHLIGHT_COUNT && i < wordsToShow.length; i++) {\r\n      indices.add(Math.floor(randomValues[WORD_COUNT + i] * wordsToShow.length) % wordsToShow.length);\r\n    }\r\n    return indices;\r\n  }, [randomValues, wordsToShow.length]);\r\n\r\n  return (\r\n    <div\r\n      style={{\r\n        position: \"absolute\",\r\n        top: 0,\r\n        left: 0,\r\n        width: \"100%\",\r\n        height: \"100%\",\r\n        pointerEvents: \"none\",\r\n        overflow: \"hidden\",\r\n      }}\r\n    >\r\n      {wordsToShow.map((word, i) => {\r\n        // Position words in the margins, avoiding center (where name is)\r\n        // Use zones: top, bottom, left edge, right edge of the left panel\r\n        const zone = i % 4;\r\n        let top, left;\r\n\r\n        switch (zone) {\r\n          case 0: // Top area\r\n            top = 8 + randomValues[i] * 15; // 8-23%\r\n            left = 10 + randomValues[i + WORD_COUNT] * 35; // 10-45%\r\n            break;\r\n          case 1: // Bottom area\r\n            top = 75 + randomValues[i] * 18; // 75-93%\r\n            left = 10 + randomValues[i + WORD_COUNT] * 35;\r\n            break;\r\n          case 2: // Left edge\r\n            top = 25 + randomValues[i] * 50; // 25-75%\r\n            left = 3 + randomValues[i + WORD_COUNT] * 12; // 3-15%\r\n            break;\r\n          case 3: // Right edge (but still in left panel)\r\n          default:\r\n            top = 25 + randomValues[i] * 50;\r\n            left = 38 + randomValues[i + WORD_COUNT] * 10; // 38-48%\r\n            break;\r\n        }\r\n\r\n        const isHighlighted = highlightedIndices.has(i);\r\n\r\n        return (\r\n          <span\r\n            key={`${word}-${i}`}\r\n            style={{\r\n              position: \"absolute\",\r\n              top: `${top}%`,\r\n              left: `${left}%`,\r\n              fontSize: `${WORD_SIZE}rem`,\r\n              fontFamily: \"inherit\",\r\n              color: isHighlighted ? accentColor : \"rgba(0,0,0,1)\",\r\n              opacity: isHighlighted ? HIGHLIGHT_OPACITY : BASE_OPACITY,\r\n              whiteSpace: \"nowrap\",\r\n              userSelect: \"none\",\r\n              letterSpacing: \"0.02em\",\r\n            }}\r\n          >\r\n            {word}\r\n          </span>\r\n        );\r\n      })}\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\components\\Work.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "jsx-a11y/click-events-have-key-events",
+        "severity": 2,
+        "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener.",
+        "line": 12,
+        "column": 11,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 22,
+        "endColumn": 12
+      },
+      {
+        "ruleId": "jsx-a11y/no-noninteractive-element-interactions",
+        "severity": 2,
+        "message": "Non-interactive elements should not be assigned mouse or keyboard event listeners.",
+        "line": 12,
+        "column": 11,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 22,
+        "endColumn": 12
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useState } from \"react\";\r\nimport workData from \"../data/workData.json\";\r\n\r\nexport default function Work() {\r\n  const [currentWork, setCurrentWork] = useState(workData.data[0].name);\r\n\r\n  return (\r\n    <div className=\"flex flex-wrap justify-center items-center\">\r\n      {/* Project titles - clickable list */}\r\n      <div className=\"pb-8 px-5 flex flex-wrap justify-center items-center\">\r\n        {workData.data.map((work, key) => (\r\n          <h3\r\n            key={key}\r\n            className=\"cursor-pointer px-5 py-1 text-lg\"\r\n            style={{\r\n              color:\r\n                work.name === currentWork\r\n                  ? \"var(--text-primary)\"\r\n                  : \"var(--text-muted)\",\r\n            }}\r\n            onClick={() => setCurrentWork(work.name)}\r\n          >\r\n            {work.name}\r\n          </h3>\r\n        ))}\r\n      </div>\r\n\r\n      {/* Selected project display */}\r\n      {workData.data\r\n        .filter((work) => work.name === currentWork)\r\n        .map((work, key) => (\r\n          <div key={key} className=\"flex justify-center items-center flex-col\">\r\n            <a\r\n              className=\"flex justify-center items-center flex-col\"\r\n              href={work.externalLink}\r\n              target=\"_blank\"\r\n              rel=\"noreferrer\"\r\n            >\r\n              <img\r\n                src={work.media[0].link}\r\n                alt={work.name}\r\n                className=\"work-img\"\r\n              ></img>\r\n            </a>\r\n            <div className=\"px-12 md:px-24 py-8 text-center\">\r\n              <p style={{ color: \"var(--text-secondary)\" }}>\r\n                <span className=\"font-bold\" style={{ color: \"var(--text-primary)\" }}>Type:</span>{\" \"}\r\n                {work.technology}\r\n              </p>\r\n              <p className=\"pt-4 text-left\" style={{ color: \"var(--text-secondary)\" }}>\r\n                {work.description[0].text}\r\n                {work.externalLink && (\r\n                  <>\r\n                    {\" \"}\r\n                    <a\r\n                      className=\"font-bold underline underline-offset-4\"\r\n                      href={work.externalLink}\r\n                      target=\"_blank\"\r\n                      rel=\"noreferrer\"\r\n                      style={{ color: \"var(--accent-green)\" }}\r\n                    >\r\n                      Read\r\n                    </a>\r\n                  </>\r\n                )}\r\n              </p>\r\n            </div>\r\n          </div>\r\n        ))}\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\data\\siteContent.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\data\\vocabulary.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\index.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\pages\\CV.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useEffect } from \"react\";\r\nimport { Link } from \"react-router-dom\";\r\nimport { cvData } from \"../data/cv\";\r\nimport MobileNav from \"../components/MobileNav\";\r\n\r\nexport default function CV() {\r\n\r\n    // Add print class to body when mounting this page to ensure overrides work if needed\r\n    // (though media query works globally, this is safe)\r\n    useEffect(() => {\r\n        document.body.classList.add(\"cv-page\");\r\n        return () => document.body.classList.remove(\"cv-page\");\r\n    }, []);\r\n\r\n    const handlePrint = () => {\r\n        window.print();\r\n    };\r\n\r\n    return (\r\n        <div className=\"min-h-screen py-8 md:py-24 print:py-0 bg-bg-primary text-text-primary print:bg-white print:text-black\">\r\n            <style>{`\r\n                @media print {\r\n                    @page {\r\n                        margin: 1.5cm;\r\n                        size: auto; \r\n                    }\r\n                    body {\r\n                        margin: 0;\r\n                        -webkit-print-color-adjust: exact;\r\n                        print-color-adjust: exact;\r\n                    }\r\n                    /* Hide browser default headers/footers by clearing page margin content if supported, \r\n                       but standard @page margin usually suffices to let us control our own. \r\n                       However, removing them entirely often requires user browser settings. \r\n                       We can try to minimize impact. */\r\n                }\r\n            `}</style>\r\n\r\n            {/* Header / Nav - Print Hidden */}\r\n            {/* Mobile: Relative flow. Desktop: Fixed top-left. */}\r\n            <div className=\"relative mb-8 px-8 md:px-0 pt-12 md:fixed md:top-12 md:left-12 md:m-0 md:p-0 z-50 print:hidden text-center md:text-left\">\r\n                <Link to=\"/\" className=\"font-serif text-pink tracking-tight hover:opacity-80 transition-opacity leading-none\" style={{ fontSize: \"48px\" }}>\r\n                    Felipe Waldeck\r\n                </Link>\r\n            </div>\r\n\r\n            <div className=\"fixed top-12 right-12 z-50 print:hidden pointer-events-auto hidden md:block\">\r\n                <button\r\n                    onClick={handlePrint}\r\n                    className=\"font-utility text-[10px] uppercase tracking-widest text-green border border-green/30 px-4 py-2 hover:bg-green hover:text-bg-primary transition-all\"\r\n                >\r\n                    Print / Save PDF\r\n                </button>\r\n            </div>\r\n\r\n            {/* Resume Container */}\r\n            <div className=\"max-w-3xl mx-auto px-8 print:px-0 print:max-w-none print:pb-0 pb-32\">\r\n\r\n                {/* Header (Print Only Name) */}\r\n                <div className=\"hidden print:flex flex-row justify-between items-end mb-4 border-b border-black pb-2\">\r\n                    <h1 className=\"text-2xl font-bold uppercase tracking-widest leading-none\">Felipe Waldeck</h1>\r\n                    <p className=\"text-[10px] text-gray-600 leading-none\">felipewaldeck.com</p>\r\n                </div>\r\n\r\n                {/* Summary */}\r\n                <section className=\"mb-12 print:mb-3\">\r\n                    <h2 className=\"font-utility text-xs uppercase tracking-[0.2em] text-green mb-6 print:mb-1 print:text-black print:text-[9px] print:font-bold border-b border-white/10 print:border-gray-200 pb-0.5\">\r\n                        Summary\r\n                    </h2>\r\n                    <p className=\"font-serif text-base md:text-lg leading-relaxed opacity-90 print:text-[10px] print:leading-snug print:opacity-100 text-justify\">\r\n                        {cvData.summary}\r\n                    </p>\r\n                </section>\r\n\r\n                {/* Education */}\r\n                <section className=\"mb-12 print:mb-3\">\r\n                    <h2 className=\"font-utility text-xs uppercase tracking-[0.2em] text-green mb-6 print:mb-1 print:text-black print:text-[9px] print:font-bold border-b border-white/10 print:border-gray-200 pb-0.5\">\r\n                        Education\r\n                    </h2>\r\n                    <div className=\"space-y-8 print:space-y-2\">\r\n                        {cvData.education.map((edu, index) => (\r\n                            <div key={index} className=\"break-inside-avoid\">\r\n                                <div className=\"flex flex-col md:flex-row md:justify-between md:items-baseline mb-0\">\r\n                                    <h3 className=\"font-serif text-xl text-pink print:text-black print:text-[11px] font-bold\">\r\n                                        {edu.institution}\r\n                                    </h3>\r\n                                    <span className=\"font-utility text-xs opacity-60 print:text-black print:opacity-100 print:text-[9px] whitespace-nowrap\">\r\n                                        {edu.degree}\r\n                                    </span>\r\n                                </div>\r\n                                <div className=\"flex justify-between items-baseline mb-1\">\r\n                                    <p className=\"font-utility text-[10px] uppercase tracking-wider text-green print:text-gray-600 print:font-normal opacity-80 print:text-[8px]\">\r\n                                        {edu.date}\r\n                                    </p>\r\n                                </div>\r\n                                <ul className=\"space-y-0.5\">\r\n                                    {edu.details.map((detail, i) => (\r\n                                        <li key={i} className=\"font-serif text-sm opacity-80 print:opacity-100 leading-relaxed print:text-[10px] print:leading-tight\">\r\n                                            {detail}\r\n                                        </li>\r\n                                    ))}\r\n                                </ul>\r\n                            </div>\r\n                        ))}\r\n                    </div>\r\n                </section>\r\n\r\n                {/* Experience */}\r\n                <section className=\"mb-12 print:mb-3\">\r\n                    <h2 className=\"font-utility text-xs uppercase tracking-[0.2em] text-green mb-6 print:mb-1 print:text-black print:text-[9px] print:font-bold border-b border-white/10 print:border-gray-200 pb-0.5\">\r\n                        Professional Experience\r\n                    </h2>\r\n                    <div className=\"space-y-8 print:space-y-2\">\r\n                        {cvData.experience.map((exp, index) => (\r\n                            <div key={index} className=\"break-inside-avoid\">\r\n                                <div className=\"flex flex-col md:flex-row md:justify-between md:items-baseline mb-0\">\r\n                                    <h3 className=\"font-serif text-xl text-pink print:text-black print:text-[11px] font-bold\">\r\n                                        {exp.role}\r\n                                    </h3>\r\n                                    <span className=\"font-utility text-xs opacity-60 print:text-black print:opacity-100 print:text-[9px]\">\r\n                                        {exp.company}\r\n                                    </span>\r\n                                </div>\r\n                                <p className=\"font-utility text-[10px] uppercase tracking-wider text-green print:text-gray-600 print:font-normal mb-1 opacity-80 print:text-[8px]\">\r\n                                    {exp.date}\r\n                                </p>\r\n                                <ul className=\"space-y-0.5\">\r\n                                    {exp.details.map((detail, i) => (\r\n                                        <li key={i} className=\"font-serif text-sm opacity-80 print:opacity-100 leading-relaxed pl-3 relative before:content-['-'] before:absolute before:left-0 before:opacity-50 print:text-[10px] print:leading-tight\">\r\n                                            {detail}\r\n                                        </li>\r\n                                    ))}\r\n                                </ul>\r\n                            </div>\r\n                        ))}\r\n                    </div>\r\n                </section>\r\n\r\n                {/* Skills - Compact Grid for Print */}\r\n                <section className=\"mb-12 print:mb-0\">\r\n                    <h2 className=\"font-utility text-xs uppercase tracking-[0.2em] text-green mb-6 print:mb-1 print:text-black print:text-[9px] print:font-bold border-b border-white/10 print:border-gray-200 pb-0.5\">\r\n                        Skills\r\n                    </h2>\r\n                    <div className=\"space-y-3 print:space-y-1 print:grid print:grid-cols-2 print:gap-x-4\">\r\n                        {cvData.skills.map((skill, index) => (\r\n                            <div key={index} className=\"flex flex-col md:flex-row md:items-baseline print:flex-col print:items-start break-inside-avoid\">\r\n                                <span className=\"font-bold font-serif text-sm text-pink print:text-black min-w-[200px] mb-1 md:mb-0 print:text-[10px] print:mb-0\">\r\n                                    {skill.category}\r\n                                </span>\r\n                                <span className=\"font-serif text-sm opacity-80 print:opacity-100 print:text-[10px]\">\r\n                                    {skill.items}\r\n                                </span>\r\n                            </div>\r\n                        ))}\r\n                    </div>\r\n                </section>\r\n\r\n                {/* Print Footer - Minimal */}\r\n                <div className=\"hidden print:block mt-4 pt-2 border-t border-gray-200 text-center text-[8px] text-gray-500\">\r\n                    References available upon request.\r\n                </div>\r\n\r\n            </div>\r\n\r\n            <MobileNav activeTab=\"CV\" />\r\n        </div>\r\n    );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\pages\\Error.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\n\r\nexport default function Error() {\r\n  return <div>Error</div>;\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\pages\\Reading.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 13], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "jsx-a11y/click-events-have-key-events",
+        "severity": 2,
+        "message": "Visible, non-interactive elements with click handlers must have at least one keyboard listener.",
+        "line": 121,
+        "column": 5,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 131,
+        "endColumn": 6
+      },
+      {
+        "ruleId": "jsx-a11y/no-static-element-interactions",
+        "severity": 2,
+        "message": "Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.",
+        "line": 121,
+        "column": 5,
+        "nodeType": "JSXOpeningElement",
+        "endLine": 131,
+        "endColumn": 6
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React, { useState } from \"react\";\r\nimport { Link } from \"react-router-dom\";\r\nimport { getShelves } from \"../data/siteContent\";\r\nimport MobileNav from \"../components/MobileNav\";\r\n\r\n/**\r\n * Reading Page - Goodreads-style book display with vertical cards\r\n * \r\n * Features:\r\n * - Sections by shelf (Currently Reading, Up Next, Finished, Reference)\r\n * - Vertical book cards with prominent covers\r\n * - Fallback placeholder for missing/broken images\r\n * - External links to Goodreads\r\n */\r\n\r\nexport default function Reading() {\r\n  const shelves = getShelves();\r\n\r\n  return (\r\n    <div\r\n      className=\"min-h-screen py-8 pb-32\"\r\n      style={{ backgroundColor: \"var(--bg-primary)\" }}\r\n    >\r\n      {/* Site mark */}\r\n      {/* Mobile: Relative flow. Desktop: Fixed top-left. */}\r\n      <Link\r\n        to=\"/\"\r\n        className=\"relative block mb-8 px-8 pt-12 md:fixed md:top-12 md:left-12 md:m-0 md:p-0 z-50 font-serif text-pink tracking-tight hover:opacity-80 transition-opacity leading-none text-center md:text-left\"\r\n        style={{ fontSize: \"48px\" }}\r\n      >\r\n        Felipe Waldeck\r\n      </Link>\r\n\r\n      {/* Header */}\r\n      <div className=\"px-8 md:px-32 pt-0 md:pt-12\">\r\n        <h1\r\n          className=\"text-3xl md:text-5xl text-center pt-4 font-serif text-pink\"\r\n        >\r\n          Reading\r\n        </h1>\r\n      </div>\r\n\r\n      {/* Shelves */}\r\n      <div className=\"px-8 md:px-16 lg:px-32 pt-8\">\r\n        {shelves.map((shelf) => (\r\n          <section key={shelf.key} className=\"mb-16\">\r\n            {/* Shelf header */}\r\n            <h2\r\n              className=\"text-xl md:text-2xl mb-8 pb-2\"\r\n              style={{\r\n                color: \"var(--text-primary)\",\r\n                borderBottom: \"1px solid var(--border-subtle)\",\r\n              }}\r\n            >\r\n              {shelf.displayName}\r\n              <span\r\n                className=\"ml-3 text-sm\"\r\n                style={{\r\n                  color: \"var(--text-muted)\",\r\n                  fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n                }}\r\n              >\r\n                {shelf.books.length}\r\n              </span>\r\n            </h2>\r\n\r\n            {/* Book grid - vertical cards */}\r\n            <div\r\n              className=\"grid gap-6\"\r\n              style={{\r\n                gridTemplateColumns: \"repeat(auto-fill, minmax(140px, 1fr))\",\r\n              }}\r\n            >\r\n              {shelf.books.map((book) => (\r\n                <BookCard key={book.id} book={book} />\r\n              ))}\r\n            </div>\r\n\r\n            {shelf.books.length === 0 && (\r\n              <p style={{ color: \"var(--text-muted)\" }}>No books in this shelf.</p>\r\n            )}\r\n          </section>\r\n        ))}\r\n      </div>\r\n\r\n      {/* Footer note */}\r\n      <div className=\"px-8 md:px-32 pt-8 pb-16\">\r\n        <p\r\n          className=\"text-center text-sm\"\r\n          style={{\r\n            color: \"var(--text-muted)\",\r\n            fontFamily: \"source-code-pro, Menlo, Monaco, Consolas, monospace\",\r\n          }}\r\n        >\r\n          Data synced from Goodreads\r\n        </p>\r\n      </div>\r\n\r\n      <MobileNav activeTab=\"READING\" />\r\n    </div>\r\n  );\r\n}\r\n\r\n/**\r\n * BookCard - Vertical book card with cover and fallback\r\n */\r\nfunction BookCard({ book }) {\r\n  const [imageError, setImageError] = useState(false);\r\n  const [imageLoaded, setImageLoaded] = useState(false);\r\n\r\n  const handleClick = () => {\r\n    if (book.link) {\r\n      window.open(book.link, \"_blank\", \"noopener,noreferrer\");\r\n    }\r\n  };\r\n\r\n  // Determine if we should show placeholder\r\n  const showPlaceholder = !book.cover || imageError;\r\n\r\n  return (\r\n    <div\r\n      onClick={handleClick}\r\n      className=\"flex flex-col cursor-pointer group\"\r\n      style={{ transition: \"transform 0.15s ease\" }}\r\n      onMouseEnter={(e) => {\r\n        e.currentTarget.style.transform = \"translateY(-4px)\";\r\n      }}\r\n      onMouseLeave={(e) => {\r\n        e.currentTarget.style.transform = \"translateY(0)\";\r\n      }}\r\n    >\r\n      {/* Cover container */}\r\n      <div\r\n        className=\"relative w-full mb-3\"\r\n        style={{\r\n          aspectRatio: \"2/3\",\r\n          backgroundColor: \"var(--bg-secondary)\",\r\n          borderRadius: \"4px\",\r\n          overflow: \"hidden\",\r\n          border: \"1px solid var(--border-subtle)\",\r\n          transition: \"border-color 0.15s ease, box-shadow 0.15s ease\",\r\n        }}\r\n        onMouseEnter={(e) => {\r\n          e.currentTarget.style.borderColor = \"var(--accent-green)\";\r\n          e.currentTarget.style.boxShadow = \"0 8px 24px rgba(0,0,0,0.4)\";\r\n        }}\r\n        onMouseLeave={(e) => {\r\n          e.currentTarget.style.borderColor = \"var(--border-subtle)\";\r\n          e.currentTarget.style.boxShadow = \"none\";\r\n        }}\r\n      >\r\n        {/* Actual image (hidden if error/not loaded) */}\r\n        {book.cover && !imageError && (\r\n          <img\r\n            src={book.cover}\r\n            alt={book.title}\r\n            onError={() => setImageError(true)}\r\n            onLoad={() => setImageLoaded(true)}\r\n            style={{\r\n              width: \"100%\",\r\n              height: \"100%\",\r\n              objectFit: \"cover\",\r\n              opacity: imageLoaded ? 1 : 0,\r\n              transition: \"opacity 0.2s ease\",\r\n            }}\r\n          />\r\n        )}\r\n\r\n        {/* Placeholder - shown while loading or on error */}\r\n        {(showPlaceholder || !imageLoaded) && (\r\n          <div\r\n            className=\"absolute inset-0 flex flex-col items-center justify-center p-3\"\r\n            style={{\r\n              backgroundColor: \"var(--bg-secondary)\",\r\n              opacity: imageLoaded && !showPlaceholder ? 0 : 1,\r\n              transition: \"opacity 0.2s ease\",\r\n            }}\r\n          >\r\n            {/* Book icon placeholder */}\r\n            <svg\r\n              width=\"32\"\r\n              height=\"32\"\r\n              viewBox=\"0 0 24 24\"\r\n              fill=\"none\"\r\n              stroke=\"var(--text-muted)\"\r\n              strokeWidth=\"1\"\r\n              className=\"mb-2\"\r\n              style={{ opacity: 0.4 }}\r\n            >\r\n              <path d=\"M4 19.5A2.5 2.5 0 0 1 6.5 17H20\" />\r\n              <path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\" />\r\n            </svg>\r\n            <div\r\n              style={{\r\n                color: \"var(--text-muted)\",\r\n                fontSize: \"10px\",\r\n                textAlign: \"center\",\r\n                lineHeight: 1.3,\r\n                display: \"-webkit-box\",\r\n                WebkitLineClamp: 3,\r\n                WebkitBoxOrient: \"vertical\",\r\n                overflow: \"hidden\",\r\n              }}\r\n            >\r\n              {book.title}\r\n            </div>\r\n          </div>\r\n        )}\r\n\r\n        {/* External link indicator */}\r\n        {book.link && (\r\n          <div\r\n            className=\"absolute top-2 right-2 opacity-0 group-hover:opacity-100\"\r\n            style={{\r\n              backgroundColor: \"rgba(0,0,0,0.7)\",\r\n              borderRadius: \"4px\",\r\n              padding: \"4px\",\r\n              transition: \"opacity 0.15s ease\",\r\n            }}\r\n          >\r\n            <svg\r\n              width=\"12\"\r\n              height=\"12\"\r\n              viewBox=\"0 0 24 24\"\r\n              fill=\"none\"\r\n              stroke=\"var(--text-primary)\"\r\n              strokeWidth=\"2\"\r\n            >\r\n              <path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\" />\r\n              <polyline points=\"15 3 21 3 21 9\" />\r\n              <line x1=\"10\" y1=\"14\" x2=\"21\" y2=\"3\" />\r\n            </svg>\r\n          </div>\r\n        )}\r\n      </div>\r\n\r\n      {/* Book info */}\r\n      <div className=\"px-1\">\r\n        <h3\r\n          className=\"font-bold text-sm leading-tight mb-1\"\r\n          style={{\r\n            color: \"var(--text-primary)\",\r\n            display: \"-webkit-box\",\r\n            WebkitLineClamp: 2,\r\n            WebkitBoxOrient: \"vertical\",\r\n            overflow: \"hidden\",\r\n          }}\r\n          title={book.title}\r\n        >\r\n          {book.title}\r\n        </h3>\r\n        <p\r\n          className=\"text-xs\"\r\n          style={{\r\n            color: \"var(--text-secondary)\",\r\n            whiteSpace: \"nowrap\",\r\n            overflow: \"hidden\",\r\n            textOverflow: \"ellipsis\",\r\n          }}\r\n        >\r\n          {book.author}\r\n        </p>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\pages\\Renders.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\nimport { Swiper, SwiperSlide } from \"swiper/react\";\r\nimport { Navigation } from \"swiper/modules\";\r\nimport Zoom from \"react-medium-image-zoom\";\r\nimport \"../styles/Zoom.css\";\r\n// Import Swiper styles\r\nimport \"swiper/css\";\r\nimport \"swiper/css/navigation\";\r\nimport \"swiper/css/pagination\";\r\nimport renderDataJson from \"../data/renderData.json\";\r\nconst renderData = renderDataJson.data;\r\n\r\nexport default function Renders() {\r\n  return (\r\n    <div className=\"min-min-h-screen py-8\">\r\n      <div className=\"px-8 md:px-32\">\r\n        <a href=\"/\" className=\"text-lg md:text-2xl px-2 md:px-0\">\r\n          Home\r\n        </a>\r\n        {/* <div className=\"w-full\"> */}\r\n        <h1 className=\"text-3xl md:text-5xl text-center px-2 pt-4 md:px-0\">\r\n          Miscellaneous Projects\r\n        </h1>\r\n      </div>\r\n      {renderData.map((render, key) => (\r\n        <div key={key} id={render.id}>\r\n          <div className=\"flex flex-col justify-center mt-10  text-center\">\r\n            <h2 className=\"text-xl md:text-3xl\">{render.name}</h2>\r\n            <h3 className=\"text-lg md:text-2xl\">{render.date}</h3>\r\n          </div>\r\n\r\n          <Swiper\r\n            breakpoints={{\r\n              // when window width is >= 768px\r\n              768: {\r\n                slidesPerView: 3,\r\n              },\r\n            }}\r\n            style={{ padding: \"2rem 0 0.5rem 0\", height: \"100%\", width: \"90%\" }}\r\n            navigation={true}\r\n            slidesPerView={1}\r\n            spaceBetween={30}\r\n            modules={[Navigation]}\r\n            className=\"mySwiper h-1/2\"\r\n          >\r\n            {render.media.map((media, key) =>\r\n              media.type === \"image\" ? (\r\n                <SwiperSlide\r\n                  style={{ display: \"flex\" }}\r\n                  className=\"flex flex-col justify-center items-center px-0 \"\r\n                  key={key}\r\n                >\r\n                  <Zoom style={{ maxHeight: \"100%\", objectFit: \"contain\" }}>\r\n                    <img\r\n                      style={{ maxHeight: \"100%\", objectFit: \"contain\" }}\r\n                      src={media.link}\r\n                      alt={media.caption}\r\n                      loading=\"lazy\"\r\n                      className=\"drop-shadow-md hover:drop-shadow-xl\"\r\n                    ></img>\r\n                  </Zoom>\r\n                  <p className=\"italic px-2 pt-2 text-center\">\r\n                    {media.caption}\r\n                  </p>\r\n                </SwiperSlide>\r\n              ) : (\r\n                <SwiperSlide\r\n                  style={{ display: \"flex\" }}\r\n                  className=\"flex justify-center items-center  flex-col\"\r\n                  key={key}\r\n                >\r\n                  {/* <YouTubeEmbed link={media.link}></YouTubeEmbed> */}\r\n                  <iframe\r\n                    style={{ width: \"100%\" }}\r\n                    width=\"853\"\r\n                    height=\"480\"\r\n                    src={media.link}\r\n                    frameBorder=\"0\"\r\n                    allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\"\r\n                    allowFullScreen\r\n                    title=\"Embedded youtube\"\r\n                  />\r\n                  <p className=\"italic px-2 pt-2 text-center\">\r\n                    {media.sourceLink ? (\r\n                      <a\r\n                        href={media.sourceLink}\r\n                        target=\"_blank\"\r\n                        rel=\"noreferrer\"\r\n                        className=\"underline underline-offset-4\"\r\n                      >\r\n                        {media.caption}\r\n                      </a>\r\n                    ) : (\r\n                      media.caption\r\n                    )}\r\n                  </p>\r\n                </SwiperSlide>\r\n              )\r\n            )}\r\n          </Swiper>\r\n          <div className=\"flex justify-center pt-4\">\r\n            <div className=\"md:w-1/2 w-5/6 text-lg\">\r\n              {render.sourceCode ? (\r\n                <a\r\n                  href={render.sourceCode}\r\n                  target=\"_blank\"\r\n                  rel=\"noreferrer\"\r\n                  className=\"font-bold underline underline-offset-4 py-4\"\r\n                >\r\n                  Project Files\r\n                </a>\r\n              ) : null}\r\n              {\"    \"}\r\n              {render.liveLink ? (\r\n                <a\r\n                  href={render.liveLink}\r\n                  target=\"_blank\"\r\n                  rel=\"noreferrer\"\r\n                  className=\"font-bold underline underline-offset-4 py-4\"\r\n                >\r\n                  Project Link\r\n                </a>\r\n              ) : null}\r\n              <div>{render.description}</div>\r\n              <p className=\"py-4\">\r\n                <span className=\"font-bold\">Made Using: </span>{\" \"}\r\n                {render.technology}\r\n              </p>\r\n            </div>\r\n          </div>\r\n        </div>\r\n      ))}\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\pages\\WorkMain.jsx",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 1,
+        "message": "'React' is defined but never used.",
+        "line": 1,
+        "column": 8,
+        "nodeType": "Identifier",
+        "messageId": "unusedVar",
+        "endLine": 1,
+        "endColumn": 13,
+        "suggestions": [
+          {
+            "messageId": "removeVar",
+            "data": { "varName": "React" },
+            "fix": { "range": [7, 18], "text": "" },
+            "desc": "Remove unused variable 'React'."
+          }
+        ]
+      },
+      {
+        "ruleId": "react/jsx-key",
+        "severity": 2,
+        "message": "Missing \"key\" prop for element in iterator",
+        "line": 119,
+        "column": 13,
+        "nodeType": "JSXElement",
+        "messageId": "missingIterKey",
+        "endLine": 127,
+        "endColumn": 19
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 0,
+    "warningCount": 1,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "source": "import React from \"react\";\r\nimport { Swiper, SwiperSlide } from \"swiper/react\";\r\nimport { Navigation, Pagination } from \"swiper/modules\";\r\nimport Zoom from \"react-medium-image-zoom\";\r\nimport \"../styles/Zoom.css\";\r\n// Import Swiper styles\r\nimport \"swiper/css\";\r\nimport \"swiper/css/navigation\";\r\nimport \"swiper/css/pagination\";\r\n\r\nimport { useParams } from \"react-router-dom\";\r\n\r\nimport workData from \"../data/workData.json\";\r\n\r\nexport default function WorkMain() {\r\n  const { name } = useParams();\r\n  const workInfo = workData.data.filter((work) => work.name === name)[0];\r\n\r\n  return (\r\n    <div className=\"min-min-h-screen py-8\">\r\n      <div className=\"px-8 md:px-32 \">\r\n        <a href=\"/\" className=\"text-lg md:text-2xl px-2 md:px-0\">\r\n          Home\r\n        </a>\r\n        {/* <div className=\"w-full\"> */}\r\n        <h1 className=\"text-3xl md:text-5xl text-center px-2 pt-4 md:px-0\">\r\n          {workInfo.name}\r\n        </h1>\r\n        {/* </div> */}\r\n        <h2 className=\"text-xl md:text-2xl text-center px-2 md:px-0\">\r\n          {workInfo.date}\r\n        </h2>\r\n      </div>\r\n      <Swiper\r\n        breakpoints={{\r\n          // when window width is >= 768px\r\n          768: {\r\n            slidesPerView: 3,\r\n          },\r\n        }}\r\n        style={{ padding: \"3rem\", height: \"60vh\", width: \"95%\" }}\r\n        navigation={true}\r\n        slidesPerView={1}\r\n        spaceBetween={30}\r\n        pagination={{\r\n          clickable: true,\r\n        }}\r\n        modules={[Navigation, Pagination]}\r\n        className=\"mySwiper h-1/2\"\r\n      >\r\n        {workInfo.media.map((media, key) =>\r\n          media.type === \"image\" ? (\r\n            <SwiperSlide\r\n              style={{ display: \"flex\" }}\r\n              className=\"flex flex-col justify-center items-center p-7\"\r\n              key={key}\r\n            >\r\n              <Zoom style={{ height: \"100%\", objectFit: \"contain\" }}>\r\n                <img\r\n                  style={{ height: \"100%\", objectFit: \"contain\" }}\r\n                  src={media.link}\r\n                  alt={media.caption}\r\n                  loading=\"lazy\"\r\n                  className=\"drop-shadow-md hover:drop-shadow-xl\"\r\n                ></img>\r\n              </Zoom>\r\n              <p className=\"italic px-2 pt-2 text-center\">{media.caption}</p>\r\n            </SwiperSlide>\r\n          ) : (\r\n            <SwiperSlide\r\n              style={{ display: \"flex\" }}\r\n              className=\"flex justify-center items-center p-7 flex-col\"\r\n              key={key}\r\n            >\r\n              {/* <YouTubeEmbed link={media.link}></YouTubeEmbed> */}\r\n              <iframe\r\n                style={{ height: \"100%\", width: \"100%\" }}\r\n                width=\"853\"\r\n                height=\"480\"\r\n                src={media.link}\r\n                frameBorder=\"0\"\r\n                allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\"\r\n                allowFullScreen\r\n                title=\"Embedded youtube\"\r\n              />\r\n              <p className=\"italic px-2 pt-2 text-center\">{media.caption}</p>\r\n            </SwiperSlide>\r\n          )\r\n        )}\r\n      </Swiper>\r\n      <div className=\"flex justify-center pt-3\">\r\n        <div className=\"md:w-1/2 w-5/6 text-lg\">\r\n          <p className=\"py-4\">\r\n            <span className=\"font-bold\">Technologies Used: </span>{\" \"}\r\n            {workInfo.technology}\r\n          </p>\r\n          {workInfo.sourceCode ? (\r\n            <a\r\n              href={workInfo.sourceCode}\r\n              target=\"_blank\"\r\n              rel=\"noreferrer\"\r\n              className=\"font-bold underline underline-offset-4 py-4\"\r\n            >\r\n              Project Files\r\n            </a>\r\n          ) : null}\r\n          {\"    \"}\r\n          {workInfo.liveLink ? (\r\n            <a\r\n              href={workInfo.liveLink}\r\n              target=\"_blank\"\r\n              rel=\"noreferrer\"\r\n              className=\"font-bold underline underline-offset-4 py-4\"\r\n            >\r\n              Project Link\r\n            </a>\r\n          ) : null}\r\n          {workInfo.description.map((info) => (\r\n            <div>\r\n              {info.header ? (\r\n                <h3 className=\"font-bold pt-4\">{info.header}</h3>\r\n              ) : null}\r\n              <p\r\n                dangerouslySetInnerHTML={{ __html: info.text }}\r\n                className=\"py-2\"\r\n              ></p>\r\n            </div>\r\n          ))}\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n",
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\setupTests.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\src\\utils\\reportWebVitals.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "C:\\Users\\Felipe\\personal-site-1\\tailwind.config.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  }
+]
