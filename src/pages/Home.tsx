@@ -1,68 +1,82 @@
 import React, { useState } from "react";
 import FieldPanel from "../components/FieldPanel";
 import ViewportPanel, { type ViewportMode } from "../components/ViewportPanel";
+import MobileNav from "../components/MobileNav";
 
 /**
  * Home - Archival Workspace
  * 
  * Layout:
- * - Left: FieldPanel (Spatial Index) - Fixed, non-scrolling
- * - Right: ViewportPanel (Reading Surface) - Scrolling
+ * - Desktop: Split Screen (Field | Viewport)
+ * - Mobile: Toggle Mode (Field <-> Viewport) via Bottom Nav
  * 
  * State:
  * - viewportMode: "BIO" | "ARCHIVE"
  * - selectedProjectId: string | null
+ * - mobileView: "FIELD" | "VIEWPORT" (Mobile only)
  */
+
+type MobileView = "FIELD" | "VIEWPORT";
 
 export default function Home() {
     const [viewportMode, setViewportMode] = useState<ViewportMode>("BIO");
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    const [mobileView, setMobileView] = useState<MobileView>("VIEWPORT"); // Default to Index/Bio on mobile
 
     // Handle project selection from Field
     const handleProjectSelect = (projectId: string) => {
         setSelectedProjectId(projectId);
-        // Note: We don't change viewportMode to "PROJECT" explicitly
-        // The presence of selectedProjectId overrides the view in ViewportPanel
+        // On mobile, if selecting from Index, switch to Map (Field) to see preview
+        setMobileView("FIELD");
     };
 
     // Handle mode change (BIO <-> ARCHIVE)
     const handleModeChange = (mode: ViewportMode) => {
         setViewportMode(mode);
         if (mode === "ARCHIVE" || mode === "BIO") {
-            setSelectedProjectId(null); // Clear selection when switching main modes
+            setSelectedProjectId(null);
+        }
+        // If opening archive, switch to Index view on mobile
+        if (mode === "ARCHIVE") {
+            setMobileView("VIEWPORT");
         }
     };
 
-    // Clear selection (return to previous mode, or just clear detail)
+    // Clear selection
     const handleClearSelection = () => {
         setSelectedProjectId(null);
     };
 
-    // Dim Field when in ARCHIVE mode or reading a project
-    // "Focus" moves to the right panel
-    const fieldDimmed = viewportMode === "ARCHIVE" || selectedProjectId !== null;
-
     return (
-        <div className="min-h-screen flex bg-bg-primary overflow-hidden">
-            {/* Left: Field Panel (Spatial Index) */}
-            <div className="hidden md:block w-1/2 h-screen relative border-r border-border-subtle">
+        <div className="min-h-screen flex flex-col md:flex-row bg-bg-primary overflow-hidden">
+            {/* Left: Field Panel (Spatial Index / Map) */}
+            {/* Mobile: Visible only if mobileView === 'FIELD' */}
+            {/* Desktop: Always visible (w-1/2) */}
+            <div className={`${mobileView === "FIELD" ? "block" : "hidden"} md:block w-full md:w-1/2 h-screen relative md:border-r border-border-subtle`}>
                 <FieldPanel
                     selectedProjectId={selectedProjectId}
                     onOpenArchive={() => handleModeChange("ARCHIVE")}
+                    mode={viewportMode}
+                    onSelectProject={handleProjectSelect}
+                    onModeChange={handleModeChange}
                 />
             </div>
 
-            {/* Right: Viewport Panel (Reading Surface) */}
-            {/* On mobile, this takes full width. On desktop, it's the right half. */}
-            {/* TODO: Mobile layout strategy is simple stacking for now, but design spec focused on dual stela */}
-            <div className="w-full md:w-1/2 h-screen relative">
+            {/* Right: Viewport Panel (Reading Surface / Index) */}
+            {/* Mobile: Visible only if mobileView === 'VIEWPORT' */}
+            {/* Desktop: Always visible (w-1/2) */}
+            <div className={`${mobileView === "VIEWPORT" ? "block" : "hidden"} md:block w-full md:w-1/2 h-screen relative`}>
                 <ViewportPanel
                     mode={viewportMode}
                     selectedProjectId={selectedProjectId}
                     onModeChange={handleModeChange}
                     onClearSelection={handleClearSelection}
+                    onSelectProject={handleProjectSelect}
                 />
             </div>
+
+            {/* Mobile Navigation (Bottom) */}
+            <MobileNav activeTab="ARCHIVE" onArchiveClick={() => setMobileView("VIEWPORT")} />
         </div>
     );
 }

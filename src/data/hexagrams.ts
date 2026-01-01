@@ -633,7 +633,7 @@ export const hexagrams: Hexagram[] = [
         name: "Gen",
         hanzi: "艮",
         lines: [0, 0, 1, 0, 0, 1],
-        summary: "stopping or keeping still like a mountain; one stops at the back and does not see the person, walks in the courtyard and does not see the person, without fault.",
+        summary: "Keeping Still. Mountains standing close. A time for introspection; one does not permit their thoughts to go beyond the situation.",
         tags: [
             "stillness",
             "meditation",
@@ -791,4 +791,21 @@ export const hexagrams: Hexagram[] = [
  */
 export function getHexagram(number: number): Hexagram {
     return hexagrams.find((h) => h.number === number) || hexagrams[0];
+}
+
+/**
+ * Get the Daily Hexagram based on the current date (UTC).
+ * Stable for 24 hours.
+ */
+export function getDailyHexagram(): Hexagram {
+    const now = new Date();
+    // Use UTC date components to ensure global consistency/stability if needed, 
+    // or local if we prefer local midnight update. UTC is usually safer for static sites/consistency.
+    const day = now.getUTCFullYear() * 366 + now.getUTCDate(); // Simple hash of the day (approx)
+    // Actually, simpler: milliseconds since epoch / ms_in_day
+    const dayIndex = Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
+
+    // Use the dayIndex to select a hexagram
+    const index = dayIndex % hexagrams.length;
+    return hexagrams[index];
 }

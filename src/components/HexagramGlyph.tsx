@@ -24,8 +24,8 @@ export default function HexagramGlyph({ className, variant = "solid" }: Hexagram
         const isFrame = index === 0 || index === 5;
         const opacity = variant === "open" && !isFrame ? 0.05 : 1;
 
-        // Structural Green
-        const fillColor = "var(--accent-green)";
+        // Use currentColor to allow parent text color to control fill
+        const fillColor = "currentColor";
 
         if (isYang === 1) {
             return (
@@ -54,9 +54,8 @@ export default function HexagramGlyph({ className, variant = "solid" }: Hexagram
     return (
         <div className={`inline-block select-none ${className}`}>
             <svg
-                width={SVG_SIZE}
-                height={300} // Cropped height to remove bottom gap
                 viewBox={`0 0 ${SVG_SIZE} 300`}
+                className="w-full h-auto"
                 style={{ display: "block" }}
                 aria-label="Structural Seal"
             >

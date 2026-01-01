@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { getShelves } from "../data/siteContent";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getShelves } from '../data/siteContent';
+import MobileNav from '../components/MobileNav';
 
 /**
  * Reading Page - Goodreads-style book display with vertical cards
- * 
+ *
  * Features:
  * - Sections by shelf (Currently Reading, Up Next, Finished, Reference)
  * - Vertical book cards with prominent covers
@@ -17,28 +18,24 @@ export default function Reading() {
 
   return (
     <div
-      className="min-h-screen py-8"
-      style={{ backgroundColor: "var(--bg-primary)" }}
+      className="min-h-screen py-8 pb-32"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
     >
       {/* Site mark */}
-      <Link to="/" className="site-mark">
+      {/* Mobile: Relative flow. Desktop: Fixed top-left. */}
+      <Link
+        to="/"
+        className="relative block mb-8 px-8 pt-12 md:fixed md:top-12 md:left-12 md:m-0 md:p-0 z-50 font-serif text-pink tracking-tight hover:opacity-80 transition-opacity leading-none text-center md:text-left"
+        style={{ fontSize: '48px' }}
+      >
         Felipe Waldeck
       </Link>
 
       {/* Header */}
-      <div className="px-8 md:px-32 pt-12">
-        <h1
-          className="text-3xl md:text-5xl text-center pt-4"
-          style={{ color: "var(--text-primary)" }}
-        >
+      <div className="px-8 md:px-32 pt-0 md:pt-12">
+        <h1 className="text-3xl md:text-5xl text-center pt-4 font-serif text-pink">
           Reading
         </h1>
-        <p
-          className="text-center pt-4 max-w-xl mx-auto"
-          style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}
-        >
-          Books I'm reading, planning to read, and have finished.
-        </p>
       </div>
 
       {/* Shelves */}
@@ -49,16 +46,17 @@ export default function Reading() {
             <h2
               className="text-xl md:text-2xl mb-8 pb-2"
               style={{
-                color: "var(--text-primary)",
-                borderBottom: "1px solid var(--border-subtle)",
+                color: 'var(--text-primary)',
+                borderBottom: '1px solid var(--border-subtle)',
               }}
             >
               {shelf.displayName}
               <span
                 className="ml-3 text-sm"
                 style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "source-code-pro, Menlo, Monaco, Consolas, monospace",
+                  color: 'var(--text-muted)',
+                  fontFamily:
+                    'source-code-pro, Menlo, Monaco, Consolas, monospace',
                 }}
               >
                 {shelf.books.length}
@@ -69,7 +67,7 @@ export default function Reading() {
             <div
               className="grid gap-6"
               style={{
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
               }}
             >
               {shelf.books.map((book) => (
@@ -78,7 +76,9 @@ export default function Reading() {
             </div>
 
             {shelf.books.length === 0 && (
-              <p style={{ color: "var(--text-muted)" }}>No books in this shelf.</p>
+              <p style={{ color: 'var(--text-muted)' }}>
+                No books in this shelf.
+              </p>
             )}
           </section>
         ))}
@@ -89,13 +89,15 @@ export default function Reading() {
         <p
           className="text-center text-sm"
           style={{
-            color: "var(--text-muted)",
-            fontFamily: "source-code-pro, Menlo, Monaco, Consolas, monospace",
+            color: 'var(--text-muted)',
+            fontFamily: 'source-code-pro, Menlo, Monaco, Consolas, monospace',
           }}
         >
           Data synced from Goodreads
         </p>
       </div>
+
+      <MobileNav activeTab="READING" />
     </div>
   );
 }
@@ -109,7 +111,7 @@ function BookCard({ book }) {
 
   const handleClick = () => {
     if (book.link) {
-      window.open(book.link, "_blank", "noopener,noreferrer");
+      window.open(book.link, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -120,32 +122,32 @@ function BookCard({ book }) {
     <div
       onClick={handleClick}
       className="flex flex-col cursor-pointer group"
-      style={{ transition: "transform 0.15s ease" }}
+      style={{ transition: 'transform 0.15s ease' }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.transform = 'translateY(-4px)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
       {/* Cover container */}
       <div
         className="relative w-full mb-3"
         style={{
-          aspectRatio: "2/3",
-          backgroundColor: "var(--bg-secondary)",
-          borderRadius: "4px",
-          overflow: "hidden",
-          border: "1px solid var(--border-subtle)",
-          transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+          aspectRatio: '2/3',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '4px',
+          overflow: 'hidden',
+          border: '1px solid var(--border-subtle)',
+          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--accent-green)";
-          e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.4)";
+          e.currentTarget.style.borderColor = 'var(--accent-green)';
+          e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "var(--border-subtle)";
-          e.currentTarget.style.boxShadow = "none";
+          e.currentTarget.style.borderColor = 'var(--border-subtle)';
+          e.currentTarget.style.boxShadow = 'none';
         }}
       >
         {/* Actual image (hidden if error/not loaded) */}
@@ -156,11 +158,11 @@ function BookCard({ book }) {
             onError={() => setImageError(true)}
             onLoad={() => setImageLoaded(true)}
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
               opacity: imageLoaded ? 1 : 0,
-              transition: "opacity 0.2s ease",
+              transition: 'opacity 0.2s ease',
             }}
           />
         )}
@@ -170,9 +172,9 @@ function BookCard({ book }) {
           <div
             className="absolute inset-0 flex flex-col items-center justify-center p-3"
             style={{
-              backgroundColor: "var(--bg-secondary)",
+              backgroundColor: 'var(--bg-secondary)',
               opacity: imageLoaded && !showPlaceholder ? 0 : 1,
-              transition: "opacity 0.2s ease",
+              transition: 'opacity 0.2s ease',
             }}
           >
             {/* Book icon placeholder */}
@@ -191,14 +193,14 @@ function BookCard({ book }) {
             </svg>
             <div
               style={{
-                color: "var(--text-muted)",
-                fontSize: "10px",
-                textAlign: "center",
+                color: 'var(--text-muted)',
+                fontSize: '10px',
+                textAlign: 'center',
                 lineHeight: 1.3,
-                display: "-webkit-box",
+                display: '-webkit-box',
                 WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
               }}
             >
               {book.title}
@@ -211,10 +213,10 @@ function BookCard({ book }) {
           <div
             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
             style={{
-              backgroundColor: "rgba(0,0,0,0.7)",
-              borderRadius: "4px",
-              padding: "4px",
-              transition: "opacity 0.15s ease",
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              borderRadius: '4px',
+              padding: '4px',
+              transition: 'opacity 0.15s ease',
             }}
           >
             <svg
@@ -238,11 +240,11 @@ function BookCard({ book }) {
         <h3
           className="font-bold text-sm leading-tight mb-1"
           style={{
-            color: "var(--text-primary)",
-            display: "-webkit-box",
+            color: 'var(--text-primary)',
+            display: '-webkit-box',
             WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
           }}
           title={book.title}
         >
@@ -251,10 +253,10 @@ function BookCard({ book }) {
         <p
           className="text-xs"
           style={{
-            color: "var(--text-secondary)",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            color: 'var(--text-secondary)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           {book.author}

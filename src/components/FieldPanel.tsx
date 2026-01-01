@@ -1,31 +1,138 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HexagramGlyph from "./HexagramGlyph";
+import { getDailyHexagram } from "../data/hexagrams";
 import { getProjectById } from "../data/projects";
-import { getHexagram } from "../data/hexagrams";
+import type { ViewportMode } from "./ViewportPanel";
 
 interface FieldPanelProps {
     onOpenArchive: () => void;
     selectedProjectId: string | null;
+    mode?: ViewportMode;
+    onSelectProject?: (id: string) => void;
+    onModeChange?: (mode: ViewportMode) => void;
 }
 
 export default function FieldPanel({ onOpenArchive, selectedProjectId }: FieldPanelProps) {
-    const [isHovered, setIsHovered] = useState(false);
+    // Safety: ensure hexagram exists
+    const hexagram = getDailyHexagram() || { number: 0, name: "Unknown", summary: "", lines: [0, 0, 0, 0, 0, 0] };
 
-    // INLINED SAFETY FALLBACK
-    const hexagram = {
-        number: 52,
-        name: "Keeping Still",
-        summary: "stopping or keeping still like a mountain; one stops at the back and does not see the person, walks in the courtyard and does not see the person, without fault."
+    // Debugging
+    useEffect(() => {
+        console.log("FieldPanel Rendered. ProjectId:", selectedProjectId);
+    }, [selectedProjectId]);
+
+    // -- RENDER: HEXAGRAM (Neutral State) --
+    const renderHexagram = () => (
+        <div className="w-full h-full flex flex-col items-center justify-center relative p-8 animate-fade-in text-center">
+            <div className="flex flex-col items-center cursor-pointer group" onClick={onOpenArchive}>
+                {/* Glyph */}
+                <div className="mb-8 opacity-80 group-hover:opacity-100 transition-opacity duration-500 text-green">
+                    <HexagramGlyph variant="solid" />
+                </div>
+                {/* Info */}
+                <div className="max-w-sm px-4">
+                    <span className="font-serif text-3xl text-green mb-2 block">
+                        {hexagram.number}. {hexagram.name}
+                    </span>
+                    <p className="font-utility text-sm text-text-primary px-2 mb-6 opacity-80 leading-relaxed tracking-wide">
+                        {hexagram.summary}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+
+    // -- RENDER: PREVIEW CARD (Bounded Box) --
+    // Replaces Hexagram on the Left when selected.
+    const renderContent = () => {
+        // 1. Guard Clause: No Selection
+        if (!selectedProjectId) {
+            return renderHexagram();
+        }
+
+        // 2. Data Fetch
+        const project = getProjectById(selectedProjectId);
+
+        // 3. Guard Clause: Project Not Found
+        if (!project) {
+            console.warn(`FieldPanel: Project not found for ID ${selectedProjectId}`);
+            return renderHexagram();
+        }
+
+        // 4. Safe Property Access
+        const title = project.title || "Untitled Project";
+        const date = project.date || "";
+        const subtype = (project.subtype || "Project").toUpperCase();
+        // Fallback description to empty string to prevent .split() crash
+        const description = project.longDescription || project.description || "";
+        const imageSrc = project.image; // Can be undefined
+
+        return (
+            <div className="w-full h-full bg-bg-primary relative z-10 animate-fade-in">
+                {/* 
+                    Flex Container 
+                    - pt-32: Ensures content starts below "Felipe Waldeck" fixed header (Safe Zone) 
+                    - pb-12: Bottom padding for balance
+                 */}
+                <div className={`w-full h-full flex flex-col items-center px-12 md:px-16 overflow-y-auto custom-scrollbar ${imageSrc ? "justify-start pt-48 pb-12" : "justify-center pt-0 pb-0"}`}>
+
+                    <div className="max-w-lg w-full flex flex-col items-center text-center">
+
+                        {/* 1. TOP: Image & Header (Static) */}
+                        <div className="shrink-0 w-full flex flex-col items-center mb-6">
+                            {/* Bounded Image Box - Adaptive Height (Only if Image Exists) */}
+                            {imageSrc && (
+                                <div className="w-auto max-w-[75%] mb-8 border border-border-subtle relative shadow-2xl shadow-pink/5 group">
+                                    <img
+                                        src={imageSrc}
+                                        alt={title}
+                                        className="w-full h-auto block transition-all duration-700"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Metadata */}
+                            <span className="font-utility text-[10px] uppercase tracking-[0.2em] text-green mb-4 block">
+                                {date} — {subtype}
+                            </span>
+                            <h2 className="font-serif text-3xl text-text-primary mb-2 leading-tight">
+                                {title}
+                            </h2>
+                        </div>
+
+                        {/* 2. MIDDLE: Text (Truncated, No Scroll) */}
+                        <div className="w-full font-serif text-base text-text-primary opacity-90 leading-loose text-center mb-6">
+                            <p className="line-clamp-3">
+                                {description}
+                            </p>
+                        </div>
+
+                        {/* 3. BOTTOM: CTA (Always Visible) */}
+                        {project.href && (
+                            <div className="shrink-0 pt-4 w-full flex justify-center">
+                                <a
+                                    href={project.href}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-block border border-border-subtle px-8 py-3 font-utility text-[10px] uppercase tracking-widest text-green hover:bg-green hover:text-bg-primary transition-all"
+                                >
+                                    Read Full Article →
+                                </a>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
     };
 
-    const selectedProject = selectedProjectId ? getProjectById(selectedProjectId) : null;
-    const isPreview = !!selectedProject;
-
     return (
-        <div className="w-full h-full bg-bg-primary relative border-r border-green/20">
-
-            {/* Name - Top Left */}
+        <div className="w-full h-full bg-bg-primary relative border-r border-border-subtle overflow-hidden">
+            {/* Name - Top Left (Fixed) */}
             <Link
                 to="/"
                 className="absolute top-12 left-12 z-20 font-serif text-pink tracking-tight hover:opacity-80 transition-opacity leading-none"
@@ -34,76 +141,18 @@ export default function FieldPanel({ onOpenArchive, selectedProjectId }: FieldPa
                 Felipe Waldeck
             </Link>
 
-            {/* Centered Trigger / Lens Area - Removed p-8 */}
-            <div className="w-full h-full flex flex-col items-center justify-center relative">
+            {/* Content Area */}
+            {renderContent()}
 
-                {/* Hexagram Lens Container */}
-                <div
-                    className={`
-             relative cursor-pointer outline-none select-none
-             transition-all duration-700 ease-out flex flex-col items-center justify-center
-             ${isPreview ? "scale-100 opacity-100" : isHovered ? "opacity-90 scale-105" : "opacity-30 scale-100"}
-           `}
-                    onClick={isPreview ? undefined : onOpenArchive} // Neutral -> Click to Open Archive
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+            {/* Mobile Back Button (Only when previewing a project) */}
+            {selectedProjectId && (
+                <button
+                    onClick={onOpenArchive}
+                    className="md:hidden absolute top-32 left-12 z-50 font-utility text-xs uppercase tracking-widest text-text-primary border-b border-text-primary pb-1 animate-fade-in"
                 >
-                    {/* The Glyph */}
-                    <div className="relative z-0">
-                        <HexagramGlyph variant={isPreview ? "open" : "solid"} />
-                    </div>
-
-                    {/* Neutral State: Hover Info */}
-                    {!isPreview && (
-                        <div
-                            className={`
-                    mt-2 flex flex-col items-center text-center max-w-sm px-4
-                    transition-all duration-500 transform
-                    ${isHovered ? "opacity-100 translate-y-0 relative" : "opacity-0 -translate-y-4 absolute top-full pointer-events-none"}
-                  `}
-                        >
-                            <span className="font-serif text-3xl text-pink mb-2">
-                                {hexagram.number}. {hexagram.name}
-                            </span>
-                            <p className="font-serif text-sm text-text-primary px-2 mb-4 opacity-90 leading-relaxed">
-                                {hexagram.summary}
-                            </p>
-                            <span className="font-utility text-[10px] uppercase tracking-[0.25em] text-green border-b border-transparent hover:border-green pb-1 transition-all">
-                                View Archive →
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Preview State: Embedded Content Overlay */}
-                    {isPreview && selectedProject && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 z-10 animate-fade-in pointer-events-none">
-                            {/* Content Container */}
-                            <div className="pointer-events-auto flex flex-col items-center">
-                                <span className="font-utility text-[10px] uppercase tracking-[0.2em] text-green mb-4 block">
-                                    {selectedProject.date || "2024"}
-                                </span>
-                                <h3 className="font-serif text-2xl text-text-primary mb-4 leading-tight max-w-[240px]">
-                                    {selectedProject.title}
-                                </h3>
-                                <p className="font-serif text-xs text-text-primary opacity-80 mb-6 max-w-[220px] line-clamp-3 leading-relaxed">
-                                    {selectedProject.description}
-                                </p>
-                                {selectedProject.href && (
-                                    <a
-                                        href={selectedProject.href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="font-utility text-[10px] uppercase tracking-widest text-pink border-b border-pink hover:text-green hover:border-green transition-colors pb-1"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Read full text →
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+                    ← Close Preview
+                </button>
+            )}
         </div>
     );
 }
