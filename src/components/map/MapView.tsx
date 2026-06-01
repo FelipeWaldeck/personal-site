@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { CAT, WORKS, LINKS, nodeById, type MapNode, type LabelPos } from '../../data/mapData';
 import { linkPath } from '../../lib/mapGeometry';
 
@@ -55,9 +55,41 @@ function Links() {
 }
 
 export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [vb, setVb] = useState({ ...VB0 });
+  const drag = useRef<{ x: number; y: number; vx: number; vy: number } | null>(null);
+
+  const zoomAt = useCallback((cx: number, cy: number, factor: number) => {
+    setVb((v) => {
+      const nw = Math.min(VB0.w * 2.2, Math.max(VB0.w * 0.35, v.w * factor));
+      const k = nw / v.w;
+      return { x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k, w: nw, h: v.h * k };
+    });
+  }, []);
+
+  const toSvg = (clientX: number, clientY: number) => {
+    const r = svgRef.current!.getBoundingClientRect();
+    return { x: vb.x + ((clientX - r.left) / r.width) * vb.w, y: vb.y + ((clientY - r.top) / r.height) * vb.h };
+  };
+
+  const onWheel = (e: React.WheelEvent) => { const p = toSvg(e.clientX, e.clientY); zoomAt(p.x, p.y, e.deltaY > 0 ? 1.1 : 0.9); };
+  const onPointerDown = (e: React.PointerEvent) => {
+    if ((e.target as Element).closest('g.map-node')) return; // clicks on nodes select, don't pan
+    drag.current = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y };
+    svgRef.current!.classList.add('dragging');
+    svgRef.current!.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current) return;
+    const r = svgRef.current!.getBoundingClientRect();
+    setVb((v) => ({ ...v, x: drag.current!.vx - ((e.clientX - drag.current!.x) / r.width) * v.w, y: drag.current!.vy - ((e.clientY - drag.current!.y) / r.height) * v.h }));
+  };
+  const onPointerUp = () => { drag.current = null; svgRef.current?.classList.remove('dragging'); };
+
   return (
     <div className="mapwrap">
-      <svg viewBox={`${VB0.x} ${VB0.y} ${VB0.w} ${VB0.h}`} role="img" aria-label="Relational map of work">
+      <svg ref={svgRef} viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} role="img" aria-label="Relational map of work"
+        onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
         {GRID_LINES}
         <Links />
         {WORKS.map((n) => {
@@ -72,7 +104,12 @@ export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }
           );
         })}
       </svg>
-      <p className="hint">Series run along the grid; relations curve across it. Tap a stop to open the work.</p>
+      <div className="ctrl">
+        <button title="Zoom in" onClick={() => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 0.8)}>+</button>
+        <button title="Zoom out" onClick={() => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.25)}>−</button>
+        <button title="Reset view" onClick={() => setVb({ ...VB0 })}>⌂</button>
+      </div>
+      <p className="hint">Drag to pan, scroll to zoom. Tap a stop to open the work.</p>
     </div>
   );
 }
