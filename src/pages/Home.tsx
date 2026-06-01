@@ -12,7 +12,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   const onSelect = (n: MapNode) => {
-    if (n.external && n.href) window.open(n.href, '_blank', 'noopener');
+    if (n.external && n.href) window.open(n.href, '_blank', 'noopener,noreferrer');
     else navigate(`/work/${n.id}`);
   };
 
