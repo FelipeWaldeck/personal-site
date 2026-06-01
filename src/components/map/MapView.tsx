@@ -6,6 +6,13 @@ const FIELD = { w: 1040, h: 820 };
 const GRID = 40;
 const VB0 = { x: 120, y: 90, w: 880, h: 700 };
 
+const GRID_LINES: React.ReactNode[] = (() => {
+  const lines: React.ReactNode[] = [];
+  for (let gx = 0; gx <= FIELD.w; gx += GRID) lines.push(<line key={`v${gx}`} className="map-grid" x1={gx} y1={0} x2={gx} y2={FIELD.h} strokeWidth={1} />);
+  for (let gy = 0; gy <= FIELD.h; gy += GRID) lines.push(<line key={`h${gy}`} className="map-grid" x1={0} y1={gy} x2={FIELD.w} y2={gy} strokeWidth={1} />);
+  return lines;
+})();
+
 const col = (n: MapNode) => CAT[n.cat].color;
 
 function labelXY(n: MapNode): { x: number; y: number; anchor: 'middle' | 'start' | 'end' } {
@@ -34,7 +41,8 @@ function NodeDot({ n }: { n: MapNode }) {
 function Links() {
   const out: React.ReactNode[] = [];
   LINKS.forEach(([a, b, kind], i) => {
-    const na = nodeById(a)!, nb = nodeById(b)!;
+    const na = nodeById(a), nb = nodeById(b);
+    if (!na || !nb) return; // skip malformed link rather than crash
     const d = linkPath(na.g, nb.g, kind);
     if (kind === 'cross' || kind === 'crossdash') {
       out.push(<path key={`${i}a`} className="map-cross" d={d} stroke={col(na)} strokeDasharray="11 11" />);
@@ -47,14 +55,10 @@ function Links() {
 }
 
 export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }) {
-  const gridLines: React.ReactNode[] = [];
-  for (let gx = 0; gx <= FIELD.w; gx += GRID) gridLines.push(<line key={`v${gx}`} className="map-grid" x1={gx} y1={0} x2={gx} y2={FIELD.h} strokeWidth={1} />);
-  for (let gy = 0; gy <= FIELD.h; gy += GRID) gridLines.push(<line key={`h${gy}`} className="map-grid" x1={0} y1={gy} x2={FIELD.w} y2={gy} strokeWidth={1} />);
-
   return (
     <div className="mapwrap">
       <svg viewBox={`${VB0.x} ${VB0.y} ${VB0.w} ${VB0.h}`} role="img" aria-label="Relational map of work">
-        {gridLines}
+        {GRID_LINES}
         <Links />
         {WORKS.map((n) => {
           const l = labelXY(n);
