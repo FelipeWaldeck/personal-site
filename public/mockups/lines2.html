@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Heavy Transit — 4 Variations</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  body{background:var(--bg);color:var(--ink);font-family:var(--serif);margin:0;}
+  .wrap{max-width:1280px;margin:0 auto;padding:48px 40px 100px;}
+  header h1{font-size:34px;margin:0;color:var(--pink);}
+  header p{font-family:var(--sans);font-size:13px;color:var(--ink-dim);max-width:66ch;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:40px;}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .card{border:1px solid var(--line-soft);background:#0f130c;display:flex;flex-direction:column;}
+  .card svg{display:block;width:100%;height:230px;background:
+    radial-gradient(circle, rgba(230,230,234,0.05) 1px, transparent 1.4px);
+    background-size:34px 34px;background-position:14px 14px;}
+  .card .meta{padding:16px 18px;border-top:1px solid var(--line-soft);display:flex;gap:12px;align-items:baseline;}
+  .card .num{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--pink);width:24px;flex-shrink:0;}
+  .card .txt b{font-family:var(--sans);font-size:13px;font-weight:600;display:block;color:var(--ink);}
+  .card .txt span{font-family:var(--sans);font-size:11px;color:var(--ink-faint);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Heavy transit — 4 variations</h1>
+    <p>Building on #2. Each moves two dials together: <b style="color:var(--ink)">line weight</b> and <b style="color:var(--ink)">node style</b> — because in a transit aesthetic the stops carry as much identity as the routes. Same motif throughout: a writing run (green) → the MARE hub, an interchange node mid-route, plus a cross-medium relation (green/pink).</p>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const PINK='#ff6392', GREEN='#98ce00', BG='#0f130c';
+
+/* motif geometry */
+const N1={x:70,y:80},  N2={x:190,y:80}, N3={x:320,y:150};   // green run + turn down to hub
+const HUB={x:320,y:150};
+const REL={x:70,y:175};                                      // a cross node lower-left
+function curve(a,b){const dx=b.x-a.x,dy=b.y-a.y,c=Math.max(Math.abs(dx),Math.abs(dy))*0.5;
+  return Math.abs(dx)>=Math.abs(dy)
+    ? `M${a.x} ${a.y} C ${a.x+Math.sign(dx)*c} ${a.y}, ${b.x-Math.sign(dx)*c} ${b.y}, ${b.x} ${b.y}`
+    : `M${a.x} ${a.y} C ${a.x} ${a.y+Math.sign(dy)*c}, ${b.x} ${b.y-Math.sign(dy)*c}, ${b.x} ${b.y}`;}
+/* orthogonal elbow for the on-grid run */
+function elbow(a,b,r=14){const mx=b.x; // go right then down
+  return `M${a.x} ${a.y} L${mx-r} ${a.y} Q${mx} ${a.y} ${mx} ${a.y+r} L${mx} ${b.y}`;}
+
+const VARS=[
+  { t:'Medium weight · solid dots',
+    d:'3.5px lines, simple filled dots (7r). The restrained transit look — bold but light on its feet.',
+    w:3.5,
+    draw(g,W){
+      route(g,W,GREEN);
+      // nodes: plain filled dots, hub = filled-larger
+      dot(g,N1,7,GREEN); dot(g,N2,7,GREEN); dot(g,REL,7,GREEN);
+      dot(g,HUB,10,PINK);
+    }},
+  { t:'Heavy weight · ringed stops',
+    d:'6px lines, hollow ringed stations (transit "interchange" markers) — line shows through. Strong, mechanical.',
+    w:6,
+    draw(g,W){
+      route(g,W,GREEN);
+      ring(g,N1,7,GREEN,W); ring(g,N2,7,GREEN,W); ring(g,REL,7,GREEN,W);
+      ring(g,HUB,11,PINK,W);
+    }},
+  { t:'Extra-heavy · capsule stops',
+    d:'8px lines, white-cored capsule stops (a bar across the line, like a metro platform). Maximal, confident, very Marathon.',
+    w:8,
+    draw(g,W){
+      route(g,W,GREEN);
+      cap(g,N1,GREEN,W); cap(g,N2,GREEN,W); cap(g,REL,GREEN,W);
+      // hub: big filled ring with white core
+      g.appendChild(el('circle',{cx:HUB.x,cy:HUB.y,r:13,fill:PINK}));
+      g.appendChild(el('circle',{cx:HUB.x,cy:HUB.y,r:5,fill:BG}));
+    }},
+  { t:'Heavy lines · tiny nodes',
+    d:'6px lines but small 4r dots — the routes dominate, stops are quiet punctuation. Lines are the story.',
+    w:6,
+    draw(g,W){
+      route(g,W,GREEN);
+      dot(g,N1,4,GREEN); dot(g,N2,4,GREEN); dot(g,REL,4,GREEN);
+      ring(g,HUB,8,PINK,4);
+    }},
+];
+
+/* helpers */
+function route(g,W,col){
+  // on-grid run N1→N2, then elbow turn N2→down→HUB
+  g.appendChild(el('path',{d:`M${N1.x} ${N1.y} L${N2.x} ${N2.y}`,fill:'none',stroke:col,'stroke-width':W,'stroke-linecap':'round'}));
+  g.appendChild(el('path',{d:elbow(N2,HUB),fill:'none',stroke:col,'stroke-width':W,'stroke-linecap':'round','stroke-linejoin':'round'}));
+  // cross-medium relation REL→HUB as two-tone slashed, scaled to weight
+  const d=curve(REL,HUB), dw=Math.max(2,W-2);
+  g.appendChild(el('path',{d,fill:'none',stroke:GREEN,'stroke-width':dw,'stroke-dasharray':(W+2)+' '+(W+2)}));
+  g.appendChild(el('path',{d,fill:'none',stroke:PINK,'stroke-width':dw,'stroke-dasharray':(W+2)+' '+(W+2),'stroke-dashoffset':W+2}));
+}
+function dot(g,p,r,col){g.appendChild(el('circle',{cx:p.x,cy:p.y,r,fill:col}));}
+function ring(g,p,r,col,W){g.appendChild(el('circle',{cx:p.x,cy:p.y,r,fill:BG,stroke:col,'stroke-width':Math.max(2.5,W-2)}));}
+function cap(g,p,col,W){ // white-cored capsule: outer color circle + bg core
+  g.appendChild(el('circle',{cx:p.x,cy:p.y,r:W,fill:col}));
+  g.appendChild(el('circle',{cx:p.x,cy:p.y,r:Math.max(2,W-4),fill:BG}));
+}
+
+const grid=document.getElementById('grid');
+VARS.forEach((v,i)=>{
+  const card=document.createElement('div'); card.className='card';
+  const svg=el('svg',{viewBox:'0 0 390 230',preserveAspectRatio:'xMidYMid meet'});
+  const lg=el('g',{}); svg.appendChild(lg);
+  v.draw(lg,v.w);
+  card.appendChild(svg);
+  const meta=document.createElement('div'); meta.className='meta';
+  meta.innerHTML=`<div class="num">${String(i+1).padStart(2,'0')}</div><div class="txt"><b>${v.t}</b><span>${v.d}</span></div>`;
+  card.appendChild(meta);
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

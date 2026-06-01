@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Design System — Felipe Waldeck</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  body{ background:var(--bg); color:var(--ink); font-family:var(--serif); margin:0; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:64px 48px 120px; }
+  header h1{ font-size:var(--t-2xl); margin:0; color:var(--pink); }
+  header p{ color:var(--ink-dim); font-size:var(--t-sm); max-width:60ch; }
+  section{ margin-top:var(--s7); }
+  h2.sec{ font-family:var(--sans); font-size:var(--t-xs); letter-spacing:var(--track-label); text-transform:uppercase; color:var(--green); border-bottom:1px solid var(--line); padding-bottom:var(--s2); margin:0 0 var(--s4); }
+  .swatches{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:var(--s3); }
+  .sw{ border:1px solid var(--line-soft); }
+  .sw .chip{ height:80px; }
+  .sw .meta{ padding:10px 12px; font-family:var(--sans); }
+  .sw .meta b{ font-size:var(--t-sm); font-weight:500; display:block; }
+  .sw .meta code{ font-size:var(--t-xs); color:var(--ink-faint); }
+  .tag{ font-family:var(--sans); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--green); }
+  .typerow{ display:flex; align-items:baseline; gap:var(--s4); padding:var(--s2) 0; border-bottom:1px solid var(--line-soft); }
+  .typerow .k{ font-family:var(--sans); font-size:var(--t-xs); color:var(--ink-faint); width:120px; flex-shrink:0; letter-spacing:0.08em; }
+  .spaces{ display:flex; align-items:flex-end; gap:var(--s4); }
+  .spaces div{ background:var(--pink); width:24px; }
+  .spaces span{ display:block; font-family:var(--sans); font-size:9px; color:var(--ink-faint); margin-top:6px; text-align:center; }
+  .comp{ display:flex; flex-wrap:wrap; gap:var(--s6); align-items:flex-start; }
+  .toggle{ display:inline-flex; border:1px solid rgba(230,230,234,0.22); }
+  .toggle button{ font-family:var(--sans); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink); opacity:.55; background:transparent; border:0; padding:8px 22px; }
+  .toggle button.on{ background:var(--pink); color:var(--bg); opacity:1; font-weight:600; }
+  .row{ display:grid; grid-template-columns:1fr auto; gap:24px; align-items:baseline; padding:14px 0; border-bottom:1px solid var(--line-soft); width:360px; }
+  .row__t{ font-size:var(--t-lg); }
+  .row__t small{ display:block; font-family:var(--sans); font-size:11px; color:var(--ink-faint); margin-top:3px; }
+  .node{ display:flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13px; }
+  .dot{ width:13px; height:13px; border-radius:50%; }
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Design System</h1>
+    <p>Codified from the original site (<code>src/styles/index.css</code>). Two brand accents, two typefaces, one dark canvas. Items marked <span class="tag">EXT</span> are extensions for the map work and are up for review.</p>
+  </header>
+
+  <section>
+    <h2 class="sec">Canvas &amp; Ink</h2>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#141810;border-bottom:1px solid var(--line-soft)"></div><div class="meta"><b>Ground</b><code>#141810</code></div></div>
+      <div class="sw"><div class="chip" style="background:#1b2017"></div><div class="meta"><b>Surface <span class="tag">EXT</span></b><code>#1b2017</code></div></div>
+      <div class="sw"><div class="chip" style="background:#e6e6ea"></div><div class="meta"><b>Ink</b><code>#e6e6ea</code></div></div>
+      <div class="sw"><div class="chip" style="background:rgba(230,230,234,0.62)"></div><div class="meta"><b>Ink dim</b><code>62%</code></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Brand Accents — the only two</h2>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#ff6392"></div><div class="meta"><b>Pink</b><code>#ff6392 · titles, hover, action</code></div></div>
+      <div class="sw"><div class="chip" style="background:#98ce00"></div><div class="meta"><b>Green</b><code>#98ce00 · hexagram, links</code></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Category Palette <span class="tag">EXT — veto me</span></h2>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#ff6392"></div><div class="meta"><b>Platform</b><code>#ff6392 (brand)</code></div></div>
+      <div class="sw"><div class="chip" style="background:#98ce00"></div><div class="meta"><b>Writing</b><code>#98ce00 (brand)</code></div></div>
+      <div class="sw"><div class="chip" style="background:#e8b04b"></div><div class="meta"><b>Design</b><code>#e8b04b (added)</code></div></div>
+      <div class="sw"><div class="chip" style="background:#6ea8d8"></div><div class="meta"><b>Video</b><code>#6ea8d8 (added)</code></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Type — Libre Baskerville · DM Sans</h2>
+    <div class="typerow"><span class="k">Display 46</span><span style="font-size:46px">The cybernetic subject</span></div>
+    <div class="typerow"><span class="k">Section 30</span><span style="font-size:30px">Everything, and how it connects</span></div>
+    <div class="typerow"><span class="k">Row 21</span><span style="font-size:21px">MARE: The Condition</span></div>
+    <div class="typerow"><span class="k">Body 16</span><span style="font-size:16px">Researcher and writer on contemporary technical systems.</span></div>
+    <div class="typerow"><span class="k">Label 10 · DM</span><span class="ds-label">Latest writing</span></div>
+  </section>
+
+  <section>
+    <h2 class="sec">Space — 4-based</h2>
+    <div class="spaces">
+      <div style="height:4px"></div><div style="height:8px"></div><div style="height:16px"></div><div style="height:24px"></div><div style="height:32px"></div><div style="height:48px"></div><div style="height:64px"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Components</h2>
+    <div class="comp">
+      <div>
+        <div class="tag" style="margin-bottom:10px">Toggle (sharp)</div>
+        <div class="toggle"><button>Index</button><button class="on">Map</button></div>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:10px">Index row</div>
+        <div class="row"><div class="row__t">Predictionism<small>2025 · essay</small></div><div style="color:var(--ink-faint)">›</div></div>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:14px">Map nodes</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="node"><span class="dot" style="background:#ff6392"></span>Platform</div>
+          <div class="node"><span class="dot" style="background:#98ce00"></span>Writing</div>
+          <div class="node"><span class="dot" style="background:#e8b04b"></span>Design</div>
+          <div class="node"><span class="dot" style="background:#6ea8d8"></span>Video</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

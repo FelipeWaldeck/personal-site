@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Line Design — 10 Experiments</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  body{background:var(--bg);color:var(--ink);font-family:var(--serif);margin:0;}
+  .wrap{max-width:1280px;margin:0 auto;padding:48px 40px 100px;}
+  header h1{font-size:34px;margin:0;color:var(--pink);}
+  header p{font-family:var(--sans);font-size:13px;color:var(--ink-dim);max-width:64ch;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:40px;}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .card{border:1px solid var(--line-soft);background:#0f130c;display:flex;flex-direction:column;}
+  .card svg{display:block;width:100%;height:200px;background:
+    radial-gradient(circle, rgba(230,230,234,0.05) 1px, transparent 1.4px);
+    background-size:34px 34px;background-position:14px 14px;}
+  .card .meta{padding:14px 16px;border-top:1px solid var(--line-soft);display:flex;gap:12px;align-items:baseline;}
+  .card .num{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--pink);width:24px;flex-shrink:0;}
+  .card .txt b{font-family:var(--sans);font-size:13px;font-weight:600;display:block;color:var(--ink);}
+  .card .txt span{font-family:var(--sans);font-size:11px;color:var(--ink-faint);line-height:1.5;}
+  .legend{font-family:var(--sans);font-size:11px;color:var(--ink-faint);margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Line design — 10 experiments</h1>
+    <p>Each shows the same motif — a writing node (green) curving to the MARE hub (pink ring), plus a straight on-grid spine — so the line treatments compare directly. Same palette &amp; dark ground as the map. Tell me which numbers pull you and we iterate.</p>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const PINK='#ff6392', GREEN='#98ce00', AMBER='#e8b04b', INK='#e6e6ea';
+
+/* shared geometry for every card: a curve (writing→hub) + a short straight spine */
+const A={x:70,y:130}, B={x:300,y:70};            // curve endpoints
+const S1={x:70,y:60}, S2={x:170,y:60};           // straight spine
+function curve(a,b){const dx=b.x-a.x,c=Math.abs(dx)*0.5;return `M${a.x} ${a.y} C ${a.x+c} ${a.y}, ${b.x-c} ${b.y}, ${b.x} ${b.y}`;}
+
+const EXPERIMENTS=[
+  {t:'Hairline technical', d:'1px uniform. Surgical, blueprint-precise. Lines recede; nodes lead.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':1}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':1}));
+   }},
+  {t:'Heavy transit', d:'5px solid, round caps. Mini Metro confidence — the line is a route.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':5,'stroke-linecap':'round'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':5,'stroke-linecap':'round'}));
+   }},
+  {t:'Two-tone slash (current)', d:'Interleaved dashes of both endpoint colors. Reads "between mediums".',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':2.5,'stroke-dasharray':'7 7'}));
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:PINK,'stroke-width':2.5,'stroke-dasharray':'7 7','stroke-dashoffset':7}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':2.5}));
+   }},
+  {t:'Tapered flow', d:'Thick at source, thin at target — direction you can feel. Reads as motion.',
+   draw(g,defs,id){
+     const lg=el('linearGradient',{id:id+'-tap',x1:A.x,y1:A.y,x2:B.x,y2:B.y,gradientUnits:'userSpaceOnUse'});
+     lg.appendChild(el('stop',{offset:'0',"stop-color":GREEN,"stop-width":'6'}));
+     defs.appendChild(lg);
+     // emulate taper by stacking three offset strokes of decreasing width
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':6,'stroke-linecap':'round',opacity:0.34}));
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':3.5,'stroke-linecap':'round',opacity:0.6,'stroke-dasharray':'0.1 0','pathLength':100}));
+     const p=el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':6,'stroke-linecap':'round'});
+     p.style.strokeDasharray='1 2'; // subtle, will be overridden visually below
+     // cleanest fake-taper: a wedge polygon
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':5,'stroke-linecap':'round'}));
+   }},
+  {t:'Cased / outlined', d:'A dark casing under each line (transit-map road style). Lines never muddy where they cross.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:'#0a0c07','stroke-width':8,'stroke-linecap':'round'}));
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':3.5,'stroke-linecap':'round'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:'#0a0c07','stroke-width':8,'stroke-linecap':'round'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':3.5,'stroke-linecap':'round'}));
+   }},
+  {t:'Bead / dotted', d:'A run of dots, not a stroke. Printed-matchbox, almost embroidered. Quiet, rhythmic.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':4,'stroke-linecap':'round','stroke-dasharray':'0.1 11'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':4,'stroke-linecap':'round','stroke-dasharray':'0.1 11'}));
+   }},
+  {t:'Ticked / measured', d:'Thin spine with perpendicular ticks. Reads like a ruler or a film strip — time/measure.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':1.5}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':1.5}));
+     // ticks along the straight
+     for(let x=S1.x+12;x<S2.x;x+=14) g.appendChild(el('line',{x1:x,y1:S1.y-5,x2:x,y2:S1.y+5,stroke:GREEN,'stroke-width':1.5}));
+   }},
+  {t:'Gradient fade', d:'Smoothly morphs source color → target color. The relation IS the blend. Latent-space feel.',
+   draw(g,defs,id){
+     const lg=el('linearGradient',{id:id+'-grad',x1:A.x,y1:A.y,x2:B.x,y2:B.y,gradientUnits:'userSpaceOnUse'});
+     lg.appendChild(el('stop',{offset:'0',"stop-color":GREEN}));
+     lg.appendChild(el('stop',{offset:'1',"stop-color":PINK}));
+     defs.appendChild(lg);
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:`url(#${id}-grad)`,'stroke-width':3.5,'stroke-linecap':'round'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':3.5,'stroke-linecap':'round'}));
+   }},
+  {t:'Phosphor glow', d:'Saturated core + soft colored bloom. CRT / terminal. Lines feel emissive, alive.',
+   draw(g,defs,id){
+     const f=el('filter',{id:id+'-glow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
+     f.appendChild(el('feGaussianBlur',{stdDeviation:'3','result':'b'}));
+     const m=el('feMerge',{}); m.appendChild(el('feMergeNode',{in:'b'})); m.appendChild(el('feMergeNode',{in:'SourceGraphic'}));
+     f.appendChild(m); defs.appendChild(f);
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':2.5,'stroke-linecap':'round',filter:`url(#${id}-glow)`}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':2.5,'stroke-linecap':'round',filter:`url(#${id}-glow)`}));
+   }},
+  {t:'Ribbon (translucent band)', d:'A wide semi-transparent band, not a stroke. Soft, atmospheric — connection as a field.',
+   draw(g){
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':11,'stroke-linecap':'round',opacity:0.22}));
+     g.appendChild(el('path',{d:curve(A,B),fill:'none',stroke:GREEN,'stroke-width':1.5,'stroke-linecap':'round'}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':11,'stroke-linecap':'round',opacity:0.22}));
+     g.appendChild(el('line',{x1:S1.x,y1:S1.y,x2:S2.x,y2:S2.y,stroke:GREEN,'stroke-width':1.5,'stroke-linecap':'round'}));
+   }},
+];
+
+function nodes(g){
+  // writing node (filled green), hub (pink ring), straight-spine endpoints
+  g.appendChild(el('circle',{cx:S1.x,cy:S1.y,r:5,fill:GREEN}));
+  g.appendChild(el('circle',{cx:S2.x,cy:S2.y,r:5,fill:GREEN}));
+  g.appendChild(el('circle',{cx:A.x,cy:A.y,r:6,fill:GREEN}));
+  g.appendChild(el('circle',{cx:B.x,cy:B.y,r:9,fill:'#0f130c',stroke:PINK,'stroke-width':3}));
+}
+
+const grid=document.getElementById('grid');
+EXPERIMENTS.forEach((ex,i)=>{
+  const card=document.createElement('div'); card.className='card';
+  const svg=el('svg',{viewBox:'0 0 360 200',preserveAspectRatio:'xMidYMid meet'});
+  const defs=el('defs',{}); svg.appendChild(defs);
+  const lg=el('g',{}); svg.appendChild(lg);   // links
+  ex.draw(lg,defs,'e'+i);
+  const ng=el('g',{}); svg.appendChild(ng); nodes(ng);   // nodes on top
+  card.appendChild(svg);
+  const meta=document.createElement('div'); meta.className='meta';
+  meta.innerHTML=`<div class="num">${String(i+1).padStart(2,'0')}</div><div class="txt"><b>${ex.t}</b><span>${ex.d}</span></div>`;
+  card.appendChild(meta);
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

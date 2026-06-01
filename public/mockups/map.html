@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Felipe Waldeck — Map / Index</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  :root{ --amber:var(--cat-design); --cyan:var(--cat-video); --mono:var(--sans); }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh;}
+
+  /* ---------- RAIL ---------- */
+  .rail{padding:52px 32px;border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+  .rail__name{font-family:var(--serif);font-size:32px;line-height:1.12;letter-spacing:-0.01em;color:var(--pink);}
+  .rail__bio{font-size:13.5px;line-height:1.55;opacity:0.85;margin:22px 0 0;}
+  .rail__nav{display:flex;gap:18px;margin-top:28px;}
+  .rail__nav a{font-family:var(--mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;opacity:0.55;}
+  .rail__nav a:hover{opacity:1;color:var(--pink);}
+  .rail__lbl{font-family:var(--mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--green);opacity:0.9;margin:46px 0 14px;}
+  .rail__latest{display:flex;flex-direction:column;gap:12px;}
+  .rail__latest a{font-size:13.5px;line-height:1.3;opacity:0.85;}
+  .rail__latest a:hover{opacity:1;color:var(--pink);}
+  .rail__hex{display:flex;gap:14px;align-items:center;margin-top:auto;padding-top:40px;}
+  .rail__hex .glyph{display:flex;flex-direction:column;gap:3px;width:30px;flex-shrink:0;}
+  .rail__hex .glyph i{height:4px;background:var(--green);display:block;}
+  .rail__hex .glyph .split{display:flex;gap:6px;}
+  .rail__hex .glyph .split i{flex:1;}
+  .rail__hex span{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);opacity:0.8;}
+
+  /* ---------- STAGE ---------- */
+  .stage{padding:32px 40px 40px;display:flex;flex-direction:column;min-width:0;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;}
+  .toggle{display:inline-flex;border:1px solid rgba(230,230,234,0.22);}
+  .toggle button{font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);opacity:0.55;background:transparent;border:0;padding:8px 22px;cursor:pointer;}
+  .toggle button.on{background:var(--pink);color:var(--bg);opacity:1;font-weight:600;}
+
+  /* ---------- MAP ---------- */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;}
+  .legend div{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;opacity:0.7;}
+  .legend i{width:16px;height:3px;border-radius:2px;display:block;}
+  .legend i.ring{width:11px;height:11px;border-radius:50%;background:transparent;border:2px solid var(--ink);}
+  .mapwrap{margin-top:16px;border:1px solid var(--line-soft);position:relative;overflow:hidden;background:var(--bg);}
+  .mapwrap svg{display:block;width:100%;height:620px;cursor:grab;touch-action:none;}
+  .mapwrap svg.drag{cursor:grabbing;}
+  svg .grid{stroke:rgba(230,230,234,0.05);}
+  svg .spine{stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  svg .cross{stroke-width:7;fill:none;stroke-linecap:butt;stroke-linejoin:round;}
+  svg .dash{stroke-dasharray:1 11;stroke-width:7;fill:none;opacity:0.7;stroke-linecap:round;}
+  svg text.node{font-family:var(--mono);font-size:11px;fill:var(--ink);}
+  svg text.node.dim{opacity:0.7;}
+  svg .hit{cursor:pointer;}
+  svg .node-dot{transition:opacity .15s ease;}
+  svg .hit:hover .node-dot{opacity:0.8;}
+  svg .hit:hover text.node{fill:#fff;}
+  .modeswitch{position:absolute;left:12px;top:12px;display:inline-flex;border:1px solid rgba(230,230,234,0.22);background:var(--bg);}
+  .modeswitch button{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);opacity:0.5;background:transparent;border:0;padding:6px 14px;cursor:pointer;}
+  .modeswitch button.on{background:var(--ink);color:var(--bg);opacity:1;}
+  .ctrl{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;}
+  .ctrl button{font-family:var(--mono);font-size:14px;height:30px;min-width:30px;padding:0 8px;background:var(--bg-raise);color:var(--ink);border:1px solid var(--line-soft);cursor:pointer;}
+  .ctrl button#export{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:0 12px;}
+  svg .hit{cursor:grab;}
+  svg .hit:active{cursor:grabbing;}
+  .ctrl button:hover{border-color:var(--pink);color:var(--pink);}
+  .hint{font-family:var(--mono);font-size:11px;opacity:0.45;margin-top:14px;}
+
+  /* ---------- INDEX ---------- */
+  .index{margin-top:16px;max-width:900px;}
+  .group{margin-top:36px;}
+  .group__head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line);padding-bottom:8px;}
+  .group__head h2{font-family:var(--mono);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;margin:0;}
+  .group__head span{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;opacity:0.4;}
+  .row{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--line-soft);}
+  .row:hover .row__t{color:var(--pink);}
+  .row__t{font-family:var(--serif);font-size:20px;transition:color .2s;}
+  .row__t small{display:block;font-family:var(--mono);font-size:11px;opacity:0.5;margin-top:4px;}
+  .row__c{font-family:var(--mono);font-size:14px;opacity:0.45;}
+
+  .hidden{display:none;}
+  @media(max-width:820px){.app{grid-template-columns:1fr;}.rail{position:static;height:auto;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="rail__name">Felipe<br>Waldeck</div>
+    <p class="rail__bio">Researcher and writer on the cultural and political consequences of contemporary technical systems. Co-founder of MARE.</p>
+    <nav class="rail__nav"><a>CV</a><a>Reading</a><a>Substack ↗</a></nav>
+    <div class="rail__lbl">Latest writing</div>
+    <div class="rail__latest">
+      <a>Zones of Coupling (2/2) — Manifestation</a>
+      <a>Zones of Coupling (1/2) — Possession</a>
+      <a>The Technical Flesh (1/2)</a>
+    </div>
+    <div class="rail__hex">
+      <div class="glyph"><i></i><i></i><div class="split"><i></i><i></i></div><div class="split"><i></i><i></i></div><div class="split"><i></i><i></i></div><div class="split"><i></i><i></i></div></div>
+      <span>#52 · Keeping Still</span>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="topbar">
+      <div class="toggle">
+        <button id="btn-index">Index</button>
+        <button id="btn-map" class="on">Map</button>
+      </div>
+      <div class="legend">
+        <div><i style="background:var(--pink)"></i>Platform</div>
+        <div><i style="background:var(--green)"></i>Writing</div>
+        <div><i style="background:var(--amber)"></i>Design</div>
+        <div><i style="background:var(--cyan)"></i>Moving Image</div>
+        <div><i class="ring"></i>Collab</div>
+      </div>
+    </div>
+
+    <!-- MAP VIEW -->
+    <section id="view-map">
+      <div class="mapwrap">
+        <svg id="map" role="img" aria-label="Relational map of work"></svg>
+        <div class="ctrl">
+          <button id="export" title="Copy arranged coordinates">Export</button>
+          <button id="zin" title="Zoom in">+</button>
+          <button id="zout" title="Zoom out">−</button>
+          <button id="zreset" title="Reset view">⌂</button>
+        </div>
+      </div>
+      <p class="hint">Drag a node to move it (snaps to grid) · drag empty space to pan · scroll to zoom · <b style="opacity:.85">Export</b> copies your arrangement.</p>
+    </section>
+
+    <!-- INDEX VIEW -->
+    <section id="view-index" class="hidden">
+      <div class="index" id="index"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ---------------- DATA ----------------
+   x,y are grid coordinates (GRID=40). Position encodes RELATEDNESS, not a
+   rigid lane. cat → color + index group. lbl → label placement.
+   Add work: drop an {x,y}, link it. Map + index both redraw from this.
+*/
+const CAT = {
+  platform:{label:'Platform',     color:'#ff6392'},
+  writing :{label:'Writing',      color:'#98ce00'},
+  design  :{label:'Design',       color:'#e8b04b'},
+  video   :{label:'Moving Image', color:'#6ea8d8'},
+};
+
+/* Each node carries TWO committed layouts:
+   g:[x,y] = aligned grid position (transit/circuit logic)
+   f:[x,y] = organic scatter position (constellation logic)
+   gl / fl = label placement per mode. The render commits fully to one. */
+const WORKS = [
+  /* THE WRITING TRAIL — reading order:
+     The Condition → Predictionism → Interiority trio → Technical Flesh → Coupling trio */
+  {id:'cond',    cat:'writing', g:[560,280], f:[200,140], gl:'up',   fl:'up',    title:'MARE: The Condition',      meta:'2025 · framing text — where it begins'},
+  {id:'predict', cat:'writing', g:[440,320], f:[360,200], gl:'left', fl:'up',    title:'Predictionism',            meta:'2025 · essay'},
+  {id:'interior',cat:'writing', g:[400,440], f:[300,330], gl:'left', fl:'left',  title:'Conditions of Interiority',meta:'Nov 2025 · Interiority I'},
+  {id:'cyber',   cat:'writing', g:[400,520], f:[200,430], gl:'left', fl:'left',  title:'The Cybernetic Subject',   meta:'Dec 2025 · Interiority II'},
+  {id:'afterint',cat:'writing', g:[400,600], f:[380,460], gl:'left', fl:'right', title:'After Interiority',        meta:'Jan 2026 · Interiority III'},
+  {id:'flesh',   cat:'writing', g:[480,680], f:[300,600], gl:'up',   fl:'left',  title:'The Technical Flesh',      meta:'Mar 2026 · Coupling, pt. 1 of 2'},
+  {id:'zones1',  cat:'writing', g:[520,720], f:[470,620], gl:'right',fl:'right', title:'Zones of Coupling I',      meta:'Apr 2026 · Possession'},
+  {id:'zones2',  cat:'writing', g:[520,760], f:[410,730], gl:'right',fl:'left',  title:'Zones of Coupling II',     meta:'May 2026 · Manifestation'},
+  {id:'zones3',  cat:'writing', g:[520,800], f:[600,730], gl:'right',fl:'right', dim:true, title:'Zones of Coupling III', meta:'forthcoming'},
+
+  /* MARE cluster */
+  {id:'mare',    cat:'platform',g:[680,280], f:[740,360], gl:'up',   fl:'up',    hub:true, title:'MARE',           meta:'2025– · platform'},
+  {id:'visid',   cat:'design',  g:[800,280], f:[700,500], gl:'up',   fl:'left',  title:'Visual identity, MARE',    meta:'2025'},
+  {id:'iface',   cat:'design',  g:[920,280], f:[880,470], gl:'up',   fl:'right', title:'Interface, MARE',          meta:'2025'},
+
+  /* Namshub — its own platform (like MARE), with its own design work */
+  {id:'namshub', cat:'platform',g:[680,440], f:[910,600], gl:'left', fl:'down',  hub:true, title:'Namshub',        meta:'2025– · ambient writing platform · namshub.observer'},
+  {id:'ns-visid',cat:'design',  g:[800,440], f:[820,640], gl:'down', fl:'down',  title:'Visual identity, Namshub', meta:'2026'},
+  {id:'ns-iface',cat:'design',  g:[960,440], f:[940,660], gl:'down', fl:'down',  title:'Interface, Namshub',       meta:'2026'},
+
+  /* Moving image */
+  {id:'sydney',  cat:'video',   g:[680,160], f:[760,660], gl:'up',   fl:'right', collab:true, title:'Shortwave × Soft Centre', meta:'2026 · Sydney Opera House, Vivid Live · Creative Consultant'},
+];
+const W = WORKS.reduce((m,w)=>(m[w.id]=w,m),{});
+
+/* flow = the reading trail / within-series sequence (solid smooth curve, source color)
+   cross = cross-medium relation (two-tone slashed smooth curve)
+   dash  = forthcoming / loose downstream (dotted)
+   The trail threads through everything as one continuous woven line. */
+const LINKS = [
+  /* the reading trail, in order */
+  ['cond','predict','flow'],       /* The Condition → Predictionism            */
+  ['predict','interior','flow'],   /* → into the first trio                     */
+  ['interior','cyber','flow'], ['cyber','afterint','flow'],   /* Interiority trio */
+  ['afterint','flesh','flow'],     /* the trio flows into the Coupling arc      */
+  ['flesh','zones1','flow'], ['zones1','zones2','flow'], ['zones2','zones3','dash'], /* Coupling trio */
+
+  /* cross-medium weave into the MARE cluster */
+  ['cond','mare','cross'],         /* The Condition is MARE's founding/framing text */
+  ['mare','visid','cross'],        /* platform → its visual identity            */
+  ['visid','iface','flow'],        /* identity → interface                      */
+  ['mare','sydney','cross'],       /* platform thinking → the AV collaboration  */
+
+  /* MARE ↔ Namshub — the two platforms (dashed, like Condition↔MARE) */
+  ['mare','namshub','cross'],
+
+  /* Technical Flesh ↔ Namshub — the essay's thinking informs the writing platform (dashed green/pink) */
+  ['flesh','namshub','crossdash'],
+
+  /* Namshub cluster — its own platform + design lineage */
+  ['namshub','ns-visid','cross'],  /* platform → its visual identity            */
+  ['ns-visid','ns-iface','flow'],  /* identity → interface                      */
+];
+
+/* ---------------- GEOMETRY ---------------- */
+const GRID = 40;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('map');
+const el = (n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const pt = id => { const p=W[id].g; return {x:p[0], y:p[1]}; };
+const lblOf = w => w.gl;
+const COL = id => CAT[W[id].cat].color;
+
+function roundedPath(pts, r){
+  if(pts.length<2) return '';
+  let d=`M${pts[0].x} ${pts[0].y}`;
+  for(let i=1;i<pts.length-1;i++){
+    const p0=pts[i-1], p1=pts[i], p2=pts[i+1];
+    const v1={x:p1.x-p0.x,y:p1.y-p0.y}, v2={x:p2.x-p1.x,y:p2.y-p1.y};
+    const l1=Math.hypot(v1.x,v1.y)||1, l2=Math.hypot(v2.x,v2.y)||1;
+    const rr=Math.min(r,l1/2,l2/2);
+    d+=` L${p1.x-v1.x/l1*rr} ${p1.y-v1.y/l1*rr} Q${p1.x} ${p1.y} ${p1.x+v2.x/l2*rr} ${p1.y+v2.y/l2*rr}`;
+  }
+  const last=pts[pts.length-1];
+  return d+` L${last.x} ${last.y}`;
+}
+/* GRID mode: pure Manhattan — vertical then horizontal, rounded elbow. No diagonals. */
+function ortho(a,b){
+  const p=pt(a), q=pt(b);
+  if(Math.abs(p.x-q.x)<2 || Math.abs(p.y-q.y)<2) return `M${p.x} ${p.y} L${q.x} ${q.y}`;
+  return roundedPath([p,{x:p.x,y:q.y},q], 14);
+}
+/* smooth bezier (used for cross relations) — tangent along the dominant axis
+   so curves leave/enter nodes cleanly and weave through the field */
+function smooth(a,b){
+  const p=pt(a), q=pt(b), dx=q.x-p.x, dy=q.y-p.y;
+  if(Math.abs(dx)>=Math.abs(dy)){
+    const c=Math.abs(dx)*0.45;
+    return `M${p.x} ${p.y} C ${p.x+Math.sign(dx)*c} ${p.y}, ${q.x-Math.sign(dx)*c} ${q.y}, ${q.x} ${q.y}`;
+  }
+  const c=Math.abs(dy)*0.45;
+  return `M${p.x} ${p.y} C ${p.x} ${p.y+Math.sign(dy)*c}, ${q.x} ${q.y-Math.sign(dy)*c}, ${q.x} ${q.y}`;
+}
+
+/* ---------------- RENDER ---------------- */
+const FIELD = {w:1040, h:820};
+function drawMap(){
+  svg.innerHTML='';
+
+  /* the grid is always present — it's the structure */
+  for(let gx=0;gx<=FIELD.w;gx+=GRID) svg.appendChild(el('line',{class:'grid',x1:gx,y1:0,x2:gx,y2:FIELD.h,'stroke-width':1}));
+  for(let gy=0;gy<=FIELD.h;gy+=GRID) svg.appendChild(el('line',{class:'grid',x1:0,y1:gy,x2:FIELD.w,y2:gy,'stroke-width':1}));
+
+  /* SEQUENCES (flow/dash) = heavy straight transit lines on the grid.
+     RELATIONS (cross/crossdash) = previous iteration: fine two-tone slashed curves. */
+  LINKS.forEach(([a,b,t])=>{
+    if(t==='cross' || t==='crossdash'){
+      /* cross = smooth relational curve · crossdash = contoured (orthogonal) along the grid.
+         both use the same heavy two-tone slash so all relations read alike. */
+      const d = t==='crossdash' ? ortho(a,b) : smooth(a,b);
+      svg.appendChild(el('path',{class:'cross',d,stroke:COL(a),'stroke-dasharray':'11 11'}));
+      svg.appendChild(el('path',{class:'cross',d,stroke:COL(b),'stroke-dasharray':'11 11','stroke-dashoffset':11}));
+    } else {
+      svg.appendChild(el('path',{class:t==='dash'?'dash':'spine',d:ortho(a,b),stroke:COL(a)}));
+    }
+  });
+
+  for(const w of WORKS){
+    const col=CAT[w.cat].color, p=pt(w.id), g=el('g',{class:'hit','data-id':w.id});
+    /* #3 capsule stops: filled color disc + bg-colored core punched out (one notch smaller) */
+    if(w.hub){
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:12,fill:col,class:'node-dot'}));
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:5,fill:'var(--bg)'}));
+    } else if(w.collab){
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:9,fill:'var(--bg)',stroke:col,'stroke-width':2.5,class:'node-dot'}));
+    } else {
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:8,fill:col,opacity:w.dim?0.55:1,class:'node-dot'}));
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:3,fill:'var(--bg)',opacity:w.dim?0.55:1}));
+    }
+    /* labels clear the capsules */
+    const lbl=lblOf(w), rad=w.hub?12:(w.collab?9:8);
+    let tx=p.x, ty=p.y+rad+15, anc='middle';
+    if(lbl==='up'){ ty=p.y-rad-10; }
+    else if(lbl==='down'){ ty=p.y+rad+18; }
+    else if(lbl==='left'){ tx=p.x-rad-9; ty=p.y+4; anc='end'; }
+    else if(lbl==='right'){ tx=p.x+rad+9; ty=p.y+4; anc='start'; }
+    const t=el('text',{class:'node'+(w.dim?' dim':''),x:tx,y:ty,'text-anchor':anc});
+    t.textContent=w.title;
+    if(w.hub){t.setAttribute('font-family','var(--serif)');t.setAttribute('font-size','15');t.setAttribute('fill',col);}
+    g.appendChild(t);
+    svg.appendChild(g);
+  }
+}
+
+/* ---------------- PAN & ZOOM ---------------- */
+const VB0={x:120,y:90,w:880,h:700};
+let vb={...VB0};
+const apply=()=>svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+function zoomAt(cx,cy,factor){
+  const nw=Math.min(VB0.w*2.2, Math.max(VB0.w*0.35, vb.w*factor));
+  const k=nw/vb.w;
+  vb.x=cx-(cx-vb.x)*k; vb.y=cy-(cy-vb.y)*k; vb.w=nw; vb.h*=k; apply();
+}
+function svgPt(ev){const r=svg.getBoundingClientRect();return{x:vb.x+(ev.clientX-r.left)/r.width*vb.w, y:vb.y+(ev.clientY-r.top)/r.height*vb.h};}
+svg.addEventListener('wheel',e=>{e.preventDefault();const p=svgPt(e);zoomAt(p.x,p.y,e.deltaY>0?1.1:0.9);},{passive:false});
+
+const snap = v => Math.round(v/GRID)*GRID;   /* keep arrangements on the grid */
+let pan=null, nodeDrag=null;
+
+svg.addEventListener('pointerdown',e=>{
+  const hit=e.target.closest('g.hit');
+  if(hit){                                   /* dragging a NODE */
+    nodeDrag={id:hit.getAttribute('data-id')};
+    svg.setPointerCapture(e.pointerId);
+    e.stopPropagation();
+  } else {                                   /* dragging the CANVAS (pan) */
+    pan={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y};
+    svg.classList.add('drag'); svg.setPointerCapture(e.pointerId);
+  }
+});
+svg.addEventListener('pointermove',e=>{
+  if(nodeDrag){
+    const p=svgPt(e); W[nodeDrag.id].g=[snap(p.x),snap(p.y)]; drawMap();
+  } else if(pan){
+    const r=svg.getBoundingClientRect();
+    vb.x=pan.vx-(e.clientX-pan.x)/r.width*vb.w; vb.y=pan.vy-(e.clientY-pan.y)/r.height*vb.h; apply();
+  }
+});
+svg.addEventListener('pointerup',()=>{nodeDrag=null;pan=null;svg.classList.remove('drag');});
+document.getElementById('zin').onclick=()=>zoomAt(vb.x+vb.w/2,vb.y+vb.h/2,0.8);
+document.getElementById('zout').onclick=()=>zoomAt(vb.x+vb.w/2,vb.y+vb.h/2,1.25);
+document.getElementById('zreset').onclick=()=>{vb={...VB0};apply();};
+
+/* ---------------- EXPORT ARRANGEMENT ---------------- */
+document.getElementById('export').onclick=async()=>{
+  const lines=WORKS.map(w=>`  {id:'${w.id}', g:[${w.g[0]},${w.g[1]}]},`).join('\n');
+  const out=`/* arranged ${new Date().toISOString().slice(0,10)} */\n[\n${lines}\n]`;
+  try{ await navigator.clipboard.writeText(out); document.getElementById('export').textContent='Copied ✓'; }
+  catch(_){ const ta=document.createElement('textarea'); ta.value=out; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); document.getElementById('export').textContent='Copied ✓'; }
+  setTimeout(()=>document.getElementById('export').textContent='Export',1400);
+};
+
+/* ---------------- INDEX ---------------- */
+function drawIndex(){
+  const root=document.getElementById('index'); root.innerHTML='';
+  for(const k in CAT){
+    const items=WORKS.filter(w=>w.cat===k); if(!items.length) continue;
+    const g=document.createElement('div'); g.className='group';
+    g.innerHTML=`<div class="group__head"><h2 style="color:${CAT[k].color}">${CAT[k].label}</h2><span>${String(items.length).padStart(2,'0')} entries</span></div>`;
+    for(const w of items){
+      const r=document.createElement('div'); r.className='row';
+      r.innerHTML=`<div class="row__t">${w.title}<small>${w.meta}</small></div><div class="row__c">›</div>`;
+      g.appendChild(r);
+    }
+    root.appendChild(g);
+  }
+}
+
+/* ---------------- TOGGLE ---------------- */
+const vMap=document.getElementById('view-map'), vIdx=document.getElementById('view-index');
+const bMap=document.getElementById('btn-map'), bIdx=document.getElementById('btn-index');
+function show(which){
+  const map=which==='map';
+  vMap.classList.toggle('hidden',!map); vIdx.classList.toggle('hidden',map);
+  bMap.classList.toggle('on',map); bIdx.classList.toggle('on',!map);
+}
+bMap.onclick=()=>show('map'); bIdx.onclick=()=>show('index');
+
+drawMap(); apply(); drawIndex(); show('map');
+</script>
+</body>
+</html>

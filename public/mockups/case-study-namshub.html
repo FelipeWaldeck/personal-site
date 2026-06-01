@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Namshub — an ambient AI writing environment</title>
+<meta name="description" content="An ambient AI writing environment for long-form work. A case study by Felipe Waldeck." />
+<meta property="og:title" content="Namshub — an ambient AI writing environment" />
+<meta property="og:description" content="An ambient AI writing environment for long-form work." />
+<meta property="og:image" content="../case-studies/namshub/hero-still.jpg" />
+<link rel="icon" href="../case-studies/namshub/logos/bloom-pixel.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: 17.5px;
+    line-height: 1.55;
+  }
+  ::selection { background: #a8c430; color: var(--bg-primary); }
+  a { color: inherit; text-decoration: none; transition: opacity 0.15s ease, border-color 0.15s ease; }
+
+  /* === TOPNAV === */
+  .topnav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 32px;
+    background: rgba(20,24,16,0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+  .topnav a { opacity: 0.7; }
+  .topnav a:hover { opacity: 1; }
+  .topnav__name {
+    font-family: var(--font-primary); font-size: 16px;
+    opacity: 1; letter-spacing: -0.005em;
+  }
+  .topnav__ns { border-bottom: 1px solid #a8c430; padding-bottom: 2px; }
+
+  /* === GLOBAL GRID ===
+     12-col grid, ~1400px max, 32px gutter, 32-48px outer padding.
+     Every section places itself on this grid. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  /* Section: full bleed area is the viewport; inner content sits on the grid */
+  .bleed { width: 100%; }
+
+  /* Helper classes for grid placement */
+  .col-1-7   { grid-column: 1 / 8;  }    /* spans 7 cols starting at 1 */
+  .col-2-8   { grid-column: 2 / 9;  }
+  .col-3-9   { grid-column: 3 / 10; }
+  .col-3-11  { grid-column: 3 / 12; }
+  .col-4-10  { grid-column: 4 / 11; }
+  .col-4-12  { grid-column: 4 / 13; }
+  .col-5-12  { grid-column: 5 / 13; }
+  .col-6-12  { grid-column: 6 / 13; }
+  .col-7-12  { grid-column: 7 / 13; }
+  .col-8-13  { grid-column: 8 / 13; }
+  .col-1-13  { grid-column: 1 / 13; }
+  .col-1-6   { grid-column: 1 / 7;  }
+  .col-7-13  { grid-column: 7 / 13; }
+
+  /* Typography */
+  .display {
+    font-family: var(--font-primary);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 0.92;
+    margin: 0;
+  }
+  .h-section {
+    font-family: var(--font-primary);
+    font-size: 72px;
+    line-height: 1;
+    letter-spacing: -0.018em;
+    margin: 0 0 64px;
+  }
+  .h-sub {
+    font-family: var(--font-primary);
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+  }
+  .label-mono {
+    font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    opacity: 0.55;
+  }
+  .caption {
+    font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    opacity: 0.55;
+    margin: 14px 0 0;
+  }
+  p { margin: 0 0 22px; }
+  p:last-child { margin-bottom: 0; }
+  em { color: inherit; font-style: italic; }
+
+  /* === HERO ===
+     Massive offset wordmark + meta column to the right.
+     Then a full-bleed hero still beneath. */
+  .hero {
+    padding: 96px 0 0;
+  }
+  .hero__title {
+    font-size: clamp(80px, 14vw, 200px);
+  }
+  .hero__rhs {
+    align-self: end;
+    padding-bottom: 24px;
+  }
+  .hero__sub {
+    font-family: var(--font-primary);
+    font-size: 21px;
+    line-height: 1.35;
+    margin: 0 0 24px;
+  }
+  .hero__meta {
+    font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    opacity: 0.55;
+  }
+  .hero__image-wrap {
+    margin: 80px 0 0;
+    padding: 0;
+  }
+  .hero__image-wrap img {
+    width: 100%;
+    display: block;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* === THESIS — indented narrow column, dramatic left whitespace === */
+  .thesis {
+    padding: 144px 0 96px;
+  }
+  .thesis p {
+    font-size: 19px;
+    line-height: 1.55;
+    margin-bottom: 30px;
+  }
+
+  /* === §3 — Heading bleeds left; body offset right; full-bleed image after === */
+  .quiet-first {
+    padding: 80px 0 0;
+  }
+  .quiet-first .h-section {
+    grid-column: 1 / 9;
+  }
+  .quiet-first__body {
+    grid-column: 7 / 13;
+  }
+  .quiet-first__image {
+    margin: 96px 0 0;
+    width: 100%;
+  }
+  .quiet-first__image img {
+    width: 100%;
+    display: block;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .quiet-first__cap {
+    padding: 18px 40px 0;
+  }
+
+  /* === §4 — Side-by-side: text left, video right === */
+  .co-inhabitant {
+    padding: 144px 0 96px;
+  }
+  .co-inhabitant__heading {
+    grid-column: 1 / 13;
+    margin-bottom: 56px;
+  }
+  .co-inhabitant__body {
+    grid-column: 1 / 7;
+  }
+  .co-inhabitant__media {
+    grid-column: 7 / 13;
+  }
+  .co-inhabitant__media video {
+    width: 100%; display: block;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: #0d1009;
+  }
+
+  /* === §5 intro line === */
+  .practice-intro {
+    padding: 96px 0 0;
+    text-align: center;
+  }
+  .practice-intro .h-section {
+    text-align: center; margin-bottom: 24px;
+  }
+  .practice-intro__sub {
+    font-family: var(--font-primary);
+    font-style: italic;
+    font-size: 21px;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  /* === §5a — Margin annotation: heading + body left, then FULL BLEED video === */
+  .practice-block {
+    padding: 80px 0 0;
+  }
+  .practice-block__heading {
+    grid-column: 2 / 6;
+  }
+  .practice-block__copy {
+    grid-column: 6 / 12;
+  }
+  .practice-block__media--bleed {
+    margin: 64px 0 0;
+    width: 100%;
+  }
+  .practice-block__media--bleed video {
+    width: 100%; display: block;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: #0d1009;
+  }
+  .practice-block__cap {
+    padding: 18px 40px 0;
+    max-width: 720px;
+  }
+
+  /* === §5b — Reversed: video left, copy right === */
+  .practice-block--reversed .practice-block__heading { grid-column: 7 / 11; }
+  .practice-block--reversed .practice-block__copy    { grid-column: 7 / 13; padding-top: 16px; }
+  .practice-block--reversed .practice-block__media   { grid-column: 1 / 7; grid-row: 1 / 3; }
+  .practice-block--reversed .practice-block__media video {
+    width: 100%; display: block;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: #0d1009;
+  }
+
+  /* === §5c — Bloom: large mark left, copy right === */
+  .practice-block--bloom {
+    padding: 144px 0;
+    align-items: center;
+  }
+  .practice-block--bloom .bloom-stage {
+    grid-column: 2 / 8;
+    aspect-ratio: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    background: #0d1009;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    padding: 56px;
+  }
+  .practice-block--bloom .bloom-stage img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+  .practice-block--bloom .bloom-text {
+    grid-column: 8 / 13;
+  }
+
+  /* === §6 — three-column closing === */
+  .lessons {
+    padding: 120px 0 96px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 96px;
+  }
+  .lessons__intro {
+    grid-column: 1 / 13;
+    margin-bottom: 64px;
+  }
+  .lessons__intro p {
+    font-family: var(--font-primary);
+    font-style: italic;
+    font-size: 21px;
+    opacity: 0.85;
+    margin: 0;
+    max-width: 720px;
+  }
+  .lesson {
+    grid-column: span 4;
+  }
+  .lesson__num {
+    font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.2em;
+    opacity: 0.55;
+    text-transform: uppercase;
+    margin: 0 0 18px;
+  }
+  .lesson p {
+    font-size: 16px;
+    line-height: 1.55;
+    margin: 0;
+  }
+  /* Subtle hairline accent: a single Namshub-green dividing line under each lesson number */
+  .lesson::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: #a8c430;
+    margin: 0 0 24px;
+    opacity: 0.6;
+  }
+
+  /* === §7 — Footer === */
+  .footer {
+    padding: 96px 0 80px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+  }
+  .footer__list { grid-column: 1 / 8; }
+  .footer__row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    padding: 6px 0;
+    margin: 0;
+  }
+  .footer__row dt { opacity: 0.5; }
+  .footer__row dd { margin: 0; }
+  .footer__row a { border-bottom: 1px solid rgba(255,255,255,0.15); }
+  .footer__row a:hover { border-color: #a8c430; }
+  .footer__back-col {
+    grid-column: 9 / 13;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+  }
+  .footer__back {
+    display: inline-flex; align-items: center; gap: 10px;
+    opacity: 0.65;
+  }
+  .footer__back:hover { opacity: 1; }
+  .footer__back img { width: 14px; height: 14px; image-rendering: pixelated; }
+
+  /* === MOBILE === single column, narrowed type === */
+  @media (max-width: 880px) {
+    .grid {
+      grid-template-columns: 1fr;
+      padding: 0 22px;
+      column-gap: 0;
+    }
+    /* Force every grid child to full width, including named (non-.col-*) placements */
+    .grid > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+
+    .topnav { padding: 12px 18px; font-size: 10px; }
+    body { font-size: 16.5px; }
+    .h-section { font-size: 36px; margin-bottom: 28px; }
+    .h-sub { font-size: 22px; }
+    .hero { padding: 56px 0 0; }
+    .hero__title { font-size: 56px; }
+    .hero__rhs { padding-bottom: 0; padding-top: 24px; }
+    .hero__image-wrap { margin-top: 40px; padding: 0; }
+    .hero__image-wrap img { max-height: 60vh; }
+
+    .thesis { padding: 56px 0 40px; }
+    .thesis p { font-size: 16.5px; }
+
+    .quiet-first { padding: 40px 0 0; }
+    .quiet-first__image { margin-top: 40px; }
+    .quiet-first__cap { padding: 14px 22px 0; }
+
+    .co-inhabitant { padding: 64px 0 48px; }
+    .co-inhabitant__heading { margin-bottom: 28px; }
+    .co-inhabitant__body { grid-column: 1 / -1 !important; margin-bottom: 24px; }
+
+    .practice-intro { padding: 56px 0 0; }
+    .practice-intro__sub { font-size: 17px; }
+    .practice-block { padding: 48px 0 0; }
+    .practice-block__media--bleed { margin-top: 32px; }
+    .practice-block__cap { padding: 14px 22px 0; }
+    .practice-block--reversed .practice-block__media { grid-row: auto; margin-top: 24px; }
+
+    .practice-block--bloom { padding: 64px 0; }
+    .practice-block--bloom .bloom-stage { padding: 32px; max-width: 280px; }
+    .practice-block--bloom .bloom-text { margin-top: 32px; }
+
+    .lessons { padding: 56px 0 48px; margin-top: 48px; }
+    .lessons__intro { margin-bottom: 32px; }
+    .lesson { margin-bottom: 32px; }
+
+    .footer { padding: 48px 0 56px; font-size: 12.5px; }
+    .footer__row { grid-template-columns: 88px 1fr; gap: 10px; }
+    .footer__back-col { justify-content: flex-start; margin-top: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="01-asymmetric-rail.html">← Archive</a>
+  <a href="01-asymmetric-rail.html" class="topnav__name">FW</a>
+  <a href="https://namshub.run" target="_blank" rel="noreferrer" class="topnav__ns">namshub.run ↗</a>
+</nav>
+
+<!-- ===================== 1 — HERO ===================== -->
+<section class="hero">
+  <div class="grid">
+    <h1 class="display hero__title" style="grid-column: 1 / 9;">Namshub</h1>
+    <div class="hero__rhs" style="grid-column: 9 / 13;">
+      <p class="hero__sub">An ambient AI writing environment for long-form work.</p>
+      <p class="hero__meta">
+        Design + engineering<br/>
+        2025 — 2026<br/>
+        Solo project
+      </p>
+    </div>
+  </div>
+  <div class="hero__image-wrap">
+    <img src="../case-studies/namshub/hero-still.jpg"
+         alt="Namshub editor at rest. A passage of essay text on a dark warm surface with line numbers in the gutter." />
+  </div>
+</section>
+
+<!-- ===================== 2 — THESIS ===================== -->
+<section class="thesis">
+  <div class="grid">
+    <div class="col-4-10">
+      <p>
+        I built Namshub because the current shape of AI in writing tools is wrong for the kind of writing I care about. Almost every tool treats AI as a respondent: you open a panel, you type a prompt, it answers. The interaction is transactional, the panel competes for attention with the text, and the writer's relationship to the work flattens into request-and-receive.
+      </p>
+      <p>
+        Namshub starts from a different premise. The AI lives <em>in</em> the writing environment, not next to it. It reads the page with you, leaves observations in the margins, and offers continuations between paragraphs that you can take or ignore. There is no chat window. The presence is felt before it is read.
+      </p>
+      <p>
+        Two claims hold the project together, and the rest of this page is in service of them. First: the writing environment has to be quiet before an ambient AI presence is legible at all. Second: once it is quiet, the relationship between writer and AI can become reciprocal — two readers of the same page, one of whom is also writing it.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3 — QUIET FIRST ===================== -->
+<section class="quiet-first">
+  <div class="grid">
+    <h2 class="display h-section">The environment<br/>had to be quiet first</h2>
+    <div class="quiet-first__body">
+      <p>
+        Before I could put an AI presence anywhere on the page, I had to take almost everything else off it. The first six months of the project were a long subtraction: a self-audit scored an early version 3.2 out of 5 on basic atmosphere, and the diagnosis was the same every time — too many surfaces, too many borders, too much chrome trying to look professional.
+      </p>
+      <p>
+        Four redesigns later, the editor has no top bar, no status bar, no sidebar in its default state. The page is the document, the margins are negative space, and the only persistent UI is a small breathing mark in the corner. Borders dissolve into the background rather than terminating in lines. Surfaces emerge from the canvas through glow instead of resting on it. Hover states bloom; transitions take 300 to 400 milliseconds and use spring easing instead of step functions.
+      </p>
+      <p>
+        Most of this is technically unremarkable — translucent surfaces, backdrop blur, slow timing curves. The harder part was deciding, again and again, that the right answer was to remove a thing rather than redesign it. A panel that needed three rounds of polish to feel right was almost always a panel that should not have existed.
+      </p>
+    </div>
+  </div>
+
+  <div class="quiet-first__image">
+    <img src="../case-studies/namshub/poster-librarian.jpg"
+         alt="The Namshub editor with the command palette summoned over a passage of essay text. The chrome appears only when needed." />
+    <p class="caption quiet-first__cap">Chrome appears only on demand. The command palette summoned over a still page — no panel, no docked sidebar, no persistent toolbar.</p>
+  </div>
+</section>
+
+<!-- ===================== 4 — CO-INHABITANT ===================== -->
+<section class="co-inhabitant">
+  <div class="grid">
+    <h2 class="display h-section co-inhabitant__heading">AI as a co-inhabitant</h2>
+
+    <div class="co-inhabitant__body">
+      <p>
+        The Librarian is the AI presence in Namshub. I avoided "assistant" deliberately — assistants wait to be asked. The Librarian reads the page alongside the writer and leaves traces of its reading: a note in the margin where it noticed an argument was thin, a continuation in faint type at the end of a paragraph that has trailed off, a source suggestion when a claim seems to want one. None of these are modal. None of them block writing. Most of them go unanswered, and that is fine.
+      </p>
+      <p>
+        The conceptual move I am proudest of is putting the Librarian's visible body — a small drawn mark called the Bloom — in the document margin rather than in a corner widget. The Bloom wanders. It pauses beside sections it is reading. It pulses when it has an observation ready. The writer can ignore it indefinitely, and when they do, it eventually drifts to a different paragraph.
+      </p>
+      <p>
+        The technical surface underneath is fairly straightforward — a state machine for the Bloom's three modes (focus, pause, move), a context-injection pipeline that lets the model see what section the Bloom is "looking at," and an ambient ghost-text channel that surfaces low-confidence continuations without interrupting. The interesting work is upstream of the code: deciding what kinds of AI utterances are allowed, what voices the Librarian speaks in, and when silence is the correct response.
+      </p>
+    </div>
+
+    <div class="co-inhabitant__media">
+      <video src="../case-studies/namshub/videos/librarian.mp4"
+             poster="../case-studies/namshub/poster-librarian.jpg"
+             autoplay muted loop playsinline
+             aria-label="The Librarian command palette opening over an essay passage and accepting a question, with the page text and margin remaining quiet."></video>
+      <p class="caption">The Librarian summoned ambiently. Context comes from the writer's existing drafts, not from a fresh prompt.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5 — IN PRACTICE ===================== -->
+<section class="practice-intro">
+  <div class="grid">
+    <div class="col-4-10">
+      <h2 class="display h-section">What it looks like<br/>in practice</h2>
+      <p class="practice-intro__sub">Three concrete moments, in order of how often a writer encounters them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5a — Margin annotation: heading + copy on grid, then FULL BLEED video (the killer frame) -->
+<section class="practice-block">
+  <div class="grid">
+    <div class="practice-block__heading">
+      <p class="label-mono">01</p>
+      <h3 class="h-sub">Margin annotation</h3>
+    </div>
+    <div class="practice-block__copy">
+      <p>
+        When the Librarian notices something — an unsupported claim, a contradiction, a thread it would like to pull — it leaves a small annotation in the margin beside the relevant passage. The annotation card itself is a glass surface that the writer expands on demand. There is no badge counter, no inbox to clear. The card persists until it is addressed or dismissed.
+      </p>
+    </div>
+  </div>
+  <div class="practice-block__media--bleed">
+    <video src="../case-studies/namshub/videos/annotations.mp4"
+           poster="../case-studies/namshub/poster-annotations.jpg"
+           autoplay muted loop playsinline
+           aria-label="Four annotation cards — labelled FACTCHECK, CRITIQUE, EDIT, EVIDENCE — sitting in the right margin alongside an essay passage about archives and databases."></video>
+    <p class="caption practice-block__cap">Margin notes from the Librarian. Four kinds — factcheck, critique, edit, evidence — addressable in any order or ignored entirely.</p>
+  </div>
+</section>
+
+<!-- 5b — Reversed: media left, copy right -->
+<section class="practice-block practice-block--reversed">
+  <div class="grid">
+    <div class="practice-block__media">
+      <video src="../case-studies/namshub/videos/interstitials.mp4"
+             poster="../case-studies/namshub/poster-interstitials.jpg"
+             autoplay muted loop playsinline
+             aria-label="A paragraph of essay text trailing off, with a faint ambient observation appearing between paragraphs and then dissolving."></video>
+      <p class="caption">Observations between paragraphs. They appear in the writer's existing line of attention, not in a panel, and dissolve when the writer moves on.</p>
+    </div>
+    <div class="practice-block__heading">
+      <p class="label-mono">02</p>
+      <h3 class="h-sub">Ambient ghost text</h3>
+    </div>
+    <div class="practice-block__copy">
+      <p>
+        Between paragraphs, the Librarian occasionally offers a possible continuation as faint ghost type at the end of the line. Tab accepts. Anything else dismisses. Most of the time the ghost is wrong, or the writer wanted to go somewhere else, and the dismissal is silent.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 5c — Bloom -->
+<section class="practice-block practice-block--bloom">
+  <div class="grid">
+    <div class="bloom-stage">
+      <img src="../case-studies/namshub/logos/bloom-mark.png"
+           alt="The Bloom: a painterly drawn flower mark, monochrome, isolated on a dark background." />
+    </div>
+    <div class="bloom-text">
+      <p class="label-mono">03</p>
+      <h3 class="h-sub">The Bloom as state</h3>
+      <p>
+        The Bloom is also a state indicator. It breathes slowly when idle, pulses gently when the Librarian has produced an observation, and dims when the writer is in flow and the AI has temporarily withdrawn. Across a session it functions as a tonal reading of the writing environment — a small organic mark that signals whether the page is being watched, addressed, or left alone.
+      </p>
+      <p class="caption" style="margin-top: 28px;">Drawn in Rive, state-aware. Breathes when idle, pulses when an observation is ready, dims when the writer is in flow.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6 — WHAT I LEARNED ===================== -->
+<section class="lessons">
+  <div class="grid">
+    <div class="lessons__intro">
+      <h2 class="display h-section">What I learned</h2>
+      <p>Three things I will carry into the next thing I build.</p>
+    </div>
+
+    <div class="lesson">
+      <p class="lesson__num">One</p>
+      <p>
+        The shape of an AI feature is decided by the surrounding UI, not by the model. The same Anthropic API call produces a tool, a co-writer, or a hostile interruption depending on where its output lands on the page and how it competes for attention. The interesting design work is almost always the chrome, not the prompt.
+      </p>
+    </div>
+
+    <div class="lesson">
+      <p class="lesson__num">Two</p>
+      <p>
+        Restraint compounds. Every UI element I removed in Namshub made the remaining elements more legible, and the cumulative effect across four redesigns was disproportionate. By the end, design moves that would have been invisible in the early version — a 16-pixel margin change, a 200-millisecond easing curve — were doing real perceptual work.
+      </p>
+    </div>
+
+    <div class="lesson">
+      <p class="lesson__num">Three</p>
+      <p>
+        Working solo across design and engineering let me make decisions that would have been difficult to defend in a team. "Delete the AI panel" was not a meeting-friendly proposal. The cost of solo work is the cost of every wrong decision being mine; the benefit is that the project gets to have a single sustained point of view.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 7 — FOOTER ===================== -->
+<footer class="footer">
+  <div class="grid">
+    <div class="footer__list">
+      <dl class="footer__row"><dt>Live</dt><dd><a href="https://namshub.run" target="_blank" rel="noreferrer">namshub.run</a></dd></dl>
+      <dl class="footer__row"><dt>Source</dt><dd><a href="https://github.com/FelipeWaldeck/namshub" target="_blank" rel="noreferrer">github.com/FelipeWaldeck/namshub</a></dd></dl>
+      <dl class="footer__row"><dt>Mac alpha</dt><dd><a href="https://github.com/FelipeWaldeck/namshub/releases" target="_blank" rel="noreferrer">download (v0.1.1, Apple Silicon, unsigned)</a></dd></dl>
+      <dl class="footer__row"><dt>Built with</dt><dd>Tauri v2, React, TipTap, Rive, Anthropic SDK.</dd></dl>
+    </div>
+    <div class="footer__back-col">
+      <a href="01-asymmetric-rail.html" class="footer__back">
+        <img src="../case-studies/namshub/logos/bloom-pixel.svg" alt="" aria-hidden="true" />
+        ← Back to work
+      </a>
+    </div>
+  </div>
+</footer>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">Case study · Namshub (asymmetric)</span>
+  <span>
+    <a href="01-asymmetric-rail.html">← Archive</a>
+    <a href="case-study-mare-identity.html">Compare: MARE identity</a>
+    <a href="index.html">All mockups</a>
+  </span>
+</nav>
+</body>
+</html>

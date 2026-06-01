@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>03 — Index Table</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  body { font-family: var(--font-utility); }
+  .head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 56px 64px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 64px;
+  }
+  .head__left { max-width: 720px; }
+  .head__name { font-family: var(--font-primary); font-size: 56px; color: var(--accent-pink); letter-spacing: -0.015em; line-height: 1; margin: 0 0 20px; }
+  .head__bio { font-family: var(--font-primary); font-size: 18px; line-height: 1.5; opacity: 0.85; }
+  .head__bio em { color: var(--accent-pink); font-style: normal; border-bottom: 1px solid rgba(255,99,146,0.4); }
+  .head__nav { display: flex; flex-direction: column; gap: 6px; }
+  .head__nav a { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.7; text-align: right; }
+  .head__nav a:hover { opacity: 1; color: var(--accent-pink); }
+
+  .toolbar {
+    display: flex; gap: 24px; align-items: center;
+    padding: 18px 64px;
+    border-bottom: 1px solid rgba(255,99,146,0.1);
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .toolbar__group { display: flex; gap: 14px; }
+  .toolbar__group span { opacity: 0.45; }
+  .toolbar__group a { opacity: 0.55; padding: 4px 0; border-bottom: 1px solid transparent; }
+  .toolbar__group a.is-active { opacity: 1; color: var(--accent-green); border-color: var(--accent-green); }
+  .toolbar__group a:hover { opacity: 1; }
+  .toolbar__count { margin-left: auto; opacity: 0.4; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
+
+  table.archive {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-utility);
+  }
+  .archive th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    font-weight: 500;
+    padding: 18px 24px 18px 64px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255,99,146,0.02);
+  }
+  .archive th:not(:first-child) { padding-left: 24px; }
+  .archive th:last-child { padding-right: 64px; }
+  .archive td {
+    padding: 16px 24px 16px 64px;
+    border-bottom: 1px solid rgba(255,99,146,0.06);
+    vertical-align: baseline;
+  }
+  .archive td:not(:first-child) { padding-left: 24px; }
+  .archive td:last-child { padding-right: 64px; }
+  .archive tr:hover td { background: rgba(255,99,146,0.04); }
+  .archive tr { cursor: pointer; }
+
+  .col-date { width: 96px; font-family: 'JetBrains Mono', monospace; font-size: 12px; opacity: 0.6; letter-spacing: 0.05em; }
+  .col-type { width: 130px; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-green); opacity: 0.85; }
+  .col-title { font-family: var(--font-primary); font-size: 19px; line-height: 1.3; }
+  .col-title em { display: block; font-family: var(--font-utility); font-size: 12px; font-style: normal; opacity: 0.5; margin-top: 3px; line-height: 1.4; }
+  .col-venue { width: 160px; font-size: 11px; letter-spacing: 0.12em; opacity: 0.6; }
+  .col-tags { width: 200px; font-size: 11px; opacity: 0.55; }
+
+  tr.placeholder { opacity: 0.4; }
+  tr.placeholder .col-title { font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="head__left">
+    <h1 class="head__name">Felipe Waldeck</h1>
+    <p class="head__bio">Researcher and writer on the cultural and political consequences of contemporary technical systems. Co-founder of <em>MARE</em>. Critical theory, archival research, experimental systems design.</p>
+  </div>
+  <nav class="head__nav">
+    <a href="#">CV</a>
+    <a href="#">Reading</a>
+    <a href="#">Substack ↗</a>
+    <a href="#">I-Ching · #52</a>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar__group">
+    <span>Filter</span>
+    <a href="#" class="is-active">All</a>
+    <a href="#">Platform</a>
+    <a href="#">Writing</a>
+    <a href="#">Work</a>
+  </div>
+  <div class="toolbar__group">
+    <span>Sort</span>
+    <a href="#" class="is-active">Date ↓</a>
+    <a href="#">Type</a>
+    <a href="#">Title</a>
+  </div>
+  <span class="toolbar__count">09 entries</span>
+</div>
+
+<table class="archive">
+  <thead>
+    <tr>
+      <th class="col-date">Date</th>
+      <th class="col-type">Type</th>
+      <th class="col-title">Title</th>
+      <th class="col-venue">Venue</th>
+      <th class="col-tags">Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="col-date">2025–</td>
+      <td class="col-type">Platform</td>
+      <td class="col-title">MARE<em>Media-agnostic research platform foregrounding semantic proximity.</em></td>
+      <td class="col-venue">mare.run</td>
+      <td class="col-tags">archive · ai · cognition</td>
+    </tr>
+    <tr>
+      <td class="col-date">2025</td>
+      <td class="col-type">Foundational Text</td>
+      <td class="col-title">MARE: The Condition<em>Framing text on media abundance and the limits of optimisation.</em></td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">manifesto · platform</td>
+    </tr>
+    <tr>
+      <td class="col-date">2025</td>
+      <td class="col-type">Essay</td>
+      <td class="col-title">Predictionism and the Cybernetic Subject<em>Reply to Alex Danco on prediction, delegation, agency.</em></td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">prediction · subject</td>
+    </tr>
+    <tr>
+      <td class="col-date">2025</td>
+      <td class="col-type">Essay · 2/3</td>
+      <td class="col-title">The Cybernetic Subject<em>Interiority and cognition under cybernetic conditions.</em></td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">cybernetics · cognition</td>
+    </tr>
+    <tr>
+      <td class="col-date">2025</td>
+      <td class="col-type">Essay · 1/3</td>
+      <td class="col-title">Conditions of Interiority<em>First essay in a triptych on AI, creativity, and the subject.</em></td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">interiority · ai</td>
+    </tr>
+    <tr>
+      <td class="col-date">2025</td>
+      <td class="col-type">Official Work</td>
+      <td class="col-title">Adaptive Reuse of Rail Infrastructure<em>Policy framework on disused rail corridors as public space.</em></td>
+      <td class="col-venue">LKYCIC / SUTD</td>
+      <td class="col-tags">urbanism · policy</td>
+    </tr>
+    <tr class="placeholder">
+      <td class="col-date">2026</td>
+      <td class="col-type">Essay · 3/3</td>
+      <td class="col-title">Closure of Interiority [placeholder]<em>Final essay in the triptych.</em></td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">interiority · ai</td>
+    </tr>
+    <tr class="placeholder">
+      <td class="col-date">2026</td>
+      <td class="col-type">Notes</td>
+      <td class="col-title">On Archival Form [placeholder]</td>
+      <td class="col-venue">Substack</td>
+      <td class="col-tags">archive · form</td>
+    </tr>
+    <tr class="placeholder">
+      <td class="col-date">2024</td>
+      <td class="col-type">Report</td>
+      <td class="col-title">Public Space &amp; Placemaking Brief [placeholder]</td>
+      <td class="col-venue">LKYCIC</td>
+      <td class="col-tags">public space · policy</td>
+    </tr>
+  </tbody>
+</table>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">03 · Index table</span>
+  <span>
+    <a href="index.html">Index</a>
+    <a href="01-asymmetric-rail.html">01</a>
+    <a href="02-editorial.html">02</a>
+    <a href="04-reading-room.html">04</a>
+    <a href="05-vitrine-canvas.html">05</a>
+  </span>
+</nav>
+</body>
+</html>

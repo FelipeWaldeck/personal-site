@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>05 — Vitrine Canvas</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  body { overflow: hidden; }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(152,206,0,0.05), transparent 60%),
+      var(--bg-primary);
+  }
+
+  /* Faint hexagonal grid for "field" texture */
+  .stage::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, transparent 49.5%, rgba(255,99,146,0.06) 50%, transparent 50.5%),
+      linear-gradient(60deg, transparent 49.5%, rgba(152,206,0,0.04) 50%, transparent 50.5%),
+      linear-gradient(120deg, transparent 49.5%, rgba(152,206,0,0.04) 50%, transparent 50.5%);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+
+  /* Fixed identity in top-left */
+  .identity {
+    position: fixed;
+    top: 48px; left: 48px;
+    z-index: 10;
+    max-width: 280px;
+  }
+  .identity__name {
+    font-family: var(--font-primary);
+    font-size: 36px;
+    color: var(--accent-pink);
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .identity__bio {
+    font-family: var(--font-primary);
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: 0.8;
+  }
+  .identity__bio em { color: var(--accent-pink); font-style: normal; }
+
+  /* Fixed nav top-right */
+  .topnav {
+    position: fixed; top: 48px; right: 48px;
+    z-index: 10;
+    display: flex; gap: 24px;
+  }
+  .topnav a {
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .topnav a:hover { opacity: 1; color: var(--accent-pink); }
+
+  /* Legend bottom-left */
+  .legend {
+    position: fixed; bottom: 64px; left: 48px;
+    z-index: 10;
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    line-height: 1.9;
+  }
+  .legend strong { color: var(--accent-green); font-weight: 500; display: block; margin-bottom: 6px; }
+  .legend__row { display: flex; align-items: center; gap: 8px; }
+  .legend__dot { width: 6px; height: 6px; background: var(--accent-pink); }
+  .legend__dot.green { background: var(--accent-green); }
+  .legend__dot.muted { background: rgba(230,230,234,0.4); }
+
+  /* Floating cards */
+  .node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    max-width: 230px;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .node:hover { transform: translate(-50%, calc(-50% - 4px)); }
+  .node__pin {
+    width: 10px; height: 10px;
+    background: var(--accent-pink);
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255,99,146,0.15);
+  }
+  .node--platform .node__pin { background: var(--accent-green); box-shadow: 0 0 0 4px rgba(152,206,0,0.15); }
+  .node--work .node__pin { background: rgba(230,230,234,0.7); box-shadow: 0 0 0 4px rgba(230,230,234,0.1); }
+  .node--placeholder { opacity: 0.4; }
+  .node--placeholder .node__pin { background: transparent; border: 1px dashed var(--text-primary); }
+
+  .node__kicker {
+    font-family: var(--font-utility);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .node--platform .node__kicker { color: var(--accent-green); }
+  .node--work .node__kicker { color: rgba(230,230,234,0.6); }
+  .node--writing .node__kicker { color: var(--accent-pink); }
+
+  .node__title {
+    font-family: var(--font-primary);
+    font-size: 17px;
+    line-height: 1.3;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .node:hover .node__title { color: var(--accent-pink); }
+  .node__date {
+    font-family: var(--font-utility);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-align: center;
+    opacity: 0.5;
+    margin-top: 6px;
+  }
+
+  /* Faint connecting line for triptych */
+  .stage::after {
+    content: "";
+    position: absolute;
+    left: 38%; right: 22%;
+    top: 58%;
+    border-top: 1px dashed rgba(255,99,146,0.12);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <a href="#" class="identity">
+    <span class="identity__name">Felipe<br/>Waldeck</span>
+    <span class="identity__bio">Researcher and writer on the cultural and political consequences of contemporary technical systems. Co-founder of <em>MARE</em>.</span>
+  </a>
+
+  <nav class="topnav">
+    <a href="#">CV</a>
+    <a href="#">Reading</a>
+    <a href="#">Substack ↗</a>
+  </nav>
+
+  <!-- Nodes positioned absolutely; in real implementation, layout would be seeded by date+type -->
+
+  <!-- Platform cluster, center-left -->
+  <a href="#" class="node node--platform" style="left: 38%; top: 38%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Platform</div>
+    <div class="node__title">MARE</div>
+    <div class="node__date">2025 —</div>
+  </a>
+  <a href="#" class="node node--platform" style="left: 30%; top: 55%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Foundational Text</div>
+    <div class="node__title">MARE: The Condition</div>
+    <div class="node__date">2025</div>
+  </a>
+
+  <!-- Writing triptych, right-of-center, on a line -->
+  <a href="#" class="node node--writing" style="left: 52%; top: 60%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Essay · 1/3</div>
+    <div class="node__title">Conditions of Interiority</div>
+    <div class="node__date">2025</div>
+  </a>
+  <a href="#" class="node node--writing" style="left: 64%; top: 58%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Essay · 2/3</div>
+    <div class="node__title">The Cybernetic Subject</div>
+    <div class="node__date">2025</div>
+  </a>
+  <a href="#" class="node node--writing" style="left: 76%; top: 60%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Essay</div>
+    <div class="node__title">Predictionism &amp; the Cybernetic Subject</div>
+    <div class="node__date">2025</div>
+  </a>
+  <a href="#" class="node node--writing node--placeholder" style="left: 84%; top: 44%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Essay · 3/3 [forthcoming]</div>
+    <div class="node__title">Closure of Interiority</div>
+    <div class="node__date">2026</div>
+  </a>
+
+  <!-- Work, top-right and bottom-left -->
+  <a href="#" class="node node--work" style="left: 70%; top: 24%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Official Work</div>
+    <div class="node__title">Adaptive Reuse of Rail Infrastructure</div>
+    <div class="node__date">2025 · LKYCIC</div>
+  </a>
+  <a href="#" class="node node--work node--placeholder" style="left: 22%; top: 78%;">
+    <div class="node__pin"></div>
+    <div class="node__kicker">Report [placeholder]</div>
+    <div class="node__title">Public Space &amp; Placemaking</div>
+    <div class="node__date">2024</div>
+  </a>
+
+  <div class="legend">
+    <strong>Field</strong>
+    <div class="legend__row"><span class="legend__dot green"></span> Platform</div>
+    <div class="legend__row"><span class="legend__dot"></span> Writing</div>
+    <div class="legend__row"><span class="legend__dot muted"></span> Work</div>
+    <div style="margin-top:14px; opacity:0.6;">Position: type ↔ time</div>
+  </div>
+
+</div>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">05 · Vitrine canvas</span>
+  <span>
+    <a href="index.html">Index</a>
+    <a href="01-asymmetric-rail.html">01</a>
+    <a href="02-editorial.html">02</a>
+    <a href="03-index-table.html">03</a>
+    <a href="04-reading-room.html">04</a>
+  </span>
+</nav>
+</body>
+</html>

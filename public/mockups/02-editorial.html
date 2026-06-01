@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>02 — Editorial Magazine</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 28px 64px;
+    background: rgba(20,24,16,0.85);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255,99,146,0.15);
+  }
+  .topbar__name { font-family: var(--font-primary); font-size: 28px; color: var(--accent-pink); letter-spacing: -0.01em; }
+  .topbar__nav { display: flex; gap: 28px; }
+  .topbar__nav a { font-family: var(--font-utility); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.7; }
+  .topbar__nav a:hover { opacity: 1; color: var(--accent-pink); }
+
+  .page { padding: 0 64px 120px; max-width: 1280px; margin: 0 auto; }
+
+  /* Masthead */
+  .masthead {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    padding: 80px 0 64px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .masthead__bio { font-family: var(--font-primary); font-size: 22px; line-height: 1.5; }
+  .masthead__bio em { color: var(--accent-pink); font-style: normal; border-bottom: 1px solid rgba(255,99,146,0.4); }
+  .masthead__side { font-family: var(--font-utility); font-size: 12px; line-height: 1.8; opacity: 0.7; }
+  .masthead__side strong { font-weight: 500; color: var(--accent-green); letter-spacing: 0.18em; text-transform: uppercase; display: block; font-size: 10px; margin-bottom: 6px; }
+  .masthead__side a { display: block; padding: 4px 0; }
+
+  /* Hero featured */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 56px;
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+  }
+  .hero__image {
+    aspect-ratio: 16/10;
+    background: #0d1009 url('../assets/mare-preview.png') center/cover no-repeat;
+    border: 1px solid rgba(255,99,146,0.3);
+  }
+  .hero__kicker { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-green); margin-bottom: 16px; }
+  .hero__title { font-family: var(--font-primary); font-size: 48px; line-height: 1.05; margin: 0 0 20px; letter-spacing: -0.01em; }
+  .hero__desc { font-family: var(--font-primary); font-size: 17px; line-height: 1.6; opacity: 0.85; margin-bottom: 28px; }
+  .hero__cta { font-family: var(--font-utility); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-green); border-bottom: 1px solid var(--accent-green); padding-bottom: 4px; }
+
+  /* Three column grid */
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    padding: 64px 0;
+  }
+  .col h2 {
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 10px;
+    margin: 0 0 24px;
+    font-weight: 500;
+  }
+  .card { padding: 16px 0; border-bottom: 1px solid rgba(255,99,146,0.08); }
+  .card:last-child { border-bottom: none; }
+  .card__date { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.5; }
+  .card__title { font-family: var(--font-primary); font-size: 19px; line-height: 1.3; margin: 4px 0 6px; transition: color 0.2s; }
+  .card:hover .card__title { color: var(--accent-pink); }
+  .card__desc { font-family: var(--font-primary); font-size: 13.5px; line-height: 1.55; opacity: 0.7; }
+  .card--placeholder { opacity: 0.4; }
+  .card--placeholder .card__title { font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="#" class="topbar__name">Felipe Waldeck</a>
+  <div class="topbar__nav">
+    <a href="#">CV</a>
+    <a href="#">Reading</a>
+    <a href="#">Substack ↗</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <section class="masthead">
+    <div class="masthead__bio">
+      Felipe Waldeck is a researcher and writer working on the cultural and political consequences of contemporary technical systems. He is the co-founder of <em>MARE</em>, a platform for exploring and organising fragmented media archives. His work combines critical theory, archival research, and experimental systems design.
+    </div>
+    <div class="masthead__side">
+      <strong>Now</strong>
+      <a href="#">Reading — Stiegler, Technics &amp; Time</a>
+      <a href="#">Writing — Closure of Interiority (3/3)</a>
+      <a href="#">Building — MARE v2 spatial editor</a>
+      <a href="#">Listening — see /reading</a>
+      <strong style="margin-top:24px;">Today</strong>
+      <a href="#">I-Ching · #52 Keeping Still</a>
+    </div>
+  </section>
+
+  <section class="hero">
+    <div class="hero__image" aria-hidden="true"></div>
+    <div>
+      <div class="hero__kicker">Featured · Platform · 2025–</div>
+      <h1 class="hero__title">MARE</h1>
+      <p class="hero__desc">
+        A media-agnostic research platform concerned with how humans and machines make sense of large volumes of media. Foregrounds semantic proximity, mood, and relational association as navigational primitives — rather than recommendation.
+      </p>
+      <a href="#" class="hero__cta">Open mare.run →</a>
+    </div>
+  </section>
+
+  <section class="columns">
+    <div class="col">
+      <h2>Writing</h2>
+      <div class="card">
+        <span class="card__date">2025 · Substack</span>
+        <h3 class="card__title">Predictionism and the Cybernetic Subject</h3>
+        <p class="card__desc">A reply to Alex Danco's A16Z newsletter, on prediction, delegation, and agency.</p>
+      </div>
+      <div class="card">
+        <span class="card__date">2025 · Substack</span>
+        <h3 class="card__title">The Cybernetic Subject (2/3)</h3>
+        <p class="card__desc">Interiority, cognition, and cultural production under cybernetic conditions.</p>
+      </div>
+      <div class="card">
+        <span class="card__date">2025 · Substack</span>
+        <h3 class="card__title">Conditions of Interiority (1/3)</h3>
+        <p class="card__desc">First in a triptych on AI, creativity, and the subject.</p>
+      </div>
+      <div class="card card--placeholder">
+        <span class="card__date">forthcoming</span>
+        <h3 class="card__title">Closure of Interiority (3/3) [placeholder]</h3>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>Platform notes</h2>
+      <div class="card">
+        <span class="card__date">2025 · Substack</span>
+        <h3 class="card__title">MARE: The Condition</h3>
+        <p class="card__desc">Framing text outlining the conditions that motivate MARE — media abundance, fragmentation, and the limits of optimisation-driven sense-making.</p>
+      </div>
+      <div class="card card--placeholder">
+        <span class="card__date">forthcoming</span>
+        <h3 class="card__title">Field Notes #01 [placeholder]</h3>
+        <p class="card__desc">Working notes from inside MARE.</p>
+      </div>
+      <div class="card card--placeholder">
+        <span class="card__date">forthcoming</span>
+        <h3 class="card__title">On Archival Form [placeholder]</h3>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2>Work — Institutional</h2>
+      <div class="card">
+        <span class="card__date">2025 · LKYCIC / SUTD</span>
+        <h3 class="card__title">Adaptive Reuse of Rail Infrastructure</h3>
+        <p class="card__desc">Applied research and policy framework addressing the reuse of disused rail corridors as public space.</p>
+      </div>
+      <div class="card card--placeholder">
+        <span class="card__date">2024 · placeholder</span>
+        <h3 class="card__title">Public Space &amp; Placemaking Brief</h3>
+      </div>
+      <div class="card card--placeholder">
+        <span class="card__date">2023 · placeholder</span>
+        <h3 class="card__title">Urban Foodscapes Report</h3>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">02 · Editorial magazine</span>
+  <span>
+    <a href="index.html">Index</a>
+    <a href="01-asymmetric-rail.html">01</a>
+    <a href="03-index-table.html">03</a>
+    <a href="04-reading-room.html">04</a>
+    <a href="05-vitrine-canvas.html">05</a>
+  </span>
+</nav>
+</body>
+</html>

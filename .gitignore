@@ -40,3 +40,11 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# session screenshot artifacts
+*.jpeg
+*.png
+.playwright-mcp/
+rail-current.png
+src/data/.agents/
+src/data/skills-lock.json

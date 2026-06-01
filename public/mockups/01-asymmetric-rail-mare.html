@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>01 — MARE (Detail)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  /* Rail (identical to 01-asymmetric-rail.html) */
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: 100vh;
+  }
+  .rail {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    padding: 56px 36px;
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    overflow-y: auto;
+  }
+  .rail__name { font-family: var(--font-primary); font-size: 36px; line-height: 1.05; color: var(--accent-pink); letter-spacing: -0.01em; }
+  .rail__bio { font-size: 14px; line-height: 1.55; color: var(--text-primary); opacity: 0.88; }
+  .rail__bio em { color: var(--accent-pink); font-style: normal; border-bottom: 1px solid rgba(255,99,146,0.4); }
+  .rail__label { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-green); opacity: 0.9; }
+  .rail__latest { display: flex; flex-direction: column; gap: 10px; }
+  .rail__latest a { font-family: var(--font-primary); font-size: 13.5px; line-height: 1.35; opacity: 0.85; }
+  .rail__latest a:hover { opacity: 1; }
+  .rail__meta { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.45; }
+  .rail__hex { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,99,146,0.15); display: flex; align-items: center; gap: 14px; }
+  .rail__hex svg { width: 32px; height: auto; color: var(--accent-green); }
+  .rail__hex-text { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-green); opacity: 0.8; }
+  .rail__nav { display: flex; gap: 18px; margin-top: 14px; }
+  .rail__nav a { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.6; }
+  .rail__nav a:hover { opacity: 1; color: var(--accent-pink); }
+
+  /* Detail view */
+  .detail {
+    padding: 56px 88px 140px;
+    max-width: 800px;
+  }
+  .detail__back {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    opacity: 0.6;
+    border-bottom: 1px solid rgba(255,99,146,0.3);
+    padding-bottom: 2px;
+    margin-bottom: 56px;
+    display: inline-block;
+  }
+  .detail__back:hover { opacity: 1; color: var(--accent-pink); }
+  .detail__kicker {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 18px;
+  }
+  .detail__title {
+    font-family: var(--font-primary);
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    margin: 0 0 28px;
+  }
+  .detail__lede {
+    font-family: var(--font-primary);
+    font-size: 22px;
+    line-height: 1.5;
+    opacity: 0.9;
+    margin-bottom: 56px;
+    max-width: 640px;
+  }
+
+  .detail__hero {
+    width: 100%;
+    aspect-ratio: 16/9.4;
+    background: #0d1009 center/cover no-repeat;
+    border: 1px solid rgba(255,99,146,0.18);
+    margin-bottom: 56px;
+  }
+  .detail__hero--mare { background-image: url('../assets/mare-preview.png'); }
+
+  .detail__body p {
+    font-family: var(--font-primary);
+    font-size: 17px;
+    line-height: 1.75;
+    margin: 0 0 22px;
+    opacity: 0.92;
+  }
+  .detail__body p:first-of-type::first-letter {
+    font-family: var(--font-primary);
+    font-size: 64px;
+    line-height: 0.95;
+    float: left;
+    padding: 6px 14px 0 0;
+    color: var(--accent-pink);
+  }
+  .detail__body em { color: var(--accent-pink); font-style: italic; opacity: 0.95; }
+
+  /* Secondary image */
+  .detail__plate {
+    margin: 48px 0;
+    border: 1px dashed rgba(255,99,146,0.25);
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    opacity: 0.4;
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Pull-quote */
+  .detail__pull {
+    margin: 64px 0;
+    padding: 32px 0 32px 32px;
+    border-left: 2px solid var(--accent-pink);
+    font-family: var(--font-primary);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.45;
+    color: var(--text-primary);
+  }
+
+  /* Metadata footer */
+  .detail__meta {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .detail__meta dt {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 6px;
+  }
+  .detail__meta dd {
+    font-family: var(--font-primary);
+    font-size: 15px;
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+  .detail__meta a { border-bottom: 1px solid rgba(255,99,146,0.3); }
+  .detail__meta a:hover { color: var(--accent-pink); }
+
+  /* External CTA */
+  .detail__cta {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 48px;
+    padding: 16px 28px;
+    border: 1px solid var(--accent-pink);
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-pink);
+    transition: all 0.2s;
+  }
+  .detail__cta:hover { background: var(--accent-pink); color: var(--bg-primary); }
+
+  /* Related */
+  .related {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .related__label {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 20px;
+  }
+  .related__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,99,146,0.08);
+    cursor: pointer;
+    transition: padding 0.2s;
+  }
+  .related__row:hover { padding-left: 6px; }
+  .related__row:hover .related__title { color: var(--accent-pink); }
+  .related__title { font-family: var(--font-primary); font-size: 19px; }
+  .related__sub { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.5; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- IDENTICAL RAIL — unchanged from the archive view -->
+  <aside class="rail">
+    <a href="01-asymmetric-rail.html" class="rail__name">Felipe<br/>Waldeck</a>
+    <p class="rail__bio">
+      Researcher and writer working on the cultural and political consequences of contemporary technical systems. Co-founder of <em>MARE</em>, a platform for exploring fragmented media archives.
+    </p>
+
+    <div class="rail__nav">
+      <a href="#">CV</a>
+      <a href="#">Reading</a>
+      <a href="#">Substack ↗</a>
+    </div>
+
+    <div>
+      <div class="rail__label">Latest writing</div>
+      <div class="rail__latest" style="margin-top:14px;">
+        <a href="#">Predictionism and the Cybernetic Subject<br/><span class="rail__meta">Essay — 2025</span></a>
+        <a href="#">The Cybernetic Subject (2/3)<br/><span class="rail__meta">Essay — 2025</span></a>
+        <a href="#">Conditions of Interiority (1/3)<br/><span class="rail__meta">Essay — 2025</span></a>
+      </div>
+    </div>
+
+    <div class="rail__hex" title="Today's I-Ching draw — Keeping Still">
+      <svg viewBox="0 0 200 130" fill="currentColor">
+        <rect x="20" y="10" width="160" height="10"/>
+        <rect x="20" y="35" width="68" height="10"/><rect x="112" y="35" width="68" height="10"/>
+        <rect x="20" y="60" width="68" height="10"/><rect x="112" y="60" width="68" height="10"/>
+        <rect x="20" y="85" width="160" height="10"/>
+        <rect x="20" y="110" width="68" height="10"/><rect x="112" y="110" width="68" height="10"/>
+      </svg>
+      <div class="rail__hex-text">#52<br/>Keeping<br/>Still</div>
+    </div>
+  </aside>
+
+  <!-- DETAIL VIEW — replaces the archive in the right column -->
+  <main class="detail">
+
+    <a href="01-asymmetric-rail.html" class="detail__back">← Archive</a>
+
+    <div class="detail__kicker">Platform · 2025–</div>
+    <h1 class="detail__title">MARE</h1>
+    <p class="detail__lede">
+      A media-agnostic research platform foregrounding semantic proximity and relational association — rather than recommendation — as navigational primitives.
+    </p>
+
+    <div class="detail__hero detail__hero--mare" aria-label="MARE platform preview"></div>
+
+    <div class="detail__body">
+      <p>
+        MARE is a media-agnostic research platform concerned with how humans and machines make sense of large volumes of media under contemporary computational conditions. Rather than organising material through recommendation or optimisation, MARE foregrounds <em>semantic proximity, mood, and relational association</em> as navigational primitives.
+      </p>
+      <p>
+        The platform operates as a field lab between human and machine sense-making, combining technical infrastructure with theoretical inquiry into cognition, interiority, and archival form. MARE is developed as both a working tool and an ongoing research project.
+      </p>
+
+      <div class="detail__pull">
+        "Rather than ask what the system should recommend, MARE asks what proximity already exists between two pieces of media — and lets the reader walk between them."
+      </div>
+
+      <p>
+        The platform extends across reading, writing, and curation: a workspace where archives are explored through felt resemblance rather than tag taxonomy. Its conceptual companion text, <em>MARE: The Condition</em>, sets out the broader stakes — media abundance, fragmentation, and the limits of optimisation-driven sense-making.
+      </p>
+
+      <div class="detail__plate">[additional screenshot — workspace view]</div>
+
+      <p>
+        Subsequent posts on the project's Substack develop these threads as field notes, working out the platform's positions on cognition, interiority, and the cybernetic subject in essay form.
+      </p>
+    </div>
+
+    <a href="https://mare.run" target="_blank" rel="noreferrer" class="detail__cta">Open mare.run ↗</a>
+
+    <dl class="detail__meta">
+      <div>
+        <dt>Role</dt>
+        <dd>Co-founder, research lead</dd>
+        <dt>Year</dt>
+        <dd>2025 — ongoing</dd>
+      </div>
+      <div>
+        <dt>Tags</dt>
+        <dd>archive · ai · cognition · platform</dd>
+        <dt>Reading</dt>
+        <dd><a href="#">MARE: The Condition</a> · <a href="#">Conditions of Interiority</a></dd>
+      </div>
+    </dl>
+
+    <section class="related">
+      <div class="related__label">From the same field</div>
+      <a href="#" class="related__row">
+        <span class="related__title">MARE: The Condition</span>
+        <span class="related__sub">Foundational Text — 2025</span>
+      </a>
+      <a href="#" class="related__row">
+        <span class="related__title">Conditions of Interiority (1/3)</span>
+        <span class="related__sub">Essay — 2025</span>
+      </a>
+      <a href="#" class="related__row">
+        <span class="related__title">The Cybernetic Subject (2/3)</span>
+        <span class="related__sub">Essay — 2025</span>
+      </a>
+    </section>
+
+  </main>
+</div>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">01 · MARE detail (right column transforms)</span>
+  <span>
+    <a href="01-asymmetric-rail.html">← Back to archive</a>
+    <a href="index.html">Index</a>
+  </span>
+</nav>
+</body>
+</html>

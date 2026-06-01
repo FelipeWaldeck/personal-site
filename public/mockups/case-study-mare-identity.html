@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visual identity, MARE — Case study</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  /* === TOP NAV (slim, always visible) === */
+  .topnav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 32px;
+    background: rgba(20,24,16,0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,99,146,0.12);
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .topnav a { opacity: 0.7; }
+  .topnav a:hover { opacity: 1; color: var(--accent-pink); }
+  .topnav__name { font-family: var(--font-primary); font-size: 18px; color: var(--accent-pink); text-transform: none; letter-spacing: -0.005em; opacity: 1; }
+
+  /* === HERO === */
+  .hero {
+    min-height: 78vh;
+    padding: 96px 64px 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 96px;
+    align-items: center;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  .hero__kicker {
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 22px;
+  }
+  .hero__title {
+    font-family: var(--font-primary);
+    font-size: 88px;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    margin: 0 0 36px;
+  }
+  .hero__brief {
+    font-family: var(--font-primary);
+    font-size: 22px;
+    line-height: 1.5;
+    opacity: 0.88;
+    max-width: 540px;
+  }
+  .hero__brief em { color: var(--accent-pink); font-style: italic; }
+  .hero__artifact {
+    aspect-ratio: 5/4;
+    background: var(--bg-primary);
+    border: 1px solid rgba(255,99,146,0.15);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.4);
+    font-family: var(--font-primary);
+    font-size: 200px;
+    color: var(--accent-pink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* === META STRIP === */
+  .meta {
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 36px 64px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  .meta dt {
+    font-family: var(--font-utility);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 8px;
+  }
+  .meta dd {
+    font-family: var(--font-primary);
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  /* === SECTION SHELL === */
+  section.cs {
+    padding: 96px 64px;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  .cs__label {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 32px;
+  }
+  .cs__heading {
+    font-family: var(--font-primary);
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 32px;
+    max-width: 800px;
+  }
+  .cs__body {
+    font-family: var(--font-primary);
+    font-size: 17.5px;
+    line-height: 1.7;
+    opacity: 0.88;
+    max-width: 640px;
+  }
+  .cs__body p + p { margin-top: 18px; }
+  .cs__body em { color: var(--accent-pink); font-style: italic; }
+
+  /* Section: two-column with side notes */
+  .cs--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 96px;
+    align-items: start;
+  }
+  .cs__note {
+    font-family: var(--font-utility);
+    font-size: 13px;
+    line-height: 1.6;
+    opacity: 0.7;
+    border-left: 1px solid rgba(255,99,146,0.3);
+    padding-left: 24px;
+  }
+  .cs__note strong {
+    display: block;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 8px;
+  }
+  .cs__note + .cs__note { margin-top: 28px; }
+
+  /* === WORDMARK ZONE === */
+  .wordmark-stage {
+    margin-top: 56px;
+    padding: 120px 48px;
+    background: linear-gradient(135deg, rgba(255,99,146,0.05), rgba(152,206,0,0.03));
+    border: 1px solid rgba(255,99,146,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-primary);
+    color: var(--accent-pink);
+    font-size: 200px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .wordmark-specs {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    font-family: var(--font-utility);
+    font-size: 12px;
+    line-height: 1.55;
+    opacity: 0.75;
+  }
+  .wordmark-specs strong {
+    display: block;
+    font-weight: 500;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 6px;
+    opacity: 1;
+  }
+
+  /* === PALETTE === */
+  .palette {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .palette__chip {
+    aspect-ratio: 5/6;
+    border: 1px solid rgba(255,99,146,0.12);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .palette__color { flex: 1; }
+  .palette__label {
+    padding: 14px 16px;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    line-height: 1.4;
+    background: rgba(20,24,16,0.8);
+    color: var(--text-primary);
+  }
+  .palette__label strong {
+    display: block;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 4px;
+  }
+  .palette__label code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    opacity: 0.6;
+  }
+
+  /* === PIN GRID === */
+  .pins {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 12px;
+  }
+  .pin {
+    aspect-ratio: 1;
+    border: 1px solid rgba(152,206,0,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-green);
+  }
+  .pin svg { width: 60%; height: auto; }
+
+  /* === IN-CONTEXT FULL-BLEED === */
+  .full-bleed {
+    margin: 96px 0 0;
+    padding: 0 64px;
+  }
+  .full-bleed__frame {
+    max-width: 1480px;
+    margin: 0 auto;
+    aspect-ratio: 16/9;
+    background: url('../assets/mare-preview.png') center/cover no-repeat #0d1009;
+    border: 1px solid rgba(255,99,146,0.18);
+    box-shadow: 0 60px 140px rgba(0,0,0,0.4);
+  }
+  .full-bleed__cap {
+    max-width: 1480px;
+    margin: 18px auto 0;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    text-align: center;
+  }
+
+  /* === REFLECTION === */
+  .reflection {
+    padding: 120px 64px;
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .reflection__quote {
+    font-family: var(--font-primary);
+    font-size: 28px;
+    line-height: 1.45;
+    font-style: italic;
+    opacity: 0.92;
+  }
+  .reflection__quote em { color: var(--accent-pink); font-style: italic; }
+  .reflection__attr {
+    margin-top: 24px;
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* === FOOTER === */
+  .cs-footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 56px 64px;
+    max-width: 1480px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .cs-footer__back {
+    text-align: center;
+    color: var(--accent-pink);
+    border: 1px solid rgba(255,99,146,0.4);
+    padding: 14px 28px;
+  }
+  .cs-footer__back:hover { background: var(--accent-pink); color: var(--bg-primary); }
+  .cs-footer__next { text-align: right; opacity: 0.7; }
+  .cs-footer__next:hover { opacity: 1; color: var(--accent-pink); }
+  .cs-footer__prev { opacity: 0.7; }
+
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; gap: 48px; padding: 64px 32px 48px; }
+    .hero__title { font-size: 56px; }
+    .hero__artifact { font-size: 120px; }
+    .meta { grid-template-columns: repeat(2, 1fr); padding: 32px; gap: 24px; }
+    section.cs { padding: 64px 32px; }
+    .cs--split { grid-template-columns: 1fr; gap: 32px; }
+    .cs__heading { font-size: 30px; }
+    .wordmark-stage { font-size: 96px; padding: 64px 24px; }
+    .wordmark-specs { grid-template-columns: repeat(2, 1fr); }
+    .palette { grid-template-columns: repeat(2, 1fr); }
+    .pins { grid-template-columns: repeat(4, 1fr); }
+    .full-bleed { padding: 0 32px; }
+    .reflection__quote { font-size: 20px; }
+    .cs-footer { grid-template-columns: 1fr; text-align: center; padding: 48px 32px; }
+    .cs-footer__next, .cs-footer__prev { text-align: center; }
+  }
+
+  /* === PHONE === */
+  @media (max-width: 480px) {
+    .topnav { padding: 12px 18px; font-size: 9px; letter-spacing: 0.18em; }
+    .topnav__name { font-size: 16px; }
+
+    .hero { min-height: auto; padding: 40px 20px 32px; gap: 32px; }
+    .hero__kicker { font-size: 10px; margin-bottom: 14px; letter-spacing: 0.22em; }
+    .hero__title { font-size: 38px; line-height: 0.98; margin-bottom: 22px; }
+    .hero__brief { font-size: 16px; line-height: 1.5; }
+    .hero__artifact { font-size: 84px; aspect-ratio: 1; }
+
+    .meta { grid-template-columns: 1fr 1fr; padding: 24px 20px; gap: 18px 22px; }
+    .meta dt { font-size: 9px; margin-bottom: 5px; }
+    .meta dd { font-size: 13px; }
+
+    section.cs { padding: 48px 20px; }
+    .cs__label { font-size: 10px; margin-bottom: 18px; }
+    .cs__heading { font-size: 24px; margin-bottom: 20px; }
+    .cs__body { font-size: 15px; line-height: 1.65; }
+    .cs__note { font-size: 12px; padding-left: 18px; }
+
+    .wordmark-stage { font-size: 64px; padding: 48px 16px; margin-top: 36px; }
+    .wordmark-specs { grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; font-size: 11px; }
+
+    .palette { gap: 8px; margin-top: 36px; }
+    .palette__chip { aspect-ratio: 4/5; }
+    .palette__label { padding: 9px 10px; font-size: 10px; }
+    .palette__label strong { font-size: 9px; letter-spacing: 0.15em; }
+    .palette__label code { font-size: 9px; }
+
+    .pins { grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 36px; }
+
+    .full-bleed { margin-top: 56px; padding: 0 20px; }
+    .full-bleed__frame { aspect-ratio: 4/3; }
+    .full-bleed__cap { font-size: 10px; }
+
+    .reflection { padding: 72px 20px; }
+    .reflection__quote { font-size: 18px; line-height: 1.4; }
+
+    .cs-footer { padding: 32px 20px; gap: 16px; }
+    .cs-footer__back { padding: 12px 22px; font-size: 10px; }
+    .cs-footer__next, .cs-footer__prev { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="01-asymmetric-rail.html">← Archive</a>
+  <a href="01-asymmetric-rail.html" class="topnav__name">FW</a>
+  <a href="#">Reading ↗</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero__kicker">Case study · Identity · 2025</div>
+    <h1 class="hero__title">Visual identity, MARE</h1>
+    <p class="hero__brief">
+      An identity system built around <em>archive</em>, not <em>app</em>. Four colours, two typefaces, and a 64-pin field-marker set drawn from the I-Ching — designed to register as a working tool from the field of critical theory rather than a software product.
+    </p>
+  </div>
+  <div class="hero__artifact" aria-label="MARE wordmark">Mare</div>
+</section>
+
+<!-- META STRIP -->
+<dl class="meta">
+  <div>
+    <dt>Role</dt>
+    <dd>Co-founder, identity lead</dd>
+  </div>
+  <div>
+    <dt>Year</dt>
+    <dd>2025 — ongoing</dd>
+  </div>
+  <div>
+    <dt>Surfaces</dt>
+    <dd>Platform, Substack, print</dd>
+  </div>
+  <div>
+    <dt>Tools</dt>
+    <dd>Figma, Cavalry, hand-drawn studies</dd>
+  </div>
+</dl>
+
+<!-- BRIEF -->
+<section class="cs cs--split">
+  <div>
+    <div class="cs__label">01 — The brief</div>
+    <h2 class="cs__heading">A platform that reads as field notes, not feed.</h2>
+    <div class="cs__body">
+      <p>
+        MARE began as a research platform for navigating fragmented media archives by <em>semantic proximity</em> rather than recommendation. The identity had to do the same work as the product: refuse the visual language of optimisation — soft gradients, friendly mascots, app-store sheen — and instead borrow from the surfaces archives actually have. Card catalogues. Field diaries. Library stamps.
+      </p>
+      <p>
+        Two parallel audiences: critical theorists who would never trust a "platform" that looked like one, and engineers who would dismiss anything overly precious. The system had to read as <em>serious and built</em> from both directions.
+      </p>
+    </div>
+  </div>
+  <aside>
+    <div class="cs__note">
+      <strong>Constraint</strong>
+      No mascots, no rounded corners, no gradient sheens, no stock illustration. The visual system reads as 'instrument' or it doesn't ship.
+    </div>
+    <div class="cs__note">
+      <strong>Pivot</strong>
+      First round leaned soft and warm. Tested with five readers from each audience — all called it 'a Notion clone.' Reset.
+    </div>
+    <div class="cs__note">
+      <strong>Lock</strong>
+      Carbon black + alabaster as base; pink + green as instrument signals (link, state). One serif, one utility sans. No more.
+    </div>
+  </aside>
+</section>
+
+<!-- WORDMARK -->
+<section class="cs">
+  <div class="cs__label">02 — Wordmark</div>
+  <h2 class="cs__heading">Set in Libre Baskerville, with the dot of the &lsquo;i&rsquo; falling deliberately low.</h2>
+  <div class="cs__body" style="max-width:720px;">
+    <p>
+      The wordmark is a single line of <em>Libre Baskerville</em> at its untouched proportions — no kerning gymnastics, no glyph remix. The intent: the wordmark should feel <em>set</em>, not designed. Like a chapter header.
+    </p>
+  </div>
+
+  <div class="wordmark-stage">Mare</div>
+
+  <div class="wordmark-specs">
+    <div><strong>Typeface</strong>Libre Baskerville Regular</div>
+    <div><strong>Size</strong>Min 24pt / Display 160pt+</div>
+    <div><strong>Spacing</strong>Tracking −1% display only</div>
+    <div><strong>Colour</strong>Accent pink on carbon; carbon on alabaster</div>
+  </div>
+</section>
+
+<!-- PALETTE -->
+<section class="cs">
+  <div class="cs__label">03 — Palette</div>
+  <h2 class="cs__heading">Four colours, each with a job.</h2>
+  <div class="cs__body">
+    <p>
+      No tints, no shades, no expanded gradient ramp. Four hex values that each do one thing, used consistently everywhere they appear.
+    </p>
+  </div>
+
+  <div class="palette">
+    <div class="palette__chip">
+      <div class="palette__color" style="background:#141810"></div>
+      <div class="palette__label"><strong>Carbon</strong><code>#141810</code><br/>Page, frame, ground</div>
+    </div>
+    <div class="palette__chip">
+      <div class="palette__color" style="background:#e6e6ea"></div>
+      <div class="palette__label"><strong>Alabaster</strong><code>#E6E6EA</code><br/>Body text, primary surface</div>
+    </div>
+    <div class="palette__chip">
+      <div class="palette__color" style="background:#ff6392"></div>
+      <div class="palette__label"><strong>Hot pink</strong><code>#FF6392</code><br/>Wordmark, link, division</div>
+    </div>
+    <div class="palette__chip">
+      <div class="palette__color" style="background:#98ce00"></div>
+      <div class="palette__label"><strong>Acid green</strong><code>#98CE00</code><br/>State, instrument, label</div>
+    </div>
+  </div>
+</section>
+
+<!-- PIN SYSTEM -->
+<section class="cs">
+  <div class="cs__label">04 — Pin / field-marker system</div>
+  <h2 class="cs__heading">64 markers, drawn from the I-Ching.</h2>
+  <div class="cs__body">
+    <p>
+      Every item in the archive needs a pin: a small, recognisable mark that holds position on the field. Rather than invent 64 abstract glyphs, the system borrows the hexagrams — six lines, broken or solid — yielding 64 unique markers with a built-in numeric order. The first eight shown here.
+    </p>
+  </div>
+
+  <div class="pins">
+    <!-- 8 sample pins, each drawn programmatically from a binary pattern -->
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="48" height="4" fill="currentColor"/><rect x="6" y="14" width="48" height="4" fill="currentColor"/><rect x="6" y="22" width="48" height="4" fill="currentColor"/><rect x="6" y="30" width="48" height="4" fill="currentColor"/><rect x="6" y="38" width="48" height="4" fill="currentColor"/><rect x="6" y="46" width="48" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="20" height="4" fill="currentColor"/><rect x="34" y="6" width="20" height="4" fill="currentColor"/><rect x="6" y="14" width="20" height="4" fill="currentColor"/><rect x="34" y="14" width="20" height="4" fill="currentColor"/><rect x="6" y="22" width="20" height="4" fill="currentColor"/><rect x="34" y="22" width="20" height="4" fill="currentColor"/><rect x="6" y="30" width="20" height="4" fill="currentColor"/><rect x="34" y="30" width="20" height="4" fill="currentColor"/><rect x="6" y="38" width="20" height="4" fill="currentColor"/><rect x="34" y="38" width="20" height="4" fill="currentColor"/><rect x="6" y="46" width="20" height="4" fill="currentColor"/><rect x="34" y="46" width="20" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="48" height="4" fill="currentColor"/><rect x="6" y="14" width="20" height="4" fill="currentColor"/><rect x="34" y="14" width="20" height="4" fill="currentColor"/><rect x="6" y="22" width="48" height="4" fill="currentColor"/><rect x="6" y="30" width="20" height="4" fill="currentColor"/><rect x="34" y="30" width="20" height="4" fill="currentColor"/><rect x="6" y="38" width="48" height="4" fill="currentColor"/><rect x="6" y="46" width="20" height="4" fill="currentColor"/><rect x="34" y="46" width="20" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="20" height="4" fill="currentColor"/><rect x="34" y="6" width="20" height="4" fill="currentColor"/><rect x="6" y="14" width="48" height="4" fill="currentColor"/><rect x="6" y="22" width="20" height="4" fill="currentColor"/><rect x="34" y="22" width="20" height="4" fill="currentColor"/><rect x="6" y="30" width="48" height="4" fill="currentColor"/><rect x="6" y="38" width="20" height="4" fill="currentColor"/><rect x="34" y="38" width="20" height="4" fill="currentColor"/><rect x="6" y="46" width="48" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="48" height="4" fill="currentColor"/><rect x="6" y="14" width="48" height="4" fill="currentColor"/><rect x="6" y="22" width="20" height="4" fill="currentColor"/><rect x="34" y="22" width="20" height="4" fill="currentColor"/><rect x="6" y="30" width="48" height="4" fill="currentColor"/><rect x="6" y="38" width="20" height="4" fill="currentColor"/><rect x="34" y="38" width="20" height="4" fill="currentColor"/><rect x="6" y="46" width="48" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="20" height="4" fill="currentColor"/><rect x="34" y="6" width="20" height="4" fill="currentColor"/><rect x="6" y="14" width="48" height="4" fill="currentColor"/><rect x="6" y="22" width="48" height="4" fill="currentColor"/><rect x="6" y="30" width="20" height="4" fill="currentColor"/><rect x="34" y="30" width="20" height="4" fill="currentColor"/><rect x="6" y="38" width="48" height="4" fill="currentColor"/><rect x="6" y="46" width="20" height="4" fill="currentColor"/><rect x="34" y="46" width="20" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="48" height="4" fill="currentColor"/><rect x="6" y="14" width="20" height="4" fill="currentColor"/><rect x="34" y="14" width="20" height="4" fill="currentColor"/><rect x="6" y="22" width="48" height="4" fill="currentColor"/><rect x="6" y="30" width="48" height="4" fill="currentColor"/><rect x="6" y="38" width="20" height="4" fill="currentColor"/><rect x="34" y="38" width="20" height="4" fill="currentColor"/><rect x="6" y="46" width="48" height="4" fill="currentColor"/></svg></div>
+    <div class="pin"><svg viewBox="0 0 60 60"><rect x="6" y="6"  width="20" height="4" fill="currentColor"/><rect x="34" y="6" width="20" height="4" fill="currentColor"/><rect x="6" y="14" width="48" height="4" fill="currentColor"/><rect x="6" y="22" width="48" height="4" fill="currentColor"/><rect x="6" y="30" width="20" height="4" fill="currentColor"/><rect x="34" y="30" width="20" height="4" fill="currentColor"/><rect x="6" y="38" width="20" height="4" fill="currentColor"/><rect x="34" y="38" width="20" height="4" fill="currentColor"/><rect x="6" y="46" width="48" height="4" fill="currentColor"/></svg></div>
+  </div>
+</section>
+
+<!-- IN-CONTEXT -->
+<div class="full-bleed">
+  <div class="full-bleed__frame" aria-label="MARE platform applied"></div>
+  <div class="full-bleed__cap">05 — Applied · mare.run, primary surface, May 2025</div>
+</div>
+
+<!-- REFLECTION -->
+<section class="reflection">
+  <div class="cs__label">06 — Reflection</div>
+  <p class="reflection__quote">
+    The hardest constraint turned out to be productive: by refusing the visual vocabulary of software, the system ended up reading as <em>infrastructure</em> — which is what MARE wanted to be anyway.
+  </p>
+  <div class="reflection__attr">— FW, working notes, 2025</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="cs-footer">
+  <a href="#" class="cs-footer__prev">← No prior case study</a>
+  <a href="01-asymmetric-rail.html" class="cs-footer__back">Return to archive</a>
+  <a href="#" class="cs-footer__next">Next: interface · MARE reading surface →</a>
+</footer>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">Case study · Visual identity, MARE</span>
+  <span>
+    <a href="01-asymmetric-rail.html">← Archive</a>
+    <a href="index.html">Index</a>
+  </span>
+</nav>
+</body>
+</html>

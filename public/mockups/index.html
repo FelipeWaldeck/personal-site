@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockups — Felipe Waldeck site</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .wrap { max-width: 880px; margin: 0 auto; padding: 80px 32px 120px; }
+  h1 { font-family: var(--font-primary); color: var(--accent-pink); font-size: 48px; letter-spacing: -0.01em; margin: 0 0 12px; }
+  .sub { font-family: var(--font-utility); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-green); margin-bottom: 56px; }
+  .opt {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px;
+    gap: 32px;
+    padding: 28px 0;
+    border-top: 1px solid var(--border-subtle);
+    align-items: baseline;
+    cursor: pointer;
+    transition: padding 0.2s ease;
+  }
+  .opt:hover { padding-left: 6px; }
+  .opt:hover .opt__title { color: var(--accent-pink); }
+  .opt__num { font-family: var(--font-utility); font-size: 11px; letter-spacing: 0.22em; opacity: 0.6; }
+  .opt__title { font-family: var(--font-primary); font-size: 28px; line-height: 1.2; margin-bottom: 8px; transition: color 0.2s; }
+  .opt__desc { font-family: var(--font-primary); font-size: 15px; line-height: 1.55; opacity: 0.8; max-width: 60ch; }
+  .opt__tag {
+    font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    text-align: right; opacity: 0.55;
+  }
+  .opt:last-child { border-bottom: 1px solid var(--border-subtle); }
+  .note {
+    margin-top: 56px;
+    padding: 20px 0;
+    border-top: 1px dotted rgba(255,99,146,0.2);
+    font-family: var(--font-utility);
+    font-size: 12px;
+    line-height: 1.7;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Layout mockups</h1>
+  <div class="sub">5 directions · static HTML · open in any browser</div>
+
+  <a href="01-asymmetric-rail.html" class="opt">
+    <span class="opt__num">01</span>
+    <div>
+      <div class="opt__title">Asymmetric rail</div>
+      <p class="opt__desc">Slim left identity sidebar (name, bio, latest writing, hexagram) + wide right archive in a single dense scroll. Selection no longer mirrors itself; the rail is permanent context.</p>
+    </div>
+    <span class="opt__tag">Dense<br/>+ Context</span>
+  </a>
+
+  <a href="02-editorial.html" class="opt">
+    <span class="opt__num">02</span>
+    <div>
+      <div class="opt__title">Editorial magazine</div>
+      <p class="opt__desc">Masthead bio + "Now" sidebar at top, then a full-bleed featured hero (MARE), then a 3-column grid for Writing / Platform Notes / Work. Image-led, magazine-like.</p>
+    </div>
+    <span class="opt__tag">Image-led<br/>+ Featured</span>
+  </a>
+
+  <a href="03-index-table.html" class="opt">
+    <span class="opt__num">03</span>
+    <div>
+      <div class="opt__title">Index table</div>
+      <p class="opt__desc">Archive-as-database. Filterable, sortable columns: date · type · title · venue · tags. Pure information density, brutalist register. No preview pane at all.</p>
+    </div>
+    <span class="opt__tag">Most dense<br/>+ Filterable</span>
+  </a>
+
+  <a href="04-reading-room.html" class="opt">
+    <span class="opt__num">04</span>
+    <div>
+      <div class="opt__title">Reading room</div>
+      <p class="opt__desc">Single typographic column, museum/library register. Bio as lede, hexagram glyph as plate, archive as a justified ledger. No images, all type — the most "Substack-as-portfolio" of the five.</p>
+    </div>
+    <span class="opt__tag">Typographic<br/>+ Quiet</span>
+  </a>
+
+  <a href="05-vitrine-canvas.html" class="opt">
+    <span class="opt__num">05</span>
+    <div>
+      <div class="opt__title">Vitrine canvas</div>
+      <p class="opt__desc">Projects float on a spatial field with positional meaning (type horizontally, time vertically). Triptych essays sit on a connecting line. Retains the MARE/archival exploration metaphor and makes the spatial layout actually mean something.</p>
+    </div>
+    <span class="opt__tag">Spatial<br/>+ Distinctive</span>
+  </a>
+
+  <p class="note">
+    Each mockup uses real content from <code>src/data/projects.ts</code> + a few <em>[placeholder]</em> items so you can see how the layout holds growth. Bottom bar lets you flip between them.
+  </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>01 — MARE (Modal, pared back)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  /* Minimal rail+archive behind so backdrop has something to dim */
+  .layout { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+  .rail {
+    position: sticky; top: 0; height: 100vh;
+    padding: 56px 36px; border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; gap: 28px;
+  }
+  .rail__name { font-family: var(--font-primary); font-size: 36px; color: var(--accent-pink); }
+  .rail__bio { font-size: 14px; line-height: 1.55; opacity: 0.88; }
+  .content { padding: 56px 64px; }
+  .archive-row {
+    display: grid; grid-template-columns: 72px 1fr 140px;
+    gap: 28px; padding: 14px 0;
+    border-bottom: 1px solid rgba(255,99,146,0.08);
+    font-family: var(--font-primary); font-size: 22px;
+  }
+  .archive-row span { font-family: var(--font-utility); font-size: 10px; letter-spacing: 0.18em; opacity: 0.55; }
+  .archive-row span:last-child { text-align: right; text-transform: uppercase; }
+
+  /* === MODAL === */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(13, 16, 9, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 64px;
+  }
+
+  .modal {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 80px;
+    width: 100%;
+    max-width: 1280px;
+    align-items: center;
+  }
+
+  .modal__image {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: #0d1009 center/cover no-repeat;
+  }
+  .modal__image--mare { background-image: url('../assets/mare-preview.png'); }
+
+  .modal__text {
+    max-width: 460px;
+  }
+  .modal__kicker {
+    font-family: var(--font-utility);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-green);
+    margin-bottom: 18px;
+  }
+  .modal__title {
+    font-family: var(--font-primary);
+    font-size: 44px;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 28px;
+  }
+  .modal__desc {
+    font-family: var(--font-primary);
+    font-size: 16.5px;
+    line-height: 1.65;
+    opacity: 0.88;
+    margin: 0 0 24px;
+  }
+  .modal__desc em { color: var(--accent-pink); font-style: italic; }
+  .modal__tags {
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    opacity: 0.45;
+    margin-bottom: 32px;
+  }
+  .modal__cta {
+    font-family: var(--font-utility);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-pink);
+    border-bottom: 1px solid var(--accent-pink);
+    padding-bottom: 4px;
+  }
+  .modal__cta:hover { color: var(--accent-green); border-color: var(--accent-green); }
+
+  /* Close */
+  .modal__close {
+    position: fixed; top: 28px; right: 28px;
+    width: 36px; height: 36px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text-primary);
+    font-size: 22px;
+    opacity: 0.5;
+    transition: opacity 0.2s, color 0.2s;
+  }
+  .modal__close:hover { opacity: 1; color: var(--accent-pink); }
+
+  @media (max-width: 900px) {
+    .modal { grid-template-columns: 1fr; gap: 32px; }
+    .modal__text { max-width: 100%; }
+    .modal__title { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- minimal archive behind, only there so the backdrop dims something -->
+<div class="layout" aria-hidden="true">
+  <aside class="rail">
+    <a href="01-asymmetric-rail.html" class="rail__name">Felipe<br/>Waldeck</a>
+    <p class="rail__bio">Researcher and writer working on the cultural and political consequences of contemporary technical systems.</p>
+  </aside>
+  <main class="content">
+    <div class="archive-row"><span>2025–</span><span style="font-family:var(--font-primary);font-size:22px;opacity:1;letter-spacing:normal;">MARE</span><span>Case study →</span></div>
+    <div class="archive-row"><span>2025</span><span style="font-family:var(--font-primary);font-size:22px;opacity:1;letter-spacing:normal;">MARE: The Condition</span><span>Substack ↗</span></div>
+    <div class="archive-row"><span>2025</span><span style="font-family:var(--font-primary);font-size:22px;opacity:1;letter-spacing:normal;">Predictionism and the Cybernetic Subject</span><span>Substack ↗</span></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <button class="modal__close" aria-label="Close">×</button>
+
+  <div class="modal">
+    <div class="modal__image modal__image--mare" role="img" aria-label="MARE platform preview"></div>
+
+    <div class="modal__text">
+      <div class="modal__kicker">Platform · 2025 —</div>
+      <h1 class="modal__title" id="modal-title">MARE</h1>
+      <p class="modal__desc">
+        A media-agnostic research platform concerned with how humans and machines make sense of large volumes of media under contemporary computational conditions. Rather than organising material through recommendation or optimisation, MARE foregrounds <em>semantic proximity, mood, and relational association</em> as navigational primitives.
+      </p>
+      <p class="modal__desc">
+        The platform operates as a field lab between human and machine sense-making — both a working tool and an ongoing research project.
+      </p>
+      <div class="modal__tags">archive · ai · cognition · platform</div>
+      <a href="https://mare.run" target="_blank" rel="noreferrer" class="modal__cta">Open mare.run ↗</a>
+    </div>
+  </div>
+</div>
+
+<nav class="mock-bar">
+  <span class="mock-bar__name">01 · MARE modal (pared back)</span>
+  <span>
+    <a href="01-asymmetric-rail.html">← Archive</a>
+    <a href="index.html">Index</a>
+  </span>
+</nav>
+</body>
+</html>
