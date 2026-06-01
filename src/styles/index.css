@@ -18,6 +18,16 @@
 
   --border-subtle: rgba(255, 99, 146, 0.3);
   /* Subtle pink divider */
+
+  /* Map system (from public/mockups/system.css) */
+  --bg-raise: #1b2017;
+  --ink-dim: rgba(230, 230, 234, 0.62);
+  --ink-faint: rgba(230, 230, 234, 0.4);
+  --line-soft: rgba(255, 99, 146, 0.12);
+  --cat-platform: var(--accent-pink);
+  --cat-writing: var(--accent-green);
+  --cat-design: #e8b04b;
+  --cat-video: #6ea8d8;
 }
 
 body {
