@@ -17,7 +17,7 @@ const col = (n: MapNode) => CAT[n.cat].color;
 
 function labelXY(n: MapNode): { x: number; y: number; anchor: 'middle' | 'start' | 'end' } {
   const [x, y] = n.g;
-  const rad = n.hub ? 12 : n.collab ? 9 : 8;
+  const rad = n.hub ? 17 : n.collab ? 9 : 8;
   const lbl: LabelPos = n.label;
   if (lbl === 'up') return { x, y: y - rad - 10, anchor: 'middle' };
   if (lbl === 'down') return { x, y: y + rad + 18, anchor: 'middle' };
@@ -28,13 +28,32 @@ function labelXY(n: MapNode): { x: number; y: number; anchor: 'middle' | 'start'
 function NodeDot({ n }: { n: MapNode }) {
   const [x, y] = n.g, c = col(n), op = n.dim ? 0.55 : 1;
   if (n.hub) return (<>
+    {/* moat: a bg-coloured disc that isolates the interchange from the lines passing under it */}
+    <circle cx={x} cy={y} r={15} fill="var(--bg-primary)" />
+    {/* bold solid disc — the hub reads as the heaviest marker, not a hollow donut */}
     <circle className="node-dot" cx={x} cy={y} r={12} fill={c} />
-    <circle cx={x} cy={y} r={5} fill="var(--bg-primary)" />
   </>);
   if (n.collab) return <circle className="node-dot" cx={x} cy={y} r={9} fill="var(--bg-primary)" stroke={c} strokeWidth={2.5} />;
   return (<>
     <circle className="node-dot" cx={x} cy={y} r={8} fill={c} opacity={op} />
     <circle cx={x} cy={y} r={3} fill="var(--bg-primary)" opacity={op} />
+  </>);
+}
+
+function NodeLabel({ n }: { n: MapNode }) {
+  const l = labelXY(n);
+  if (!n.hub) {
+    return <text className={n.dim ? 'dim' : ''} x={l.x} y={l.y} textAnchor={l.anchor}>{n.title}</text>;
+  }
+  // hub titles sit in the densest crossing zones; a bg-coloured plate makes the lines stop
+  // cleanly behind the text instead of running through it.
+  const fs = 15;
+  const w = n.title.length * fs * 0.62 + 14;
+  const x0 = l.anchor === 'middle' ? l.x - w / 2 : l.anchor === 'end' ? l.x - w + 7 : l.x - 7;
+  return (<>
+    <rect className="hub-plate" x={x0} y={l.y - fs + 2} width={w} height={fs + 4} />
+    <text className="hub-label" x={l.x} y={l.y} textAnchor={l.anchor}
+      fontFamily="var(--font-primary)" fontSize={fs} fill={col(n)}>{n.title}</text>
   </>);
 }
 
@@ -92,17 +111,12 @@ export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }
         onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
         {GRID_LINES}
         <Links />
-        {WORKS.map((n) => {
-          const l = labelXY(n);
-          return (
-            <g className="map-node" data-id={n.id} key={n.id} onClick={() => onSelect(n)}>
-              <NodeDot n={n} />
-              <text className={n.dim ? 'dim' : ''} x={l.x} y={l.y} textAnchor={l.anchor}
-                fontFamily={n.hub ? 'var(--font-primary)' : undefined}
-                fontSize={n.hub ? 15 : undefined} fill={n.hub ? col(n) : undefined}>{n.title}</text>
-            </g>
-          );
-        })}
+        {WORKS.map((n) => (
+          <g className="map-node" data-id={n.id} key={n.id} onClick={() => onSelect(n)}>
+            <NodeDot n={n} />
+            <NodeLabel n={n} />
+          </g>
+        ))}
       </svg>
       <div className="ctrl">
         <button title="Zoom in" onClick={() => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 0.8)}>+</button>

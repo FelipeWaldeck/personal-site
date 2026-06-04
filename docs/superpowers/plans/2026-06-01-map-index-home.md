@@ -80,8 +80,8 @@ import { describe, it, expect } from 'vitest';
 import { WORKS, LINKS, CAT, nodeById } from './mapData';
 
 describe('mapData', () => {
-  it('has 15 works', () => {
-    expect(WORKS).toHaveLength(15);
+  it('has 16 works', () => {
+    expect(WORKS).toHaveLength(16);
   });
 
   it('every link references existing node ids', () => {
