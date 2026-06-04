@@ -87,7 +87,7 @@ export default function BouncingAscii() {
   return (
     <pre
       ref={containerRef}
-      className="fixed top-0 left-0 z-[9999] pointer-events-none font-mono text-[10px] leading-[10px] text-green opacity-20 md:opacity-80 select-none whitespace-pre print:hidden"
+      className="bouncing-horse fixed top-0 left-0 z-[9999] pointer-events-none font-mono text-[10px] leading-[10px] text-green opacity-20 md:opacity-80 select-none whitespace-pre print:hidden"
       aria-hidden="true"
     >
       {ASCII_ART}

@@ -173,3 +173,12 @@ a:hover {
     text-decoration: none !important;
   }
 }
+
+/* Bouncing ASCII horse: ease opacity, and dim it to 30% while a detail surface
+   (NodeDetail panel or a case-study page) is open — signalled by body.detail-open. */
+.bouncing-horse {
+  transition: opacity 0.45s ease;
+}
+body.detail-open .bouncing-horse {
+  opacity: 0.3;
+}

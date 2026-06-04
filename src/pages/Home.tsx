@@ -4,16 +4,21 @@ import Rail from '../components/map/Rail';
 import ViewToggle, { type View } from '../components/map/ViewToggle';
 import MapView from '../components/map/MapView';
 import IndexView from '../components/map/IndexView';
+import NodeDetail from '../components/map/NodeDetail';
 import { CAT, type MapNode } from '../data/mapData';
+import { useBodyClass } from '../lib/useBodyClass';
 import '../components/map/map.css';
 
 export default function Home() {
   const [view, setView] = useState<View>('map');
+  const [modalNode, setModalNode] = useState<MapNode | null>(null);
   const navigate = useNavigate();
 
+  useBodyClass('detail-open', modalNode != null); // dims the bouncing horse while the panel is up
+
   const onSelect = (n: MapNode) => {
-    if (n.external && n.href) window.open(n.href, '_blank', 'noopener,noreferrer');
-    else navigate(`/work/${n.id}`);
+    if (n.caseStudy) navigate(`/work/${n.caseStudySlug ?? n.id}`);
+    else setModalNode(n);
   };
 
   return (
@@ -29,6 +34,7 @@ export default function Home() {
           </div>
         </div>
         {view === 'map' ? <MapView onSelect={onSelect} /> : <IndexView onSelect={onSelect} />}
+        <NodeDetail node={modalNode} onClose={() => setModalNode(null)} />
       </main>
     </div>
   );

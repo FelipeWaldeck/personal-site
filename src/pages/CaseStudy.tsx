@@ -1,11 +1,31 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { nodeById, CAT } from '../data/mapData';
+import MareCaseStudy from './caseStudies/MareCaseStudy';
+import NamshubCaseStudy from './caseStudies/NamshubCaseStudy';
+import { useBodyClass } from '../lib/useBodyClass';
 import '../components/map/map.css';
+
+// Slugs with a fully built case study. Other case-study nodes fall back to the stub.
+// 'mare-design' is the shared canonical slug for both MARE design nodes (visid + iface).
+const FINISHED: Record<string, React.FC> = {
+  'mare-design': MareCaseStudy,
+  namshub: NamshubCaseStudy,
+};
 
 export default function CaseStudy() {
   const { slug } = useParams();
   const node = slug ? nodeById(slug) : undefined;
+
+  useBodyClass('detail-open', true); // dims the bouncing horse while reading a case study
+
+  // Finished case studies are keyed by slug and may use a canonical slug (e.g. 'mare-design')
+  // that isn't itself a map node, so check the registry before the not-found guard. A node may
+  // also point at a shared canonical page via caseStudySlug (e.g. ns-visid → namshub), so honour
+  // that here too — this keeps direct/shared URLs in sync with how the map navigates.
+  const effectiveSlug = node?.caseStudySlug ?? slug;
+  const Finished = effectiveSlug ? FINISHED[effectiveSlug] : undefined;
+  if (Finished) return <Finished />;
 
   if (!node) {
     return (
