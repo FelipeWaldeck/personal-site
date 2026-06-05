@@ -26,10 +26,12 @@ export default function Rail() {
         ))}
       </div>
       <div className="rail__hex">
-        <div className="glyph">
-          <i /><i />
+        {/* Hexagram 52 ䷳ Gèn / Keeping Still — top→bottom: yang, yin, yin, yang, yin, yin */}
+        <div className="glyph" aria-hidden="true">
+          <i />
           <div className="split"><i /><i /></div>
           <div className="split"><i /><i /></div>
+          <i />
           <div className="split"><i /><i /></div>
           <div className="split"><i /><i /></div>
         </div>

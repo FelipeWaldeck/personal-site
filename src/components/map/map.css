@@ -1,6 +1,7 @@
 .app-shell {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  /* rail width scales with the viewport: readable on a laptop, larger on a big monitor */
+  grid-template-columns: clamp(340px, 22vw, 480px) 1fr;
   min-height: 100vh;
 }
 
@@ -17,14 +18,14 @@
 }
 .rail__name {
   font-family: var(--font-primary);
-  font-size: 32px;
+  font-size: clamp(32px, 2.4vw, 52px);
   line-height: 1.12;
   letter-spacing: -0.01em;
   color: var(--accent-pink);
 }
 .rail__bio {
-  font-size: 13.5px;
-  line-height: 1.55;
+  font-size: clamp(15.5px, 1.05vw, 22px);
+  line-height: 1.6;
   opacity: 0.85;
   margin: 22px 0 0;
 }
@@ -35,10 +36,10 @@
 }
 .rail__nav a {
   font-family: var(--font-utility);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: clamp(11.5px, 0.72vw, 15px);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: 0.55;
+  opacity: 0.6;
 }
 .rail__nav a:hover {
   opacity: 1;
@@ -46,8 +47,8 @@
 }
 .rail__lbl {
   font-family: var(--font-utility);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: clamp(11.5px, 0.72vw, 15px);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent-green);
   opacity: 0.9;
@@ -59,8 +60,8 @@
   gap: 12px;
 }
 .rail__latest a {
-  font-size: 13.5px;
-  line-height: 1.3;
+  font-size: clamp(15px, 1vw, 21px);
+  line-height: 1.35;
   opacity: 0.85;
 }
 .rail__latest a:hover {
@@ -69,33 +70,35 @@
 }
 .rail__hex {
   display: flex;
-  gap: 14px;
+  gap: clamp(16px, 1.1vw, 24px);
   align-items: center;
   margin-top: auto;
-  padding-top: 40px;
+  padding-top: clamp(40px, 4vh, 64px);
 }
+/* the whole hexagram scales from this one font-size unit (em-based bars/gaps below) */
 .rail__hex .glyph {
+  font-size: clamp(9px, 0.62vw, 13px);
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 30px;
+  gap: 0.5em;
+  width: 5em;
   flex-shrink: 0;
 }
 .rail__hex .glyph i {
-  height: 4px;
+  height: 0.62em;
   background: var(--accent-green);
   display: block;
 }
 .rail__hex .glyph .split {
   display: flex;
-  gap: 6px;
+  gap: 0.9em;
 }
 .rail__hex .glyph .split i {
   flex: 1;
 }
 .rail__hex span {
   font-family: var(--font-utility);
-  font-size: 10px;
+  font-size: clamp(12px, 0.78vw, 16px);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--accent-green);
@@ -121,7 +124,7 @@
 }
 .toggle button {
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: clamp(11px, 0.72vw, 15px);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -147,7 +150,7 @@
   align-items: center;
   gap: 7px;
   font-family: var(--font-utility);
-  font-size: 10px;
+  font-size: clamp(10px, 0.62vw, 13px);
   opacity: 0.7;
 }
 .legend i {
@@ -245,7 +248,7 @@
 }
 .hint {
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: clamp(11px, 0.65vw, 14px);
   opacity: 0.45;
   margin-top: 14px;
 }
@@ -267,23 +270,33 @@
 }
 .group__head h2 {
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: clamp(11px, 0.72vw, 15px);
   letter-spacing: 0.28em;
   text-transform: uppercase;
   margin: 0;
 }
 .group__head span {
   font-family: var(--font-utility);
-  font-size: 10px;
+  font-size: clamp(10px, 0.62vw, 13px);
   letter-spacing: 0.18em;
   opacity: 0.4;
+}
+/* entries flow into as many columns as the width allows (1 on a laptop/phone,
+   2–3 on a wide monitor) so the archive fills the space and adapts across sizes */
+.group__rows {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(clamp(340px, 24vw, 480px), 1fr)
+  );
+  column-gap: clamp(36px, 2.5vw, 64px);
 }
 .row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: baseline;
-  padding: 15px 0;
+  padding: clamp(15px, 1.1vw, 24px) 0;
   border-bottom: 1px solid var(--line-soft);
   cursor: pointer;
   background: none;
@@ -299,19 +312,19 @@
 }
 .row__t {
   font-family: var(--font-primary);
-  font-size: 20px;
+  font-size: clamp(20px, 1.25vw, 30px);
   transition: color 0.2s;
 }
 .row__t small {
   display: block;
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: clamp(11px, 0.7vw, 14px);
   opacity: 0.5;
   margin-top: 4px;
 }
 .row__c {
   font-family: var(--font-utility);
-  font-size: 14px;
+  font-size: clamp(14px, 0.85vw, 18px);
   opacity: 0.45;
 }
 
@@ -322,6 +335,56 @@
   .rail {
     position: static;
     height: auto;
+  }
+}
+
+/* Desktop: lock the stage to the viewport so the map fills the right column edge-to-edge
+   (rail edge → screen edge, full height) and the page does not scroll unnecessarily. */
+@media (min-width: 821px) {
+  .app-shell {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .mapstage {
+    height: 100vh;
+    padding: 0;
+    overflow: hidden;
+  }
+  .topbar {
+    padding: 32px 40px 16px;
+  }
+  .mapwrap {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0;
+    border: 0;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    flex-direction: column;
+  }
+  .mapwrap svg {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+  /* float the hint over the map instead of taking layout height */
+  .hint {
+    position: absolute;
+    left: 14px;
+    bottom: 12px;
+    margin: 0;
+  }
+  /* the archive scrolls within the locked stage rather than growing the page;
+     capped + centred so it fills common widths without over-stretching on ultrawide */
+  .index {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-top: 0;
+    padding: 24px clamp(40px, 3vw, 80px) 48px;
+    max-width: 2200px;
+    margin-inline: auto;
+    width: 100%;
   }
 }
 
@@ -350,7 +413,7 @@
 .node-detail__back {
   align-self: flex-start;
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: 16.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent-green);
@@ -367,14 +430,14 @@
   flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 64px;
+  gap: 72px;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1560px;
   margin: 0 auto;
   width: 100%;
 }
 .node-detail__body:not(:has(.node-detail__image)) {
-  grid-template-columns: minmax(0, 720px);
+  grid-template-columns: minmax(0, 1040px);
 }
 .node-detail__image {
   width: 100%;
@@ -383,29 +446,29 @@
   border: 1px solid var(--line-soft);
 }
 .node-detail__text {
-  max-width: 520px;
+  max-width: 780px;
 }
 .node-detail__kicker {
   font-family: var(--font-utility);
-  font-size: 10px;
+  font-size: 15px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 .node-detail__title {
   font-family: var(--font-primary);
-  font-size: 52px;
+  font-size: 78px;
   line-height: 1.04;
   letter-spacing: -0.015em;
-  margin: 0 0 28px;
+  margin: 0 0 32px;
   color: var(--accent-pink);
 }
 .node-detail__desc {
   font-family: var(--font-primary);
-  font-size: 17px;
-  line-height: 1.65;
+  font-size: 25.5px;
+  line-height: 1.6;
   opacity: 0.88;
-  margin: 0 0 24px;
+  margin: 0 0 30px;
 }
 .node-detail__desc--quiet {
   font-style: italic;
@@ -413,14 +476,14 @@
 }
 .node-detail__tags {
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: 16.5px;
   letter-spacing: 0.05em;
   opacity: 0.45;
-  margin-bottom: 32px;
+  margin-bottom: 38px;
 }
 .node-detail__cta {
   font-family: var(--font-utility);
-  font-size: 11px;
+  font-size: 16.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent-pink);
@@ -448,6 +511,6 @@
     padding-top: 16px;
   }
   .node-detail__title {
-    font-size: 34px;
+    font-size: 51px;
   }
 }

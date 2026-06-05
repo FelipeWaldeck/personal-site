@@ -2,16 +2,22 @@ import React, { useState, useRef, useCallback } from 'react';
 import { CAT, WORKS, LINKS, nodeById, type MapNode, type LabelPos } from '../../data/mapData';
 import { linkPath } from '../../lib/mapGeometry';
 
-const FIELD = { w: 1040, h: 820 };
 const GRID = 40;
 const VB0 = { x: 120, y: 90, w: 880, h: 700 };
+// A large fixed grid plane so the grid fills the full-bleed map at any zoom/pan, rather than
+// stopping at the old field edges. Not infinite — just generously sized around the content.
+const PLANE = { x: -2000, y: -2000, w: 5000, h: 5000 };
 
-const GRID_LINES: React.ReactNode[] = (() => {
-  const lines: React.ReactNode[] = [];
-  for (let gx = 0; gx <= FIELD.w; gx += GRID) lines.push(<line key={`v${gx}`} className="map-grid" x1={gx} y1={0} x2={gx} y2={FIELD.h} strokeWidth={1} />);
-  for (let gy = 0; gy <= FIELD.h; gy += GRID) lines.push(<line key={`h${gy}`} className="map-grid" x1={0} y1={gy} x2={FIELD.w} y2={gy} strokeWidth={1} />);
-  return lines;
-})();
+const GridPlane = () => (
+  <>
+    <defs>
+      <pattern id="mapgrid" width={GRID} height={GRID} patternUnits="userSpaceOnUse">
+        <path className="map-grid" d={`M${GRID} 0 H0 V${GRID}`} fill="none" strokeWidth={1} />
+      </pattern>
+    </defs>
+    <rect x={PLANE.x} y={PLANE.y} width={PLANE.w} height={PLANE.h} fill="url(#mapgrid)" />
+  </>
+);
 
 const col = (n: MapNode) => CAT[n.cat].color;
 
@@ -99,9 +105,10 @@ export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }
     svgRef.current!.setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current) return;
+    const d = drag.current; // capture: pointerup may null drag.current before the updater commits
+    if (!d) return;
     const r = svgRef.current!.getBoundingClientRect();
-    setVb((v) => ({ ...v, x: drag.current!.vx - ((e.clientX - drag.current!.x) / r.width) * v.w, y: drag.current!.vy - ((e.clientY - drag.current!.y) / r.height) * v.h }));
+    setVb((v) => ({ ...v, x: d.vx - ((e.clientX - d.x) / r.width) * v.w, y: d.vy - ((e.clientY - d.y) / r.height) * v.h }));
   };
   const onPointerUp = () => { drag.current = null; svgRef.current?.classList.remove('dragging'); };
 
@@ -109,7 +116,7 @@ export default function MapView({ onSelect }: { onSelect: (n: MapNode) => void }
     <div className="mapwrap">
       <svg ref={svgRef} viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} role="img" aria-label="Relational map of work"
         onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
-        {GRID_LINES}
+        <GridPlane />
         <Links />
         {WORKS.map((n) => (
           <g className="map-node" data-id={n.id} key={n.id} onClick={() => onSelect(n)}>
