@@ -100,8 +100,13 @@ export default function MareItem() {
 
         <div className="mi__k" data-explain="Auto-written summary.">Description</div>
         <p className="mi__desc">
-          Theatrical key art for Mamoru Oshii's Ghost in the Shell 2: Innocence: a meditation on
-          cybernetic bodies, memory, and the dissolving boundary between human and machine.
+          Theatrical key art for Mamoru Oshii's Ghost in the Shell 2: Innocence, the 2004 sequel
+          that follows the cyborg detective Batou through a noir investigation into gynoids that
+          turn on their owners. The composition pairs Batou's basset hound with a doll-like figure,
+          staging the film's central question of where the human ends and the manufactured begins.
+          Oshii treats memory, the body, and the soul as porous and copyable, a meditation on
+          cybernetic life that reads as prescient now. Production I.G's compositing and Kenji
+          Kawai's score made it a landmark of the medium's turn toward photoreal CG.
         </p>
 
         <div className="mi__chat" data-explain="Every field stays editable.">

@@ -4,7 +4,6 @@ import { SplashField, GlyphField } from '../../components/namshub/Ambient';
 import { InterstitialDemo, AnnotationDemo, LibrarianDemo, SurfaceBubble, MemoryPanels, LibrarianRoles } from '../../components/namshub/Demos';
 import './namshub.css';
 
-const DINGIR = '\u{1202D}';
 const A = '/case-studies/namshub'; // public asset root (marks + images)
 
 /* Namshub case study — ported from the Paper redesign. Scoped under .cs-namshub.
@@ -34,7 +33,6 @@ export default function NamshubCaseStudy() {
           <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')} aria-pressed={theme === 'dark'}>Dark</button>
         </div>
         <div className="topnav__right">
-          <Link to="/" className="topnav__name">{DINGIR} FW</Link>
           <a href="https://namshub.run" target="_blank" rel="noreferrer" className="topnav__ns">namshub.run ↗</a>
         </div>
       </nav>
@@ -42,14 +40,6 @@ export default function NamshubCaseStudy() {
       {/* 1 — SPLASH OPENER (full screen) */}
       <header className="splash">
         <SplashField />
-        <div className="splash__kicker">
-          <span className="dot" /> Case study&nbsp;&nbsp;/&nbsp;&nbsp;Ambient AI writing environment
-        </div>
-        <div className="splash__meta">
-          <span>Design + engineering</span>
-          <span>2025 — 2026</span>
-          <span>Solo project</span>
-        </div>
         <div className="splash__mark">
           <p className="splash__eyebrow">A Mare writing instrument</p>
           <h1 className="splash__wordmark">namshub</h1>
@@ -201,41 +191,7 @@ export default function NamshubCaseStudy() {
         </div>
       </section>
 
-      {/* 6 — LESSONS */}
-      <section className="section lessons">
-        <div className="section__head">
-          <h2 className="display h-section">Three things I'll carry forward</h2>
-        </div>
-        <div className="lessons__grid">
-          <div className="lesson">
-            <span className="lesson__num">01</span>
-            <p>
-              The shape of an AI feature is decided by the surrounding UI, not the model. The same API
-              call produces a tool, a co-writer, or a hostile interruption depending on where its output
-              lands and how it competes for attention. The interesting design work is almost always the
-              chrome, not the prompt.
-            </p>
-          </div>
-          <div className="lesson">
-            <span className="lesson__num">02</span>
-            <p>
-              Restraint compounds. Every UI element I removed made the remaining ones more legible, and
-              the cumulative effect across four redesigns was disproportionate. By the end, a 16-pixel
-              margin change or a 200-millisecond easing curve was doing real perceptual work.
-            </p>
-          </div>
-          <div className="lesson">
-            <span className="lesson__num">03</span>
-            <p>
-              Working solo across design and engineering let me make decisions that would be hard to
-              defend in a team. "Delete the AI panel" was not a meeting-friendly proposal. The cost is
-              that every wrong decision is mine; the benefit is a single sustained point of view.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 7 — FOOTER */}
+      {/* 6 — FOOTER */}
       <footer className="footer">
         <dl className="footer__list">
           <div className="footer__row"><dt>Live</dt><dd><a href="https://namshub.run" target="_blank" rel="noreferrer">namshub.run</a></dd></div>

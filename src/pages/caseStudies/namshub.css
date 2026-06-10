@@ -230,11 +230,6 @@
   align-items: center;
   gap: 22px;
 }
-.cs-namshub .topnav__name {
-  font-family: var(--cuneiform), var(--body);
-  letter-spacing: 0.08em;
-  opacity: 1;
-}
 .cs-namshub .topnav__ns {
   border-bottom: 1px solid var(--accent);
   padding-bottom: 2px;
@@ -272,36 +267,6 @@
   scroll-snap-align: start;
   background: var(--bg);
   padding: 40px 80px 64px;
-}
-.cs-namshub .splash__kicker {
-  position: absolute;
-  top: 40px;
-  left: 80px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  text-shadow: 0 0 4px var(--bg);
-}
-.cs-namshub .splash__meta {
-  position: absolute;
-  top: 40px;
-  right: 80px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--ink-3);
-  text-shadow: 0 0 4px var(--bg);
 }
 .cs-namshub .splash__mark {
   position: absolute;
@@ -1508,37 +1473,6 @@
   padding-top: 4px;
 }
 
-/* ---------- lessons ---------- */
-.cs-namshub .lessons__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 56px;
-}
-.cs-namshub .lesson {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.cs-namshub .lesson::before {
-  content: '';
-  width: 24px;
-  height: 1px;
-  background: var(--accent);
-  opacity: 0.6;
-}
-.cs-namshub .lesson__num {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--ink-3);
-}
-.cs-namshub .lesson p {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--ink-2);
-  margin: 0;
-}
-
 /* ---------- footer ---------- */
 .cs-namshub .footer {
   display: flex;
@@ -1585,11 +1519,6 @@
   .cs-namshub .splash {
     padding: 32px 24px 56px;
     min-height: 80vh;
-  }
-  .cs-namshub .splash__kicker,
-  .cs-namshub .splash__meta {
-    left: 24px;
-    right: 24px;
   }
   .cs-namshub .splash__mark {
     left: 24px;
@@ -1638,10 +1567,6 @@
   }
   .cs-namshub .demo--anno .demo__doc {
     width: 58%;
-  }
-  .cs-namshub .lessons__grid {
-    grid-template-columns: 1fr;
-    gap: 36px;
   }
   .cs-namshub .footer {
     flex-direction: column;
