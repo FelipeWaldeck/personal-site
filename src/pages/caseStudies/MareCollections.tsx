@@ -116,13 +116,13 @@ export default function MareCollections() {
         <div className="mc__main">
           {COLLECTIONS.map(([name, items], ci) => (
             <div className="mc__col" key={name}>
-              <div className="mc__colhead">
-                <span className="mc__colname" data-explain="MARE invented this collection name itself.">
-                  {name}
-                </span>
-                <span className="mc__colcount">{(items.length + ci) * 9 + 30} items</span>
+              <div className="mc__colheader" data-explain="MARE invented this collection name — and wrote its description — itself.">
+                <div className="mc__colhead">
+                  <span className="mc__colname">{name}</span>
+                  <span className="mc__colcount">{(items.length + ci) * 9 + 30} items</span>
+                </div>
+                <p className="mc__coldesc">{DESCRIPTIONS[name] ?? 'A collection MARE named and filled on its own.'}</p>
               </div>
-              <p className="mc__coldesc">{DESCRIPTIONS[name] ?? 'A collection MARE named and filled on its own.'}</p>
               <div className="mc__cards">
                 {items.slice(0, 5).map((it, i) => (
                   <div className="mc__card" key={it.src}>

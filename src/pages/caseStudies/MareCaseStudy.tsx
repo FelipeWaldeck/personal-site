@@ -137,7 +137,7 @@ export default function MareCaseStudy() {
       </section>
 
       {/* 03 — ARCHIVE */}
-      <section className="section">
+      <section className="section section--app">
         <div className="surface">
           <div className="surface__text">
             <div className="surface__lead">
@@ -172,7 +172,7 @@ export default function MareCaseStudy() {
       </section>
 
       {/* 05 — ITEM */}
-      <section className="section">
+      <section className="section section--app">
         <div className="surface">
           <div className="surface__text">
             <div className="surface__lead">

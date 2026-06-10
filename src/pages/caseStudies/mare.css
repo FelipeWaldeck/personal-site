@@ -109,6 +109,12 @@
 .cs-mare .section--hero {
   border-top: 0;
 }
+/* app-surface sections: fixed height so the live UI windows to fit one screen */
+.cs-mare .section--app {
+  height: 100vh;
+  padding-top: clamp(72px, 9vh, 104px);
+  padding-bottom: clamp(40px, 6vh, 64px);
+}
 
 /* kicker: 02 / Section name */
 .cs-mare .kicker {
@@ -636,18 +642,18 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 16px;
-  min-height: 128px;
+  padding: 20px;
+  min-height: clamp(150px, 22vh, 200px);
 }
 .cs-mare .swatch b {
   font-family: var(--m-sans);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 500;
   line-height: 1.2;
 }
 .cs-mare .swatch code {
   font-family: var(--m-mono);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.4;
 }
 /* bottom-right quadrant: type specimen */
@@ -733,11 +739,30 @@
   color: var(--m-ink-3);
 }
 
-/* ---------- 03 / 05 · app surfaces (compact text band, large screenshot) ---------- */
+/* ---------- 03 / 05 · app surfaces (compact text band + live UI, one screen) ---------- */
 .cs-mare .surface {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(26px, 3.2vh, 40px);
+  gap: clamp(18px, 2.6vh, 34px);
+}
+.cs-mare .surface__text {
+  flex: 0 0 auto;
+}
+/* the reconstructed UI fills the rest of the pane and clips with a soft fade,
+   so the whole section always fits one screen (a long page, shown windowed) */
+.cs-mare .surface > .mc,
+.cs-mare .surface > .mi {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 calc(100% - 54px),
+    transparent
+  );
+  mask-image: linear-gradient(180deg, #000 calc(100% - 54px), transparent);
 }
 .cs-mare .surface__text {
   display: flex;
@@ -1009,6 +1034,9 @@
   gap: 22px;
   min-width: 0;
 }
+.cs-mare .mc__colheader {
+  margin-bottom: 12px;
+}
 .cs-mare .mc__colhead {
   display: flex;
   align-items: baseline;
@@ -1025,7 +1053,7 @@
   color: var(--m-faint);
 }
 .cs-mare .mc__coldesc {
-  margin: 6px 0 12px;
+  margin: 6px 0 0;
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--m-ink-3);
@@ -1550,6 +1578,16 @@
   .cs-mare .section,
   .cs-mare .foot {
     min-height: 0;
+  }
+  .cs-mare .section--app {
+    height: auto;
+  }
+  .cs-mare .surface > .mc,
+  .cs-mare .surface > .mi {
+    flex: 0 0 auto;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
   .cs-mare .hero,
   .cs-mare .surface {
