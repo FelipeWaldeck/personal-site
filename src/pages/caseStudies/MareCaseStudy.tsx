@@ -176,11 +176,6 @@ export default function MareCaseStudy() {
         <div className="surface">
           <div className="surface__text">
             <div className="surface__lead">
-              <div className="kicker">
-                <span className="num">05</span>
-                <span className="sl">/</span>
-                <span className="lab">The item</span>
-              </div>
               <h2 className="head">Point it at anything on the internet.</h2>
             </div>
             <div className="surface__aside">
@@ -198,11 +193,6 @@ export default function MareCaseStudy() {
 
       {/* 06 — REFLECTION */}
       <section className="section reflection">
-        <div className="kicker">
-          <span className="num">06</span>
-          <span className="sl">/</span>
-          <span className="lab">Reflection</span>
-        </div>
         <p className="reflection__text">
           MARE is the first thing I've designed that I use every day, and that changes how you design
           it — you stop arguing about hypothetical users and start fixing whatever annoyed you that

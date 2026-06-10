@@ -796,11 +796,18 @@
   overflow: visible; /* let hover callouts spill past the window edge */
 }
 /* hover-explain: any [data-explain] element rings in copper and drops a callout
-   below it (downward, so it never clips at the top of the frame) */
+   below it. A transparent ::before enlarges the hover hit area so it's easy to
+   catch; the callout drops downward so it never clips at the top of the frame. */
 .cs-mare [data-explain] {
   position: relative;
   border-radius: 6px;
   transition: box-shadow 0.18s ease;
+}
+.cs-mare [data-explain]::before {
+  content: '';
+  position: absolute;
+  inset: -12px -14px;
+  z-index: 1; /* transparent — just a bigger hit target */
 }
 .cs-mare [data-explain]:hover {
   box-shadow: 0 0 0 1.5px var(--m-copper);
@@ -809,36 +816,26 @@
 .cs-mare [data-explain]:hover::after {
   content: attr(data-explain);
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
-  max-width: 250px;
-  padding: 9px 13px;
+  max-width: 290px;
+  padding: 12px 16px;
   background: var(--m-raised);
   border: 1px solid var(--m-card-bd-2);
-  border-radius: 8px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 9px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.62);
   font-family: var(--m-serif);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-style: normal;
-  line-height: 1.4;
+  line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
   color: var(--m-ink-2);
   text-align: center;
   white-space: normal;
   pointer-events: none;
-  z-index: 20;
-}
-.cs-mare [data-explain]:hover::before {
-  content: '';
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-bottom-color: var(--m-card-bd-2);
   z-index: 20;
 }
 
@@ -856,17 +853,21 @@
   gap: 11px;
 }
 .cs-mare .mc__m {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--m-surface);
   border: 1px solid var(--m-card-bd);
-  font-family: var(--m-serif);
-  font-style: italic;
-  font-size: 15px;
-  color: var(--m-copper);
+}
+.cs-mare .mc__horse {
+  width: 19px;
+  height: 17px;
+  background: var(--m-copper);
+  -webkit-mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
+  mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
 }
 .cs-mare .mc__title {
   font-family: var(--m-serif);
@@ -1033,7 +1034,8 @@
 .cs-mare .mc__cards {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  gap: 14px;
+  align-items: start; /* let each card keep its image's natural height */
 }
 .cs-mare .mc__card {
   display: flex;
@@ -1042,12 +1044,16 @@
 }
 .cs-mare .mc__cardimg {
   width: 100%;
-  aspect-ratio: 4 / 5;
   border-radius: 6px;
-  background-size: cover;
-  background-position: center;
+  overflow: clip;
   background-color: var(--m-surface);
   border: 1px solid var(--m-card-bd);
+  line-height: 0;
+}
+.cs-mare .mc__cardimg img {
+  display: block;
+  width: 100%;
+  height: auto; /* the item's real proportions, not a forced crop */
 }
 .cs-mare .mc__cardmeta {
   display: flex;
@@ -1125,12 +1131,21 @@
 }
 .cs-mare .mi__image {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  height: clamp(320px, 50vh, 520px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
-  background-size: cover;
-  background-position: center;
+  overflow: clip;
   background-color: var(--m-surface);
   border: 1px solid var(--m-card-bd);
+}
+.cs-mare .mi__image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block; /* whole artwork, natural proportions, letterboxed on the surface */
 }
 .cs-mare .mi__swatches {
   display: flex;

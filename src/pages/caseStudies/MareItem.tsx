@@ -2,27 +2,29 @@ import React from 'react';
 import { MARE_REFS } from './mareRefs';
 
 /**
- * MareItem — the item-detail view rebuilt as live UI (not a screenshot). A real
- * item rendered large, with the metadata panel MARE writes: source, the same
- * item filed under a different collection per lens, auto-extracted themes,
- * related items, and the context summary. Richly annotated (data-explain).
+ * MareItem — the item-detail view rebuilt as live UI (not a screenshot). A real,
+ * well-sourced item rendered at its natural size, with the metadata MARE writes:
+ * source, the same item filed under a different collection per lens, auto
+ * themes, related items, and the context summary. Richly annotated.
  */
 
-// the hero item + a handful of related items, all real
 const HERO =
-  MARE_REFS.find((r) => /hell scroll/i.test(r.title)) ?? MARE_REFS[16] ?? MARE_REFS[0];
+  MARE_REFS.find((r) => /ghost in the shell|innocence/i.test(r.title)) ??
+  MARE_REFS.find((r) => /low.?polygon|robot|cyber|machine/i.test(r.title)) ??
+  MARE_REFS[12] ??
+  MARE_REFS[0];
 const RELATED = MARE_REFS.filter((r) => r.src !== HERO.src).slice(0, 5);
 
 // the same item, named into a different collection under each lens (real names)
 const LENS_COLLECTIONS: [string, string][] = [
-  ['Global Religious Iconography', 'Balanced'],
-  ['World Religious Iconography', 'Aesthetic'],
+  ['Digital Futures Art', 'Balanced'],
+  ['Neo-Japan Futurism', 'Aesthetic'],
   ['Abstracted Knowledge Representation', 'Semantic'],
 ];
 
-const THEMES = ['buddhism', 'afterlife', 'judgment', 'handscroll', 'narrative ink'];
+const THEMES = ['cyberpunk', 'cybernetics', 'posthuman', 'anime', 'key art'];
 
-const SWATCHES = ['#c4956a', '#8a6b3f', '#6e5a3a', '#3a3128', '#cabfb2'];
+const SWATCHES = ['#8fa6a8', '#3f5a62', '#2a363c', '#191f24', '#c4956a'];
 
 export default function MareItem() {
   return (
@@ -30,14 +32,12 @@ export default function MareItem() {
       {/* left: the artwork */}
       <div className="mi__art">
         <div className="mi__arttitle">
-          <span className="mi__artname">{HERO.title}</span>
-          <span className="mi__artby">Unknown · 12th c.</span>
+          <span className="mi__artname">Ghost in the Shell 2: Innocence</span>
+          <span className="mi__artby">Mamoru Oshii · Production I.G · 2004</span>
         </div>
-        <div
-          className="mi__image"
-          style={{ backgroundImage: `url(${HERO.src})` }}
-          data-explain="MARE re-renders the source at full quality."
-        />
+        <div className="mi__image" data-explain="MARE re-renders the source at full quality.">
+          <img src={HERO.src} alt="Ghost in the Shell 2: Innocence key art" />
+        </div>
         <div className="mi__swatches" data-explain="The palette MARE pulled from the work.">
           {SWATCHES.map((c) => (
             <span key={c} className="mi__sw" style={{ background: c }} />
@@ -49,22 +49,22 @@ export default function MareItem() {
       <div className="mi__panel">
         <div className="mi__src">
           <span className="mi__srctype" data-explain="Identified, then traced back to its source.">
-            image / webp
+            image / jpeg
           </span>
-          <span className="mi__srcdate">Mar 2, 2026</span>
+          <span className="mi__srcdate">Jan 14, 2026</span>
           <span className="mi__x">×</span>
         </div>
 
         <div className="mi__k">Title</div>
-        <div className="mi__h1">{HERO.title}</div>
+        <div className="mi__h1">Ghost in the Shell 2: Innocence</div>
         <div className="mi__artistrow">
           <div>
-            <div className="mi__k">Artist</div>
-            <div className="mi__artist">Unknown</div>
+            <div className="mi__k">Source</div>
+            <div className="mi__artist">Mamoru Oshii · Production I.G</div>
           </div>
           <div>
             <div className="mi__k">Year</div>
-            <div className="mi__artist">12th c.</div>
+            <div className="mi__artist">2004</div>
           </div>
         </div>
 
@@ -100,8 +100,8 @@ export default function MareItem() {
 
         <div className="mi__k" data-explain="MARE writes the context summary itself.">Description</div>
         <p className="mi__desc">
-          A Japanese handscroll depicting the Buddhist hells in vivid narrative sequence — sinners,
-          demons, and the bureaucracy of judgment rendered in ink and colour on paper.
+          Theatrical key art for Mamoru Oshii's Ghost in the Shell 2: Innocence — a meditation on
+          cybernetic bodies, memory, and the dissolving boundary between human and machine.
         </p>
 
         <div className="mi__chat" data-explain="Correct its reading in a line — every field is editable.">

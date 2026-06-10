@@ -45,7 +45,7 @@ export default function MareCollections() {
       <div className="mc__bar">
         <div className="mc__brand">
           <span className="mc__m" data-explain="Your whole visual library, one workspace.">
-            m
+            <span className="mc__horse" aria-hidden="true" />
           </span>
           <span className="mc__title">Collections</span>
         </div>
@@ -128,13 +128,14 @@ export default function MareCollections() {
                   <div className="mc__card" key={it.src}>
                     <div
                       className="mc__cardimg"
-                      style={{ backgroundImage: `url(${it.src})` }}
                       data-explain={
                         ci === 0 && i === 1
                           ? 'Every item: identified, sourced, summarised, and re-rendered at full quality.'
                           : undefined
                       }
-                    />
+                    >
+                      <img src={it.src} alt="" loading="lazy" />
+                    </div>
                     <div className="mc__cardmeta">
                       <span className="mc__cardname">{it.title}</span>
                       <span className="mc__cardcount">{(i + 3) * 4} core · +{i * 6 + 7}</span>
