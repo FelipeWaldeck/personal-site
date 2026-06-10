@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import MareDesignSystem from './MareDesignSystem';
 import MareClustering from './MareClustering';
+import MareCollections from './MareCollections';
+import MareItem from './MareItem';
 import { MARE_REFS } from './mareRefs';
 import { useCursorCard } from './useParallax';
 import './mare.css';
@@ -150,12 +152,7 @@ export default function MareCaseStudy() {
               <span className="surface__num">03 · Collections, dark mode</span>
             </div>
           </div>
-          <div className="surface__media">
-            <img
-              src="/case-studies/mare/collections.webp"
-              alt="The MARE Collections page in dark mode: a grid of clustered collections with an unclustered tray and recent items."
-            />
-          </div>
+          <MareCollections />
         </div>
       </section>
 
@@ -195,12 +192,7 @@ export default function MareCaseStudy() {
               <span className="surface__num">05 · Item detail, dark mode</span>
             </div>
           </div>
-          <div className="surface__media">
-            <img
-              src="/case-studies/mare/item-detail.webp"
-              alt="A MARE item detail view in dark mode: the work rendered large with title, artist, collections, themes, related items, and an editable summary."
-            />
-          </div>
+          <MareItem />
         </div>
       </section>
 
