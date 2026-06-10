@@ -1,167 +1,251 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import MareDesignSystem from './MareDesignSystem';
-import MareModalsSheet from './MareModalsSheet';
+import MareClustering from './MareClustering';
+import { MARE_REFS } from './mareRefs';
+import { useCursorCard } from './useParallax';
 import './mare.css';
 
-const A = '/case-studies/mare'; // public asset root
+/* MARE case study — staged as a Namshub-style deck: sticky, scroll-snapped 100vh
+   panes, one idea per screen. Ported from the Paper artboard (5R-0) and reworked
+   per review. The reference belts use placeholder tiles for now — see PLACEHOLDER
+   note; swap for real Mare item exports once the asset source is settled. */
+
+// Media MARE ingests, and what it did to each — feeds the conveyor belt + hero stream.
+const FACTS: [string, string][] = [
+  ['Role', 'Co-founder, design'],
+  ['With', 'Aakarsh, design + engineering'],
+  ['Year', '2025 — ongoing'],
+  ['Surfaces', 'Web app, extension, marketing'],
+];
+
+// A real Mare item tile — natural-height image, with a title/collection card on hover.
+function Tile({ src, title, collection }: { src: string; title: string; collection: string }) {
+  return (
+    <div className="tile">
+      <img className="tile__img" src={src} alt="" loading="lazy" />
+      <div className="tile__hover">
+        <b>{title}</b>
+        <span>{collection}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function MareCaseStudy() {
+  // hero stream: two vertical columns of real items, drifting opposite ways
+  const half = Math.ceil(MARE_REFS.length / 2);
+  const colA = [...MARE_REFS.slice(0, half), ...MARE_REFS.slice(0, half)];
+  const colB = [...MARE_REFS.slice(half), ...MARE_REFS.slice(half)];
+
+  // the item card follows the cursor (login effect); the dithered image stays stable
+  const problemRef = useRef<HTMLElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
+  useCursorCard(problemRef, cardRef);
+
   return (
     <article className="cs-mare">
       <nav className="topnav">
         <Link to="/">← Archive</Link>
-        <Link to="/" className="topnav__name">FW</Link>
+        <Link to="/" className="topnav__name">m</Link>
         <a href="https://app.mare.run" target="_blank" rel="noreferrer">app.mare.run ↗</a>
       </nav>
 
-      {/* HERO */}
-      <section className="hero">
-        <div>
-          <div className="hero__kicker">Case study · Design · 2025 — ongoing</div>
-          <h1 className="hero__title">MARE</h1>
-          <p className="hero__brief">
-            A media-agnostic recommendation engine — give or take; the acronym flexes by the day. A{' '}
-            <em>self-organising archive</em> for the references creatives lose in the depths of
-            Pinterest and Are.na. It ingests anything, writes its own context for each item, and sorts
-            the whole library on its own. Co-founded with Aakarsh — we designed it together; he
-            engineered it.
+      {/* 01 — HERO */}
+      <header className="section section--hero hero">
+        <div className="hero__left">
+          <h1 className="hero__mare">MARE</h1>
+          <p className="hero__tagline">a self-organising archive for the wild web</p>
+          <p className="hero__lead">Mare is an eco-system where your references come to life.</p>
+          <p className="hero__sub">
+            Each item sourced and sorted as you hunt through the wild web. No feed. No followers.
+            Just your own visual world.
           </p>
+          <dl className="hero__facts">
+            {FACTS.map(([k, v]) => (
+              <React.Fragment key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
         </div>
-      </section>
-
-      {/* META STRIP */}
-      <dl className="meta">
-        <div><dt>Role</dt><dd>Co-founder · design</dd></div>
-        <div><dt>With</dt><dd>Aakarsh — design + engineering</dd></div>
-        <div><dt>Year</dt><dd>2025 — ongoing</dd></div>
-        <div><dt>Surfaces</dt><dd>Web app, extension, marketing</dd></div>
-      </dl>
-
-      {/* 01 — THE PROBLEM */}
-      <section className="cs cs--split">
-        <div>
-          <div className="cs__label">01 — The problem</div>
-          <h2 className="cs__heading">Not a tidier Pinterest — a different way to be on the web.</h2>
-          <div className="cs__body">
-            <p>
-              Being an artist now means processing an endless amount of material — references saved,
-              screenshotted, and then lost in the depths of Pinterest and Are.na. The first job was
-              simple to name and hard to do: gather it all into one archive and make it usable again.
-            </p>
-            <p>
-              But the ambition underneath is larger. MARE is a bet on a new way of <em>collecting</em>,
-              <em> sourcing</em>, and moving through the web — closer to riding out to the frontier than
-              scrolling a feed.
-            </p>
+        <div className="vbelt" aria-hidden="true">
+          <div className="vbelt__col">
+            {colA.map((t, i) => <Tile key={`a${i}`} src={t.src} title={t.title} collection={t.collection} />)}
+          </div>
+          <div className="vbelt__col vbelt__col--b">
+            {colB.map((t, i) => <Tile key={`b${i}`} src={t.src} title={t.title} collection={t.collection} />)}
           </div>
         </div>
-        <aside>
-          <div className="cs__note">
-            <strong>Refusal</strong>
-            No feed, no infinite scroll, no "for you." The library is yours; the machine organises, it
-            doesn't program you.
-          </div>
-          <div className="cs__note">
-            <strong>Ambition</strong>
-            Not just storage — a new paradigm for collecting and sourcing references over time.
-          </div>
-          <div className="cs__note">
-            <strong>Through-line</strong>
-            The mare: a reliable mount that carries you to the edge of the map and back.
-          </div>
-        </aside>
-      </section>
+      </header>
 
-      {/* 02 — DESIGN LANGUAGE (identity + system, one screen) */}
-      <section className="cs">
-        <div className="ds-head">
-          <div>
-            <div className="cs__label">02 — Design language</div>
-            <h2 className="cs__heading">A cyber-cowboy in a sea of SaaS purple.</h2>
-            <div className="cs__body" style={{ maxWidth: 620 }}>
+      {/* PROBLEM — the login effect: full-bleed dithered Horse Fair + cursor-following card */}
+      <section className="section problem" ref={problemRef}>
+        <div className="problem__dither" aria-hidden="true" />
+        <div className="problem__scrim" aria-hidden="true" />
+        <div className="problem__inner">
+          <div className="problem__text">
+            <h2 className="problem__head">New ways of seeing on the web.</h2>
+            <div className="problem__body">
               <p>
-                The name flexes — <em>media-agnostic recommendation engine</em> most days, research or
-                agency engine on others — but the animal is constant: a mare is a creature you trust to
-                carry you somewhere new. So the whole system is retro, classic, a little worn, warm
-                rather than clinical: warm carbon, one copper accent, IBM Plex — a deliberate refusal
-                of the purple-and-white SaaS sea.
+                Being an artist now means wading through an endless amount of material: references
+                saved, screenshotted, then lost in Pinterest, Are.na, Instagram. Mare is simple — see
+                something, save it, and it lands organised in one archive.
+              </p>
+              <p>
+                A bet on a different way of collecting: closer to riding out to the frontier than
+                scrolling a feed.
               </p>
             </div>
           </div>
-          <div className="logo-mark" role="img" aria-label="The MARE horse mark" />
+          <figure className="problem__card" ref={cardRef}>
+              <div className="pcard__k">Title</div>
+              <div className="pcard__title">The Horse Fair</div>
+              <div className="pcard__k">Artist</div>
+              <div className="pcard__artist">Rosa Bonheur</div>
+              <div className="pcard__meta">
+                <div><span className="pcard__k">Year</span><span>1852–55</span></div>
+                <div><span className="pcard__k">Movement</span><span>Realism</span></div>
+              </div>
+              <div className="pcard__k">Description</div>
+              <p className="pcard__desc">
+                A monumental oil capturing the raw energy of the Parisian horse market — a swirling
+                mass of Percherons and their handlers, rendered with remarkable anatomical precision.
+              </p>
+              <div className="pcard__tags">
+                <span>animal study</span><span>equestrian</span><span>realism</span><span>movement</span>
+              </div>
+          </figure>
+        </div>
+      </section>
+
+      {/* 02 — DESIGN LANGUAGE */}
+      <section className="section dl">
+        <div className="dl__head">
+          <div className="dl__lead">
+            <div className="kicker">
+              <span className="num">02</span>
+              <span className="sl">/</span>
+              <span className="lab">Design language</span>
+            </div>
+            <h2 className="head">A cyber-cowboy in a sea of SaaS purple.</h2>
+            <p className="dl__body">
+              A mare is something you trust to carry you somewhere new. We've ridden horses from the
+              paleolithic to the gold rush — why not now, as cyber-cowboys? Warm carbon, a copper
+              accent, and IBM Plex: a deliberate turn away from the purple-and-white SaaS look.
+            </p>
+          </div>
+          <div className="dl__horse" role="img" aria-label="The MARE horse mark" />
         </div>
         <MareDesignSystem />
       </section>
 
-      {/* 03 — THE ARCHIVE (density) */}
-      <section className="cs">
-        <div className="cs__label">03 — The archive</div>
-        <h2 className="cs__heading">Everything on one page — and still navigable.</h2>
-        <div className="cs__body">
-          <p>
-            The hardest layout problem was density. The Collections page has to hold your most recent
-            ingestions, an unclustered tray, every named collection, search, and the quieter modals for
-            settings and billing — all at once, without becoming a clusterfuck. Getting that to feel
-            calm and browsable is the work I'm proudest of.
-          </p>
+      {/* 03 — ARCHIVE */}
+      <section className="section">
+        <div className="surface">
+          <div className="surface__text">
+            <div className="surface__lead">
+              <h2 className="head">Everything on one page, and still navigable.</h2>
+            </div>
+            <div className="surface__aside">
+              <p className="surface__body">
+                The hardest problem was density: recent ingestions, an unclustered tray, every named
+                collection, search, and the quieter settings and billing modals — all at once, without
+                turning into a mess.
+              </p>
+              <span className="surface__num">03 · Collections, dark mode</span>
+            </div>
+          </div>
+          <div className="surface__media">
+            <img
+              src="/case-studies/mare/collections.webp"
+              alt="The MARE Collections page in dark mode: a grid of clustered collections with an unclustered tray and recent items."
+            />
+          </div>
         </div>
-        <figure className="cs-figure">
-          <img src={`${A}/collections.webp`} alt="The MARE Collections page: a left rail with recent ingestions and an unclustered tray, and a dense but legible grid of named collections." />
-          <figcaption><b>Collections</b> — recent ingestions, unclustered tray, named collections, and search on one surface</figcaption>
-        </figure>
       </section>
 
-      {/* 05 — AUTOMATIC CLUSTERING */}
-      <section className="cs">
-        <div className="cs__label">04 — Automatic clustering</div>
-        <h2 className="cs__heading">It names the collections itself.</h2>
-        <div className="cs__body">
-          <p>
-            The part that still feels faintly insane: MARE clusters the whole library on its own and{' '}
-            <em>invents the collection names</em> as it goes — sorting in seconds what would take days
-            to do by hand. Balanced, Aesthetic, and Semantic lenses re-read the same library three
-            ways; Recluster re-runs it as the archive grows.
-          </p>
-          <p>
-            Because automation only earns trust if it's reversible, the supporting modals keep the
-            writer in control — train the clustering on a pair, add an item to collections by hand, pin
-            something where it belongs.
-          </p>
+      {/* 04 — CLUSTERING */}
+      <section className="section">
+        <div className="head-row">
+          <div className="head-row__lead">
+            <h2 className="head">It names the collections itself.</h2>
+          </div>
+          <span className="cluster__beat">↻ 456 items · named in 0.4s</span>
         </div>
-        <MareModalsSheet />
+        <p className="cluster__sub">
+          Save anything and MARE clusters your whole library — then writes the collection names
+          itself. The same library, read three ways:
+        </p>
+        <MareClustering />
       </section>
 
-      {/* 06 — THE ITEM (centerpiece) */}
-      <section className="cs">
-        <div className="cs__label">05 — The item</div>
-        <h2 className="cs__heading">Point it at anything on the internet.</h2>
-        <div className="cs__body">
-          <p>
-            Open an item and the real depth shows. MARE identifies almost any piece of media on the
-            web, traces it back to its source, writes a rich context summary, re-renders it as a
-            high-quality image, and lets you move it across collections — with every field editable, so
-            you can <em>correct its reading</em> in a line. The same piece can sit in different
-            collections under each lens; relatedness is plural.
-          </p>
+      {/* 05 — ITEM */}
+      <section className="section">
+        <div className="surface">
+          <div className="surface__text">
+            <div className="surface__lead">
+              <div className="kicker">
+                <span className="num">05</span>
+                <span className="sl">/</span>
+                <span className="lab">The item</span>
+              </div>
+              <h2 className="head">Point it at anything on the internet.</h2>
+            </div>
+            <div className="surface__aside">
+              <p className="surface__body">
+                Open an item and the depth shows. MARE identifies almost any piece of media, traces it
+                to its source, writes a context summary, and re-renders it at high quality. Every field
+                is editable, so you can correct its reading in a line.
+              </p>
+              <span className="surface__num">05 · Item detail, dark mode</span>
+            </div>
+          </div>
+          <div className="surface__media">
+            <img
+              src="/case-studies/mare/item-detail.webp"
+              alt="A MARE item detail view in dark mode: the work rendered large with title, artist, collections, themes, related items, and an editable summary."
+            />
+          </div>
         </div>
-        <figure className="cs-figure">
-          <img src={`${A}/item-detail.webp`} alt="A MARE item detail modal: the work rendered full-size with title, artist, year, source, the collections it belongs to under each lens, themes, related items, and an editable context summary." />
-          <figcaption><b>Item detail</b> — identify, source, summarise, render, and re-file any piece of media</figcaption>
-        </figure>
       </section>
 
-      {/* 07 — REFLECTION (placeholder) */}
-      <section className="reflection">
-        <div className="cs__label">06 — Reflection</div>
-        <p className="reflection__quote" style={{ opacity: 0.4 }}>Reflection — to come.</p>
+      {/* 06 — REFLECTION */}
+      <section className="section reflection">
+        <div className="kicker">
+          <span className="num">06</span>
+          <span className="sl">/</span>
+          <span className="lab">Reflection</span>
+        </div>
+        <p className="reflection__text">
+          MARE is the first thing I've designed that I use every day, and that changes how you design
+          it — you stop arguing about hypothetical users and start fixing whatever annoyed you that
+          morning. The harder part was co-design. Aakarsh and I draw differently, and the tool is
+          better for the places where we didn't agree at first.
+        </p>
       </section>
 
       {/* FOOTER */}
-      <footer className="cs-footer">
-        <a href="https://mare.run" target="_blank" rel="noreferrer" className="cs-footer__prev">mare.run ↗</a>
-        <Link to="/" className="cs-footer__back">Return to archive</Link>
-        <Link to="/work/namshub" className="cs-footer__next">Next: Namshub case study →</Link>
+      <footer className="foot">
+        <div className="foot__links">
+          <div className="foot__row">
+            <span className="foot__k">Live</span>
+            <a className="foot__v" href="https://mare.run" target="_blank" rel="noreferrer">mare.run</a>
+          </div>
+          <div className="foot__row">
+            <span className="foot__k">App</span>
+            <a className="foot__v foot__v--dim" href="https://app.mare.run" target="_blank" rel="noreferrer">app.mare.run</a>
+          </div>
+          <div className="foot__row">
+            <span className="foot__k">Next</span>
+            <Link className="foot__v foot__v--copper" to="/work/namshub">Namshub, case study →</Link>
+          </div>
+        </div>
+        <div className="foot__mark">
+          <div className="foot__glyph">m</div>
+          <Link to="/" className="foot__back">← Back to the archive</Link>
+        </div>
       </footer>
     </article>
   );

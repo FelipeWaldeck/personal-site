@@ -1,24 +1,50 @@
-/* MARE design case study. Scoped under .cs-mare and skinned in MARE's OWN design
-   language — warm carbon, copper accent, IBM Plex — NOT the portfolio's pink/green.
-   Tokens lifted from the live MARE design-system board. */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap');
+/* MARE design case study. Ported from the Paper artboard "MARE — Case Study"
+   (5R-0), then re-staged as a Namshub-style deck: each section is a sticky,
+   scroll-snapped 100vh "vision pane" with its content vertically centred, so one
+   idea fills the screen at a time. MARE's own language throughout: warm carbon,
+   one copper accent, IBM Plex. Tokens lifted from the board. Scoped to .cs-mare. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 .cs-mare {
-  /* MARE tokens (the subject's language, not the host portfolio's) */
   --m-bg: #121010;
   --m-surface: #1a1715;
   --m-raised: #221f1c;
-  --m-warm: #1e1814;
+  --m-copper: #c4956a;
+
   --m-ink: #e8e4e0;
-  --m-accent: #c4956a; /* copper — the single interactive accent */
-  --m-border: rgba(196, 149, 106, 0.18);
+  --m-ink-lead: #ece8e0;
+  --m-ink-2: #c4bdb2;
+  --m-ink-3: #a89e92;
+  --m-label: #7a7066;
+  --m-caption: #786f64;
+  --m-faint: #564f47;
+  --m-slash: #4a4239;
+
+  --m-divider: rgba(196, 149, 106, 0.12);
+  --m-card-bd: rgba(196, 149, 106, 0.16);
+  --m-card-bd-2: rgba(196, 149, 106, 0.28);
+
   --m-serif: 'IBM Plex Serif', Georgia, serif;
   --m-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --m-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --m-pad: clamp(24px, 4.5vw, 64px);
 
   background: var(--m-bg);
   color: var(--m-ink);
   font-family: var(--m-serif);
-  min-height: 100vh;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* the deck is its own scroll container so sections snap one-screen-at-a-time */
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y proximity;
+}
+.cs-mare * {
+  box-sizing: border-box;
 }
 .cs-mare a {
   color: inherit;
@@ -28,6 +54,7 @@
     color 0.15s ease;
 }
 
+/* ---------- top nav ---------- */
 .cs-mare .topnav {
   position: sticky;
   top: 0;
@@ -35,953 +62,986 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 32px;
-  background: rgba(20, 24, 16, 0.86);
+  padding: 16px var(--m-pad);
+  background: rgba(18, 16, 16, 0.72);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(196, 149, 106, 0.12);
-  font-family: var(--m-sans);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  border-bottom: 1px solid var(--m-divider);
+  font-family: var(--m-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 .cs-mare .topnav a {
-  opacity: 0.9;
+  opacity: 0.78;
 }
 .cs-mare .topnav a:hover {
   opacity: 1;
-  color: var(--m-accent);
+  color: var(--m-copper);
 }
 .cs-mare .topnav__name {
   font-family: var(--m-serif);
-  font-size: 18px;
-  color: var(--m-accent);
+  font-size: 17px;
+  font-style: italic;
+  color: var(--m-copper);
   text-transform: none;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
   opacity: 1;
 }
 
-.cs-mare .hero {
-  padding: 88px 64px 56px;
-  max-width: 1480px;
-  margin: 0 auto;
-}
-.cs-mare .hero__kicker {
-  font-family: var(--m-sans);
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 22px;
-}
-.cs-mare .hero__title {
-  font-family: var(--m-serif);
-  font-size: 52px;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  margin: 0 0 36px;
-}
-.cs-mare .hero__brief {
-  font-family: var(--m-serif);
-  font-size: 18px;
-  line-height: 1.6;
-  opacity: 1;
-  max-width: 540px;
-}
-.cs-mare .hero__brief em {
-  color: var(--m-accent);
-  font-style: italic;
-}
-.cs-mare .hero__artifact {
-  aspect-ratio: 5/4;
-  background: var(--m-bg);
-  border: 1px solid rgba(196, 149, 106, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4);
-  font-family: var(--m-serif);
-  font-size: 200px;
-  color: var(--m-accent);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.cs-mare .meta {
-  border-top: 1px solid var(--m-border);
-  border-bottom: 1px solid var(--m-border);
-  padding: 36px 64px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 48px;
-  max-width: 1480px;
-  margin: 0 auto;
-}
-.cs-mare .meta dt {
-  font-family: var(--m-sans);
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 8px;
-}
-.cs-mare .meta dd {
-  font-family: var(--m-serif);
-  font-size: 15px;
-  margin: 0;
-  line-height: 1.45;
-}
-
-.cs-mare section.cs {
-  padding: 72px 64px;
-  max-width: 1480px;
-  margin: 0 auto;
-}
-.cs-mare .cs__label {
-  font-family: var(--m-sans);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 32px;
-}
-.cs-mare .cs__heading {
-  font-family: var(--m-serif);
-  font-size: 30px;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
-  margin: 0 0 32px;
-  max-width: 800px;
-}
-.cs-mare .cs__body {
-  font-family: var(--m-serif);
-  font-size: 16px;
-  line-height: 1.65;
-  opacity: 1;
-  max-width: 640px;
-}
-.cs-mare .cs__body p + p {
-  margin-top: 18px;
-}
-.cs-mare .cs__body em {
-  color: var(--m-accent);
-  font-style: italic;
-}
-
-.cs-mare .cs--split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 96px;
-  align-items: start;
-}
-.cs-mare .cs__note {
-  font-family: var(--m-sans);
-  font-size: 13px;
-  line-height: 1.6;
-  opacity: 0.9;
-  border-left: 1px solid rgba(196, 149, 106, 0.3);
-  padding-left: 24px;
-}
-.cs-mare .cs__note strong {
-  display: block;
-  font-weight: 500;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 8px;
-}
-.cs-mare .cs__note + .cs__note {
-  margin-top: 28px;
-}
-
-.cs-mare .wordmark-stage {
-  margin-top: 56px;
-  padding: 72px 40px;
-  background: linear-gradient(
-    135deg,
-    rgba(196, 149, 106, 0.05),
-    rgba(196, 149, 106, 0.03)
-  );
-  border: 1px solid rgba(196, 149, 106, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--m-serif);
-  color: var(--m-accent);
-  font-size: 84px;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-.cs-mare .wordmark-specs {
-  margin-top: 32px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 48px;
-  font-family: var(--m-sans);
-  font-size: 12px;
-  line-height: 1.55;
-  opacity: 0.92;
-}
-.cs-mare .wordmark-specs strong {
-  display: block;
-  font-weight: 500;
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 6px;
-  opacity: 1;
-}
-
-.cs-mare .palette {
-  margin-top: 56px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-.cs-mare .palette__chip {
-  aspect-ratio: 5/6;
-  border: 1px solid rgba(196, 149, 106, 0.12);
+/* ---------- sticky section scaffold ---------- */
+.cs-mare .section {
+  position: relative;
+  min-height: 100vh;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  justify-content: center;
+  gap: clamp(28px, 4vh, 56px);
+  padding: clamp(88px, 12vh, 132px) var(--m-pad) clamp(56px, 8vh, 88px);
+  border-top: 1px solid var(--m-divider);
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
-.cs-mare .palette__color {
-  flex: 1;
-}
-.cs-mare .palette__label {
-  padding: 14px 16px;
-  font-family: var(--m-sans);
-  font-size: 11px;
-  line-height: 1.4;
-  background: rgba(20, 24, 16, 0.8);
-  color: var(--m-ink);
-}
-.cs-mare .palette__label strong {
-  display: block;
-  font-weight: 500;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin-bottom: 4px;
-}
-.cs-mare .palette__label code {
-  font-family: ui-monospace, 'JetBrains Mono', monospace;
-  font-size: 10px;
-  opacity: 0.8;
+.cs-mare .section--hero {
+  border-top: 0;
 }
 
-.cs-mare .pins {
-  margin-top: 56px;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 12px;
-}
-.cs-mare .pin {
-  aspect-ratio: 1;
-  border: 1px solid rgba(196, 149, 106, 0.2);
+/* kicker: 02 / Section name */
+.cs-mare .kicker {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--m-accent);
-}
-.cs-mare .pin svg {
-  width: 60%;
-  height: auto;
-}
-
-.cs-mare .full-bleed {
-  margin: 96px 0 0;
-  padding: 0 64px;
-}
-.cs-mare .full-bleed__frame {
-  max-width: 1480px;
-  margin: 0 auto;
-  aspect-ratio: 16/9;
-  background: url('/assets/mare-preview.png') center / cover no-repeat #0d1009;
-  border: 1px solid rgba(196, 149, 106, 0.18);
-  box-shadow: 0 60px 140px rgba(0, 0, 0, 0.4);
-}
-.cs-mare .full-bleed__cap {
-  max-width: 1480px;
-  margin: 18px auto 0;
-  font-family: var(--m-sans);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  gap: 12px;
+  font-family: var(--m-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  line-height: 1.34;
   text-transform: uppercase;
-  opacity: 0.78;
-  text-align: center;
+}
+.cs-mare .kicker .num {
+  color: var(--m-copper);
+}
+.cs-mare .kicker .lab {
+  color: var(--m-label);
+}
+.cs-mare .kicker .sl {
+  color: var(--m-slash);
 }
 
-.cs-mare .reflection {
-  padding: 120px 64px;
-  max-width: 880px;
-  margin: 0 auto;
-  text-align: center;
-}
-.cs-mare .reflection__quote {
+.cs-mare .head {
   font-family: var(--m-serif);
-  font-size: 22px;
-  line-height: 1.45;
-  font-style: italic;
-  opacity: 1;
-}
-.cs-mare .reflection__quote em {
-  color: var(--m-accent);
-  font-style: italic;
-}
-.cs-mare .reflection__attr {
-  margin-top: 24px;
-  font-family: var(--m-sans);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  opacity: 0.72;
-}
-
-.cs-mare .cs-footer {
-  border-top: 1px solid var(--m-border);
-  padding: 56px 64px;
-  max-width: 1480px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 32px;
-  font-family: var(--m-sans);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.cs-mare .cs-footer__back {
-  text-align: center;
-  color: var(--m-accent);
-  border: 1px solid rgba(196, 149, 106, 0.4);
-  padding: 14px 28px;
-}
-.cs-mare .cs-footer__back:hover {
-  background: var(--m-accent);
-  color: var(--m-bg);
-}
-.cs-mare .cs-footer__next {
-  text-align: right;
-  opacity: 0.9;
-}
-.cs-mare .cs-footer__next:hover {
-  opacity: 1;
-  color: var(--m-accent);
-}
-.cs-mare .cs-footer__prev {
-  opacity: 0.9;
-}
-
-@media (max-width: 1100px) {
-  .cs-mare .hero {
-    grid-template-columns: 1fr;
-    gap: 48px;
-    padding: 64px 32px 48px;
-  }
-  .cs-mare .hero__title {
-    font-size: 56px;
-  }
-  .cs-mare .hero__artifact {
-    font-size: 120px;
-  }
-  .cs-mare .meta {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 32px;
-    gap: 24px;
-  }
-  .cs-mare section.cs {
-    padding: 64px 32px;
-  }
-  .cs-mare .cs--split {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-  .cs-mare .cs__heading {
-    font-size: 30px;
-  }
-  .cs-mare .wordmark-stage {
-    font-size: 96px;
-    padding: 64px 24px;
-  }
-  .cs-mare .wordmark-specs {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .cs-mare .palette {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .cs-mare .pins {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .cs-mare .full-bleed {
-    padding: 0 32px;
-  }
-  .cs-mare .reflection__quote {
-    font-size: 20px;
-  }
-  .cs-mare .cs-footer {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding: 48px 32px;
-  }
-  .cs-mare .cs-footer__next,
-  .cs-mare .cs-footer__prev {
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .cs-mare .topnav {
-    padding: 12px 18px;
-    font-size: 9px;
-    letter-spacing: 0.18em;
-  }
-  .cs-mare .topnav__name {
-    font-size: 16px;
-  }
-  .cs-mare .hero {
-    min-height: auto;
-    padding: 40px 20px 32px;
-    gap: 32px;
-  }
-  .cs-mare .hero__kicker {
-    font-size: 10px;
-    margin-bottom: 14px;
-    letter-spacing: 0.22em;
-  }
-  .cs-mare .hero__title {
-    font-size: 38px;
-    line-height: 0.98;
-    margin-bottom: 22px;
-  }
-  .cs-mare .hero__brief {
-    font-size: 16px;
-    line-height: 1.5;
-  }
-  .cs-mare .hero__artifact {
-    font-size: 84px;
-    aspect-ratio: 1;
-  }
-  .cs-mare .meta {
-    grid-template-columns: 1fr 1fr;
-    padding: 24px 20px;
-    gap: 18px 22px;
-  }
-  .cs-mare .meta dt {
-    font-size: 9px;
-    margin-bottom: 5px;
-  }
-  .cs-mare .meta dd {
-    font-size: 13px;
-  }
-  .cs-mare section.cs {
-    padding: 48px 20px;
-  }
-  .cs-mare .cs__label {
-    font-size: 10px;
-    margin-bottom: 18px;
-  }
-  .cs-mare .cs__heading {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  .cs-mare .cs__body {
-    font-size: 15px;
-    line-height: 1.65;
-  }
-  .cs-mare .cs__note {
-    font-size: 12px;
-    padding-left: 18px;
-  }
-  .cs-mare .wordmark-stage {
-    font-size: 64px;
-    padding: 48px 16px;
-    margin-top: 36px;
-  }
-  .cs-mare .wordmark-specs {
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 24px;
-    font-size: 11px;
-  }
-  .cs-mare .palette {
-    gap: 8px;
-    margin-top: 36px;
-  }
-  .cs-mare .palette__chip {
-    aspect-ratio: 4/5;
-  }
-  .cs-mare .palette__label {
-    padding: 9px 10px;
-    font-size: 10px;
-  }
-  .cs-mare .palette__label strong {
-    font-size: 9px;
-    letter-spacing: 0.15em;
-  }
-  .cs-mare .palette__label code {
-    font-size: 9px;
-  }
-  .cs-mare .pins {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-top: 36px;
-  }
-  .cs-mare .full-bleed {
-    margin-top: 56px;
-    padding: 0 20px;
-  }
-  .cs-mare .full-bleed__frame {
-    aspect-ratio: 4/3;
-  }
-  .cs-mare .full-bleed__cap {
-    font-size: 10px;
-  }
-  .cs-mare .reflection {
-    padding: 72px 20px;
-  }
-  .cs-mare .reflection__quote {
-    font-size: 18px;
-    line-height: 1.4;
-  }
-  .cs-mare .cs-footer {
-    padding: 32px 20px;
-    gap: 16px;
-  }
-  .cs-mare .cs-footer__back {
-    padding: 12px 22px;
-    font-size: 10px;
-  }
-  .cs-mare .cs-footer__next,
-  .cs-mare .cs-footer__prev {
-    font-size: 10px;
-  }
-}
-
-/* ===== Product/process figures (real exported screens) ===== */
-.cs-mare .cs-figure {
-  margin: 48px auto 0;
-  max-width: 80%;
-}
-.cs-mare .cs-figure img {
-  width: 100%;
-  display: block;
-  border: 1px solid rgba(196, 149, 106, 0.15);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
-}
-.cs-mare .cs-figure figcaption {
-  margin: 16px 0 0;
-  font-family: var(--m-sans);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.72;
-}
-.cs-mare .cs-figure figcaption b {
-  color: var(--m-accent);
   font-weight: 500;
-}
-
-/* Two-up figure row (e.g. collections + item detail) */
-.cs-mare .cs-figrow {
-  margin-top: 56px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
-}
-.cs-mare .cs-figrow .cs-figure {
+  font-size: clamp(32px, 4.6vw, 56px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--m-ink);
   margin: 0;
 }
-
-/* Lens chips — the multi-lens clustering story */
-.cs-mare .lenses {
-  margin-top: 40px;
+.cs-mare .aside-p {
+  font-family: var(--m-serif);
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.55;
+  color: var(--m-ink-3);
+  max-width: 440px;
+  margin: 0;
+}
+/* heading-left, supporting-paragraph-right */
+.cs-mare .head-row {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(40px, 6vw, 80px);
 }
-.cs-mare .lens {
-  font-family: var(--m-sans);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 8px 16px;
-  border: 1px solid rgba(196, 149, 106, 0.25);
-  color: var(--m-ink);
-  opacity: 1;
-}
-.cs-mare .lens b {
-  color: var(--m-accent);
-  font-weight: 500;
+.cs-mare .head-row__lead {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1 1 auto;
 }
 
-@media (max-width: 1100px) {
-  .cs-mare .cs-figrow {
-    grid-template-columns: 1fr;
-    gap: 32px;
+/* ---------- 01 · hero ---------- */
+.cs-mare .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+.cs-mare .hero__left {
+  display: flex;
+  flex-direction: column;
+}
+.cs-mare .hero__mare {
+  font-family: var(--m-serif);
+  font-weight: 500;
+  font-size: clamp(72px, 13vw, 188px);
+  line-height: 0.84;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+  margin: 0;
+}
+.cs-mare .hero__tagline {
+  margin: 18px 0 0;
+  font-family: var(--m-serif);
+  font-style: italic;
+  font-size: clamp(15px, 1.5vw, 19px);
+  letter-spacing: 0.01em;
+  color: var(--m-copper);
+}
+.cs-mare .hero__lead {
+  margin: clamp(28px, 4vh, 44px) 0 0;
+  font-family: var(--m-serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.14;
+  color: var(--m-ink-lead);
+  max-width: 560px;
+}
+.cs-mare .hero__sub {
+  margin: 16px 0 0;
+  font-family: var(--m-sans);
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.5;
+  color: var(--m-ink-2);
+  max-width: 520px;
+}
+.cs-mare .hero__facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 18px;
+  margin: clamp(28px, 4vh, 44px) 0 0;
+}
+.cs-mare .hero__facts dt {
+  font-family: var(--m-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--m-faint);
+  align-self: center;
+}
+.cs-mare .hero__facts dd {
+  margin: 0;
+  font-family: var(--m-sans);
+  font-size: 14px;
+  color: var(--m-ink-3);
+}
+
+/* ---------- vertical reference belt (hero) ---------- */
+.cs-mare .vbelt {
+  position: relative;
+  height: min(72vh, 620px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+.cs-mare .vbelt__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: beltUp 64s linear infinite;
+}
+.cs-mare .vbelt__col--b {
+  animation: beltDown 78s linear infinite;
+}
+@keyframes beltUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes beltDown {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 
-/* ===== Design-language header: copy left, inverted horse mark right ===== */
-.cs-mare .ds-head {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 64px;
-  align-items: center;
+/* a real Mare item tile (used in both belts) — info card reveals on hover */
+.cs-mare .tile {
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid var(--m-card-bd-2);
+  border-radius: 4px;
+  background: var(--m-surface);
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
 }
-.cs-mare .logo-mark {
-  width: 240px;
-  height: 216px;
-  background: var(--m-ink); /* inverted: cream horse, no rectangle */
-  -webkit-mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
-  mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
+.cs-mare .tile__img {
+  display: block;
+  width: 100%;
+  height: auto; /* natural aspect — variable tile heights */
+  background-color: #181513;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cs-mare .tile:hover .tile__img {
+  transform: scale(1.05);
+}
+.cs-mare .tile__hover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 26px 13px 12px;
+  background: linear-gradient(
+    to top,
+    rgba(15, 13, 12, 0.97) 30%,
+    rgba(15, 13, 12, 0)
+  );
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.cs-mare .tile:hover .tile__hover {
+  opacity: 1;
+  transform: none;
+}
+.cs-mare .tile__hover b {
+  font-family: var(--m-serif);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--m-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cs-mare .tile__hover span {
+  font-family: var(--m-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--m-copper);
+}
+
+/* ---------- 01b · problem (the login's dithered Horse Fair effect) ---------- */
+/* full-bleed dithered Horse Fair behind everything, copied from the login */
+.cs-mare .problem {
+  overflow: hidden;
+}
+.cs-mare .problem__dither {
+  position: absolute;
+  inset: 0; /* stable full-bleed background */
+  background: url('/case-studies/mare/horse-dither.png') center / cover
+    no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  pointer-events: none;
+}
+/* dark gradient on the left so the copy stays legible (the login's form side) */
+.cs-mare .problem__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(18, 16, 16, 0.96) 0%,
+    rgba(18, 16, 16, 0.82) 26%,
+    rgba(18, 16, 16, 0.3) 58%,
+    rgba(18, 16, 16, 0.05) 100%
+  );
+  pointer-events: none;
+}
+.cs-mare .problem__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: min(74vh, 660px);
+  width: 100%;
+}
+.cs-mare .problem__text {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  max-width: 500px;
   flex-shrink: 0;
 }
-@media (max-width: 1100px) {
-  .cs-mare .ds-head {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-  .cs-mare .logo-mark {
-    width: 180px;
-    height: 162px;
-  }
+.cs-mare .problem__head {
+  font-family: var(--m-serif);
+  font-weight: 500;
+  font-size: clamp(32px, 4.6vw, 56px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--m-ink);
+  margin: 0;
+  max-width: 480px;
 }
-
-/* ===== Design System (HTML rebuild) ===== */
-.cs-mare .ds {
-  margin-top: 48px;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 56px;
-  align-items: start;
+.cs-mare .problem__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 420px;
 }
-.cs-mare .ds__label {
-  font-family: var(--m-sans);
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-  margin: 0 0 16px;
+.cs-mare .problem__body p {
+  font-family: var(--m-serif);
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.6;
+  color: var(--m-ink-3);
+  margin: 0;
 }
-.cs-mare .ds__col > .ds__label:not(:first-child) {
-  margin-top: 40px;
-}
-.cs-mare .ds__swatches {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-.cs-mare .ds__swatch {
+/* the item card, copied from the login — floats over the image, follows cursor */
+.cs-mare .problem__card {
+  /* follows the cursor (JS sets transform); eased; never intercepts the pointer */
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(60%, 50%);
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+  pointer-events: none;
+  width: min(340px, 38vw);
+  margin: 0;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background: rgba(20, 17, 15, 0.62);
+  border: 1px solid var(--m-card-bd);
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
 }
-.cs-mare .ds__chip {
-  height: 52px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.cs-mare .pcard__k {
+  font-family: var(--m-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--m-label);
+  margin-top: 10px;
 }
-.cs-mare .ds__swatch code {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  opacity: 0.7;
+.cs-mare .pcard__k:first-child {
+  margin-top: 0;
 }
-.cs-mare .ds__swatch span {
-  font-family: var(--m-sans);
-  font-size: 10px;
-  opacity: 0.5;
+.cs-mare .pcard__title {
+  font-family: var(--m-serif);
+  font-size: 21px;
+  line-height: 1.2;
+  color: var(--m-ink);
+  margin: 2px 0 0;
 }
-.cs-mare .ds__ink {
+.cs-mare .pcard__artist {
+  font-family: var(--m-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--m-ink-2);
+  margin: 2px 0 0;
+}
+.cs-mare .pcard__meta {
   display: flex;
-  gap: 10px;
+  gap: 40px;
+  margin-top: 10px;
 }
-.cs-mare .ds__inkcell {
+.cs-mare .pcard__meta > div {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
-.cs-mare .ds__inkdot {
-  width: 34px;
-  height: 34px;
+.cs-mare .pcard__meta span:last-child {
+  font-family: var(--m-serif);
+  font-size: 14px;
+  color: var(--m-ink);
+}
+.cs-mare .pcard__desc {
+  font-family: var(--m-serif);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--m-ink-3);
+  margin: 3px 0 0;
+}
+.cs-mare .pcard__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.cs-mare .pcard__tags span {
+  font-family: var(--m-sans);
+  font-size: 10.5px;
+  color: var(--m-ink-2);
+  padding: 3px 9px;
+  border-radius: 11px;
+  background: rgba(196, 149, 106, 0.14);
+}
+
+/* horizontal conveyor belt */
+.cs-mare .belt {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 5%,
+    #000 95%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 5%,
+    #000 95%,
+    transparent
+  );
+}
+.cs-mare .belt__cap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-family: var(--m-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--m-faint);
+}
+.cs-mare .belt__cap .dotc {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--m-copper);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+.cs-mare .belt__track {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  width: max-content;
+  animation: beltLeft 95s linear infinite;
+}
+@keyframes beltLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.cs-mare .belt .tile {
+  width: 232px;
+}
+.cs-mare .belt .tile__cap {
+  padding: 11px 12px;
+  font-family: var(--m-serif);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--m-caption);
+}
+.cs-mare .belt:hover .belt__track,
+.cs-mare .vbelt:hover .vbelt__col {
+  animation-play-state: paused;
+}
+
+/* ---------- 02 · design language ---------- */
+.cs-mare .dl {
+  gap: clamp(28px, 4vh, 52px);
+}
+.cs-mare .dl__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(40px, 6vw, 88px);
+}
+.cs-mare .dl__lead {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 720px;
+}
+.cs-mare .dl__body {
+  font-family: var(--m-serif);
+  font-size: clamp(16px, 1.5vw, 19px);
+  line-height: 1.55;
+  color: var(--m-ink-3);
+  margin: 0;
+}
+/* the real horse mark, flipped to face the copy */
+.cs-mare .dl__horse {
+  width: clamp(150px, 17vw, 250px);
+  aspect-ratio: 600 / 540;
+  flex-shrink: 0;
+  background: var(--m-copper);
+  -webkit-mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
+  mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
+  transform: scaleX(-1);
+}
+/* the swatch + type board, tightened */
+.cs-mare .board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: stretch;
+}
+.cs-mare .swatches {
+  display: flex;
+  gap: 1px;
+  background: rgba(196, 149, 106, 0.19);
+  border-radius: 4px;
+  overflow: clip;
+}
+.cs-mare .swatch {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  min-height: 128px;
+}
+.cs-mare .swatch b {
+  font-family: var(--m-sans);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.cs-mare .swatch code {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.cs-mare .type {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+.cs-mare .type__spec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--m-divider);
+}
+.cs-mare .type__spec:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.cs-mare .type__face {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--m-caption);
+  flex-shrink: 0;
+}
+.cs-mare .type__serif {
+  font-family: var(--m-serif);
+  font-weight: 500;
+  font-size: clamp(34px, 3.6vw, 52px);
+  line-height: 1;
+  color: var(--m-ink);
+}
+.cs-mare .type__sans {
+  font-family: var(--m-sans);
+  font-weight: 500;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1;
+  color: var(--m-ink);
+}
+.cs-mare .type__mono {
+  font-family: var(--m-mono);
+  font-size: clamp(15px, 1.4vw, 18px);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: var(--m-copper);
+}
+/* ink hierarchy as a slim inline row */
+.cs-mare .ink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cs-mare .ink__label {
+  font-family: var(--m-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--m-faint);
+  margin-right: 6px;
+}
+.cs-mare .ink__dot {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
 }
-.cs-mare .ds__inkdot--accent {
-  background: var(--m-accent);
-}
-.cs-mare .ds__inkcell span {
-  font-family: var(--m-sans);
-  font-size: 9px;
-  opacity: 0.55;
-}
-.cs-mare .ds__light {
+
+/* ---------- 03 / 05 · app surfaces (compact text band, large screenshot) ---------- */
+.cs-mare .surface {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: clamp(26px, 3.2vh, 40px);
 }
-.cs-mare .ds__lightchip {
-  flex: 1;
-  height: 48px;
+.cs-mare .surface__text {
   display: flex;
   align-items: flex-end;
-  padding: 5px;
+  justify-content: space-between;
+  gap: clamp(32px, 5vw, 72px);
+  flex-wrap: wrap;
 }
-.cs-mare .ds__lightchip span {
-  font-family: var(--m-sans);
-  font-size: 8px;
-  color: #1a1715;
-  opacity: 0.7;
+.cs-mare .surface__lead {
+  flex: 1 1 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.cs-mare .ds__lightchip--accent {
-  background: var(--m-accent);
-}
-.cs-mare .ds__type {
+.cs-mare .surface__aside {
+  flex: 0 1 480px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-.cs-mare .ds__typerow {
+.cs-mare .surface__body {
   font-family: var(--m-serif);
-  line-height: 1.05;
-  color: var(--m-ink);
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.55;
+  color: var(--m-ink-3);
+  margin: 0;
 }
-.cs-mare .ds__typerow.ds-t40 {
-  font-size: 38px;
-  letter-spacing: -0.02em;
+.cs-mare .surface__media {
+  width: 100%;
+  border: 1px solid var(--m-card-bd);
+  border-radius: 10px;
+  overflow: clip;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
 }
-.cs-mare .ds__typerow.ds-t32 {
-  font-size: 30px;
-  letter-spacing: -0.015em;
+.cs-mare .surface__media img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
-.cs-mare .ds__typerow.ds-t28 {
-  font-size: 26px;
+.cs-mare .surface__num {
+  font-family: var(--m-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--m-faint);
 }
-.cs-mare .ds__typerow.ds-t24 {
-  font-size: 22px;
-}
-.cs-mare .ds__typerow.ds-t20 {
-  font-size: 19px;
-}
-.cs-mare .ds__tbody {
-  font-family: var(--m-sans);
-  font-size: 16px;
-  opacity: 0.9;
-}
-.cs-mare .ds__tlabel {
-  font-family: var(--m-sans);
-  font-size: 14px;
-  font-weight: 500;
-  opacity: 0.8;
-}
-.cs-mare .ds__tmicro {
-  font-family: var(--m-sans);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  opacity: 0.55;
-}
-.cs-mare .ds__card {
-  margin-top: 8px;
-  background: rgba(34, 31, 28, 0.6);
-  border: 1px solid rgba(196, 149, 106, 0.16);
-  backdrop-filter: blur(8px);
-  padding: 22px;
-  max-width: 320px;
-}
-.cs-mare .ds__cardk {
-  font-family: var(--m-sans);
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--m-accent);
-}
-.cs-mare .ds__cardt {
+
+/* ---------- 04 · clustering (lenses) ---------- */
+.cs-mare .cluster__sub {
   font-family: var(--m-serif);
-  font-size: 22px;
-  margin: 4px 0 14px;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.5;
+  color: var(--m-ink-3);
+  margin: 0;
+  max-width: 560px;
 }
-.cs-mare .ds__carda {
-  font-family: var(--m-serif);
-  font-size: 16px;
-  margin: 4px 0 16px;
-  opacity: 0.85;
+.cs-mare .cluster__beat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--m-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--m-copper);
 }
-.cs-mare .ds__tags {
+/* animated reclustering: lens tabs auto-cycle, real items re-sort (FLIP),
+   real collection names rewrite */
+.cs-mare .recluster {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.cs-mare .recluster__tabs {
   display: flex;
   gap: 8px;
+}
+.cs-mare .recluster__tab {
+  font-family: var(--m-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--m-ink-3);
+  background: none;
+  border: 1px solid var(--m-card-bd);
+  border-radius: 999px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+}
+.cs-mare .recluster__tab:hover {
+  color: var(--m-ink);
+}
+.cs-mare .recluster__tab.on {
+  color: #121010;
+  background: var(--m-copper);
+  border-color: var(--m-copper);
+}
+.cs-mare .recluster__bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
   flex-wrap: wrap;
 }
-.cs-mare .ds__tags span {
-  font-family: var(--m-sans);
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 11px;
-  background: rgba(196, 149, 106, 0.12);
-  color: var(--m-ink);
-  opacity: 0.8;
+.cs-mare .recluster__gloss {
+  font-family: var(--m-serif);
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.4;
+  color: var(--m-ink-3);
+  margin: 0;
 }
-
-/* ===== Modals Sheet (HTML rebuild) ===== */
-.cs-mare .ms {
-  margin-top: 48px;
+.cs-mare .recluster__lens {
+  color: var(--m-copper);
+  font-style: italic;
+}
+/* three real collection cards — names rewrite, items rescramble between them */
+.cs-mare .recluster__board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  align-items: start;
+  gap: clamp(16px, 2vw, 28px);
 }
-.cs-mare .ms__modal {
-  background: rgba(26, 23, 21, 0.92);
-  border: 1px solid rgba(196, 149, 106, 0.16);
-  padding: 20px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-}
-.cs-mare .ms__head {
+.cs-mare .ccard {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  background: var(--m-surface);
+  border: 1px solid var(--m-card-bd);
+  border-radius: 10px;
 }
-.cs-mare .ms__title {
+.cs-mare .ccard__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 50px; /* keep card height steady as names rewrite */
+}
+.cs-mare .ccard__name {
   font-family: var(--m-serif);
-  font-size: 17px;
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.2;
+  color: var(--m-ink);
+  animation: nameIn 0.45s ease;
 }
-.cs-mare .ms__x {
-  font-size: 16px;
-  opacity: 0.4;
+@keyframes nameIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.cs-mare .ms__sub {
-  font-family: var(--m-sans);
+.cs-mare .ccard__count {
+  font-family: var(--m-mono);
   font-size: 12px;
-  opacity: 0.6;
-  margin: 0 0 16px;
-}
-.cs-mare .ms__train {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cs-mare .ms__anchor,
-.cs-mare .ms__opt {
-  width: 56px;
-  height: 56px;
-  background: var(--m-surface-raised, #221f1c);
-  border: 1px solid rgba(196, 149, 106, 0.18);
-}
-.cs-mare .ms__opt--on {
-  border-color: var(--m-accent);
-  box-shadow: 0 0 0 2px rgba(196, 149, 106, 0.3);
-}
-.cs-mare .ms__arrow {
-  color: var(--m-accent);
-}
-.cs-mare .ms__pair {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-.cs-mare .ms__pair span {
-  font-family: var(--m-sans);
-  font-size: 10px;
-  opacity: 0.5;
-}
-.cs-mare .ms__foot {
-  margin-top: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--m-sans);
-  font-size: 10px;
-  opacity: 0.5;
-}
-.cs-mare .ms__dots {
-  display: flex;
-  gap: 5px;
-}
-.cs-mare .ms__dots i {
-  width: 14px;
-  height: 3px;
-  background: rgba(232, 228, 224, 0.18);
-}
-.cs-mare .ms__dots i.on {
-  background: var(--m-accent);
-}
-.cs-mare .ms__search {
-  font-family: var(--m-sans);
-  font-size: 12px;
-  opacity: 0.45;
-  padding: 9px 12px;
-  background: var(--m-surface-input, #1e1b19);
-  border: 1px solid rgba(196, 149, 106, 0.12);
-  margin-bottom: 12px;
-}
-.cs-mare .ms__list {
-  display: flex;
-  flex-direction: column;
-}
-.cs-mare .ms__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 0;
-  border-bottom: 1px solid rgba(196, 149, 106, 0.08);
-}
-.cs-mare .ms__check {
-  width: 15px;
-  height: 15px;
-  border: 1px solid rgba(196, 149, 106, 0.4);
+  color: var(--m-copper);
   flex-shrink: 0;
 }
-.cs-mare .ms__check.on {
-  background: var(--m-accent);
-  border-color: var(--m-accent);
-}
-.cs-mare .ms__rowname {
-  flex: 1;
-  font-family: var(--m-sans);
-  font-size: 13px;
-}
-.cs-mare .ms__count {
-  font-family: var(--m-sans);
-  font-size: 11px;
-  opacity: 0.4;
-}
-.cs-mare .ms__grid {
+.cs-mare .ccard__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
-.cs-mare .ms__thumb {
-  aspect-ratio: 1;
-  background: var(--m-surface-raised, #221f1c);
-  border: 1px solid rgba(196, 149, 106, 0.12);
+.cs-mare .rtile {
+  border: 1px solid var(--m-card-bd);
+  border-radius: 5px;
+  overflow: clip;
+  background: var(--m-surface);
+  will-change: transform;
 }
-.cs-mare .ms__thumb.on {
-  border-color: var(--m-accent);
-  box-shadow: 0 0 0 2px rgba(196, 149, 106, 0.3);
-}
-.cs-mare .ms__cta {
+.cs-mare .rtile__img {
   width: 100%;
-  margin-top: 16px;
-  padding: 11px;
-  background: var(--m-accent);
-  color: var(--m-bg);
-  border: 0;
-  font-family: var(--m-sans);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: default;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center;
 }
 
-@media (max-width: 1100px) {
-  .cs-mare .ds {
+/* ---------- 06 · reflection ---------- */
+.cs-mare .reflection__text {
+  font-family: var(--m-serif);
+  font-size: clamp(24px, 3.2vw, 38px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--m-ink);
+  max-width: 1000px;
+  margin: 0;
+}
+
+/* ---------- footer ---------- */
+.cs-mare .foot {
+  min-height: 64vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 64px;
+  scroll-snap-align: start;
+  border-top: 1px solid var(--m-divider);
+  padding: clamp(64px, 9vh, 104px) var(--m-pad) clamp(56px, 8vh, 96px);
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+.cs-mare .foot__links {
+  display: flex;
+  flex-direction: column;
+}
+.cs-mare .foot__row {
+  display: flex;
+  gap: 32px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(196, 149, 106, 0.1);
+}
+.cs-mare .foot__row:last-child {
+  border-bottom: 0;
+}
+.cs-mare .foot__k {
+  flex-shrink: 0;
+  width: 110px;
+  font-family: var(--m-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--m-label);
+  padding-top: 4px;
+}
+.cs-mare .foot__v {
+  font-family: var(--m-serif);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--m-ink);
+}
+.cs-mare a.foot__v:hover {
+  color: var(--m-copper);
+}
+.cs-mare .foot__v--dim {
+  color: var(--m-ink-3);
+}
+.cs-mare .foot__v--copper {
+  color: var(--m-copper);
+}
+.cs-mare .foot__mark {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 22px;
+}
+.cs-mare .foot__glyph {
+  font-family: var(--m-serif);
+  font-style: italic;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--m-raised);
+}
+.cs-mare .foot__back {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--m-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--m-copper);
+}
+.cs-mare .foot__back:hover {
+  opacity: 0.7;
+}
+
+/* ---------- motion / responsive ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cs-mare .vbelt__col,
+  .cs-mare .belt__track,
+  .cs-mare .belt__cap .dotc {
+    animation: none;
+  }
+}
+@media (max-width: 1080px) {
+  .cs-mare {
+    height: auto;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .cs-mare .section,
+  .cs-mare .foot {
+    min-height: 0;
+  }
+  .cs-mare .hero,
+  .cs-mare .dl__head,
+  .cs-mare .surface {
     grid-template-columns: 1fr;
+    display: grid;
+  }
+  /* problem: stack text over a static card (no absolute float on narrow screens) */
+  .cs-mare .problem__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    padding: 8vh 0;
+  }
+  .cs-mare .problem__card {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: min(340px, 80vw);
+  }
+  .cs-mare .hero__facts {
+    grid-template-columns: auto 1fr;
+  }
+  .cs-mare .vbelt {
+    height: 380px;
+  }
+  .cs-mare .recluster__stage {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .cs-mare .dl__horse {
+    justify-self: start;
+  }
+}
+@media (max-width: 640px) {
+  .cs-mare .recluster__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .cs-mare .swatches {
+    flex-wrap: wrap;
+  }
+  .cs-mare .swatch {
+    flex-basis: 50%;
+  }
+  .cs-mare .foot {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 40px;
   }
-  .cs-mare .ms {
-    grid-template-columns: 1fr;
+  .cs-mare .foot__mark {
+    align-items: flex-start;
   }
 }
