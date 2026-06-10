@@ -120,20 +120,18 @@ export default function MareCaseStudy() {
         </div>
       </section>
 
-      {/* 02 — DESIGN LANGUAGE */}
+      {/* 02 — DESIGN LANGUAGE — four quadrants */}
       <section className="section dl">
-        <div className="dl__main">
-          <div className="dl__lead">
-            <h2 className="head">A cyber-cowboy in a sea of SaaS purple.</h2>
-            <p className="dl__body">
-              A mare is something you trust to carry you somewhere new. We've ridden horses from the
-              paleolithic to the gold rush — why not now, as cyber-cowboys? Warm carbon, a copper
-              accent, and IBM Plex: a deliberate turn away from the purple-and-white SaaS look.
-            </p>
-          </div>
-          <MareDesignSystem />
+        <div className="dl__lead">
+          <h2 className="head">A cyber-cowboy in a sea of SaaS purple.</h2>
+          <p className="dl__body">
+            A mare is something you trust to carry you somewhere new. We've ridden horses from the
+            paleolithic to the gold rush — why not now, as cyber-cowboys? Warm carbon, a copper
+            accent, and IBM Plex: a deliberate turn away from the purple-and-white SaaS look.
+          </p>
         </div>
         <div className="dl__horse" role="img" aria-label="The MARE horse mark" />
+        <MareDesignSystem />
       </section>
 
       {/* 03 — ARCHIVE */}

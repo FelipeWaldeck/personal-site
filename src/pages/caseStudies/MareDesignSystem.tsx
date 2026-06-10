@@ -1,9 +1,10 @@
 import React from 'react';
 
 /**
- * MareDesignSystem — the design-language board: the core four-swatch bar beside a
- * type specimen, plus a slim ink-hierarchy row. Tightened from the Paper board
- * (5R-0) to read as one calm unit. Values lifted verbatim.
+ * MareDesignSystem — the two lower quadrants of the design-language board:
+ * the swatch bar + ink hierarchy (bottom-left) and the type specimen
+ * (bottom-right). Returned as a fragment so they slot directly into the .dl
+ * quadrant grid. Values lifted from the Paper board (5R-0).
  */
 
 const SWATCHES: { name: string; hex: string; dark: boolean }[] = [
@@ -14,7 +15,7 @@ const SWATCHES: { name: string; hex: string; dark: boolean }[] = [
 ];
 
 const INK: [string, string][] = [
-  ['ink', 'rgba(232,228,224,1)'],
+  ['100', 'rgba(232,228,224,1)'],
   ['80', 'rgba(232,228,224,0.8)'],
   ['65', 'rgba(232,228,224,0.65)'],
   ['50', 'rgba(232,228,224,0.5)'],
@@ -26,7 +27,7 @@ const INK: [string, string][] = [
 export default function MareDesignSystem() {
   return (
     <>
-      <div className="board">
+      <div className="dl__palette">
         <div className="swatches">
           {SWATCHES.map((s) => (
             <div
@@ -40,35 +41,38 @@ export default function MareDesignSystem() {
           ))}
         </div>
 
-        <div className="type">
-          <div className="type__spec">
-            <span className="type__serif">Frontier</span>
-            <span className="type__face">Plex Serif</span>
-          </div>
-          <div className="type__spec">
-            <span className="type__sans">Collections, clustered.</span>
-            <span className="type__face">Plex Sans</span>
-          </div>
-          <div className="type__spec">
-            <span className="type__mono">RECLUSTER · 0.4s</span>
-            <span className="type__face">Plex Mono</span>
+        <div className="ink">
+          <span className="ink__label">Ink hierarchy</span>
+          <div className="ink__row">
+            {INK.map(([label, color]) => (
+              <div className="ink__cell" key={label}>
+                <div
+                  className="ink__dot"
+                  style={{
+                    background: color,
+                    border: label === '08' ? '1px solid rgba(232,228,224,0.22)' : undefined,
+                  }}
+                />
+                <span className="ink__pct">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="ink">
-        <span className="ink__label">Ink hierarchy</span>
-        {INK.map(([label, color]) => (
-          <div
-            className="ink__dot"
-            key={label}
-            title={label}
-            style={{
-              background: color,
-              border: label === '08' ? '1px solid rgba(232,228,224,0.15)' : undefined,
-            }}
-          />
-        ))}
+      <div className="dl__type">
+        <div className="type__spec">
+          <span className="type__serif">Frontier</span>
+          <span className="type__face">Plex Serif</span>
+        </div>
+        <div className="type__spec">
+          <span className="type__sans">Collections, clustered.</span>
+          <span className="type__face">Plex Sans</span>
+        </div>
+        <div className="type__spec">
+          <span className="type__mono">RECLUSTER · 0.4s</span>
+          <span className="type__face">Plex Mono</span>
+        </div>
       </div>
     </>
   );

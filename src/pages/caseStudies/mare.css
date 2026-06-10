@@ -566,37 +566,47 @@
 }
 
 /* ---------- 02 · design language ---------- */
-/* content stack on the left, horse mark vertically centred against all of it */
+/* four quadrants: heading+body box (TL), horse (TR), swatches+ink (BL), type (BR).
+   Capped narrower and vertically centred so everything sits closer to the middle
+   with generous edge padding. */
 .cs-mare .dl {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'lead horse'
+    'palette type';
   align-items: center;
-  column-gap: clamp(48px, 7vw, 120px);
-}
-.cs-mare .dl__main {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(36px, 6vh, 68px);
-  min-width: 0;
+  align-content: center;
+  column-gap: clamp(32px, 3.5vw, 64px);
+  row-gap: clamp(44px, 7vh, 88px);
+  max-width: 1140px;
+  padding-block: clamp(96px, 16vh, 176px);
 }
 .cs-mare .dl__lead {
+  grid-area: lead;
+  align-self: center;
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  max-width: 680px;
+  gap: 28px;
+  max-width: 600px;
 }
+/* body at Namshub's 20px, justified to fill the quadrant as a clean square block */
 .cs-mare .dl__body {
   font-family: var(--m-serif);
-  font-size: clamp(16px, 1.5vw, 19px);
+  font-size: 20px;
   line-height: 1.6;
   color: var(--m-ink-3);
   margin: 0;
+  max-width: 560px;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
-/* the real horse mark, flipped to face the copy, centred in its column */
+/* the real horse mark, flipped to face the copy — top-right quadrant */
 .cs-mare .dl__horse {
-  width: clamp(170px, 18vw, 290px);
+  grid-area: horse;
+  width: clamp(170px, 16vw, 280px);
   aspect-ratio: 600 / 540;
-  flex-shrink: 0;
   justify-self: center;
   align-self: center;
   background: var(--m-copper);
@@ -604,12 +614,13 @@
   mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
   transform: scaleX(-1);
 }
-/* the swatch + type board */
-.cs-mare .board {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: clamp(36px, 5vw, 72px);
-  align-items: stretch;
+/* bottom-left quadrant: swatch bar + ink hierarchy */
+.cs-mare .dl__palette {
+  grid-area: palette;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 .cs-mare .swatches {
   display: flex;
@@ -637,7 +648,10 @@
   font-size: 10px;
   line-height: 1.4;
 }
-.cs-mare .type {
+/* bottom-right quadrant: type specimen */
+.cs-mare .dl__type {
+  grid-area: type;
+  align-self: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -683,24 +697,38 @@
   line-height: 1.2;
   color: var(--m-copper);
 }
-/* ink hierarchy as a slim inline row */
+/* ink hierarchy — dot + visible % label, made legible */
 .cs-mare .ink {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 14px;
 }
 .cs-mare .ink__label {
   font-family: var(--m-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--m-faint);
-  margin-right: 6px;
+  color: var(--m-label);
+}
+.cs-mare .ink__row {
+  display: flex;
+  gap: clamp(10px, 1.4vw, 18px);
+}
+.cs-mare .ink__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 .cs-mare .ink__dot {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+}
+.cs-mare .ink__pct {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  color: var(--m-ink-3);
 }
 
 /* ---------- 03 / 05 · app surfaces (compact text band, large screenshot) ---------- */
@@ -997,10 +1025,14 @@
     min-height: 0;
   }
   .cs-mare .hero,
-  .cs-mare .dl,
   .cs-mare .surface {
     grid-template-columns: 1fr;
     display: grid;
+  }
+  .cs-mare .dl {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'lead' 'horse' 'palette' 'type';
+    row-gap: 44px;
   }
   /* problem: stack text over a static card (no absolute float on narrow screens) */
   .cs-mare .problem__inner {
@@ -1026,12 +1058,8 @@
     grid-template-columns: 1fr;
     gap: 28px;
   }
-  .cs-mare .dl {
-    row-gap: 40px;
-  }
   .cs-mare .dl__horse {
     justify-self: start;
-    order: -1; /* horse above the content when stacked */
   }
 }
 @media (max-width: 640px) {
