@@ -33,9 +33,9 @@ const COLLECTIONS = Object.entries(BY_COLLECTION)
 const SIDE = MARE_REFS.slice(5, 9);
 
 const LENSES = [
-  { name: 'Balanced', on: true, why: 'Weighs look and meaning together.' },
-  { name: 'Aesthetic', on: false, why: 'Groups by how things look.' },
-  { name: 'Semantic', on: false, why: 'Groups by what things mean.' },
+  { name: 'Balanced', on: true, why: 'Look and meaning, weighted evenly.' },
+  { name: 'Aesthetic', on: false, why: 'Grouped by how things look.' },
+  { name: 'Semantic', on: false, why: 'Grouped by what things mean.' },
 ];
 
 export default function MareCollections() {
@@ -44,16 +44,16 @@ export default function MareCollections() {
       {/* top bar */}
       <div className="mc__bar">
         <div className="mc__brand">
-          <span className="mc__m" data-explain="Your whole visual library, one workspace.">
+          <span className="mc__m" data-explain="Everything you've saved.">
             <span className="mc__horse" aria-hidden="true" />
           </span>
           <span className="mc__title">Collections</span>
         </div>
-        <div className="mc__search" data-explain="Search every collection and item at once.">
+        <div className="mc__search" data-explain="Search across everything.">
           Search collections…
         </div>
         <div className="mc__chrome">
-          <span className="mc__plan" data-explain="Free tier — 91 of 100 items used.">
+          <span className="mc__plan" data-explain="Free tier: 91 of 100 items.">
             Free 91/100
           </span>
           <span className="mc__icon" />
@@ -72,10 +72,10 @@ export default function MareCollections() {
             {l.name}
           </span>
         ))}
-        <span className="mc__recluster" data-explain="Re-runs clustering as the archive grows — in seconds.">
+        <span className="mc__recluster" data-explain="Re-clusters as the archive grows.">
           ↻ Recluster
         </span>
-        <span className="mc__stats" data-explain="456 items, 450 auto-clustered into named collections.">
+        <span className="mc__stats" data-explain="450 of 456 auto-clustered.">
           456 items · 450 clustered · 6 unclustered
         </span>
       </div>
@@ -84,7 +84,7 @@ export default function MareCollections() {
         {/* sidebar */}
         <aside className="mc__side">
           <div className="mc__sect">
-            <div className="mc__secthead" data-explain="New saves wait here until MARE clusters them.">
+            <div className="mc__secthead" data-explain="Saves waiting to be clustered.">
               <span>Unclustered</span>
               <span className="mc__badge">6</span>
             </div>
@@ -98,7 +98,7 @@ export default function MareCollections() {
             </div>
           </div>
           <div className="mc__sect">
-            <div className="mc__secthead" data-explain="The latest things you saved.">
+            <div className="mc__secthead" data-explain="Recently saved.">
               <span>Recent items</span>
             </div>
             <div className="mc__rows">
@@ -116,7 +116,7 @@ export default function MareCollections() {
         <div className="mc__main">
           {COLLECTIONS.map(([name, items], ci) => (
             <div className="mc__col" key={name}>
-              <div className="mc__colheader" data-explain="MARE invented this collection name — and wrote its description — itself.">
+              <div className="mc__colheader" data-explain="Named and described automatically.">
                 <div className="mc__colhead">
                   <span className="mc__colname">{name}</span>
                   <span className="mc__colcount">{(items.length + ci) * 9 + 30} items</span>
@@ -130,7 +130,7 @@ export default function MareCollections() {
                       className="mc__cardimg"
                       data-explain={
                         ci === 0 && i === 1
-                          ? 'Every item: identified, sourced, summarised, and re-rendered at full quality.'
+                          ? 'Identified, sourced, summarised.'
                           : undefined
                       }
                     >

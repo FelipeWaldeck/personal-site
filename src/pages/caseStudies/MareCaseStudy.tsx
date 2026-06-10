@@ -17,7 +17,7 @@ import './mare.css';
 const FACTS: [string, string][] = [
   ['Role', 'Co-founder, design'],
   ['With', 'Aakarsh, design + engineering'],
-  ['Year', '2025 — ongoing'],
+  ['Year', '2025, ongoing'],
   ['Surfaces', 'Web app, extension, marketing'],
 ];
 
@@ -92,7 +92,7 @@ export default function MareCaseStudy() {
             <div className="problem__body">
               <p>
                 Being an artist now means wading through an endless amount of material: references
-                saved, screenshotted, then lost in Pinterest, Are.na, Instagram. Mare is simple — see
+                saved, screenshotted, then lost in Pinterest, Are.na, Instagram. Mare is simple: see
                 something, save it, and it lands organised in one archive.
               </p>
               <p>
@@ -112,7 +112,7 @@ export default function MareCaseStudy() {
               </div>
               <div className="pcard__k">Description</div>
               <p className="pcard__desc">
-                A monumental oil capturing the raw energy of the Parisian horse market — a swirling
+                A monumental oil capturing the raw energy of the Parisian horse market, a swirling
                 mass of Percherons and their handlers, rendered with remarkable anatomical precision.
               </p>
               <div className="pcard__tags">
@@ -128,7 +128,7 @@ export default function MareCaseStudy() {
           <h2 className="head">A cyber-cowboy in a sea of SaaS purple.</h2>
           <p className="dl__body">
             A mare is something you trust to carry you somewhere new. We've ridden horses from the
-            paleolithic to the gold rush — why not now, as cyber-cowboys? Warm carbon, a copper
+            paleolithic to the gold rush. Why not now, as cyber-cowboys? Warm carbon, a copper
             accent, and IBM Plex: a deliberate turn away from the purple-and-white SaaS look.
           </p>
         </div>
@@ -146,7 +146,7 @@ export default function MareCaseStudy() {
             <div className="surface__aside">
               <p className="surface__body">
                 The hardest problem was density: recent ingestions, an unclustered tray, every named
-                collection, search, and the quieter settings and billing modals — all at once, without
+                collection, search, and the quieter settings and billing modals, all at once, without
                 turning into a mess.
               </p>
               <span className="surface__num">03 · Collections, dark mode</span>
@@ -165,7 +165,7 @@ export default function MareCaseStudy() {
           <span className="cluster__beat">↻ 456 items · named in 0.4s</span>
         </div>
         <p className="cluster__sub">
-          Save anything and MARE clusters your whole library — then writes the collection names
+          Save anything and MARE clusters your whole library, then writes the collection names
           itself. The same library, read three ways:
         </p>
         <MareClustering />
@@ -195,7 +195,7 @@ export default function MareCaseStudy() {
       <section className="section reflection">
         <p className="reflection__text">
           MARE is the first thing I've designed that I use every day, and that changes how you design
-          it — you stop arguing about hypothetical users and start fixing whatever annoyed you that
+          it, and you stop arguing about hypothetical users and start fixing whatever annoyed you that
           morning. The harder part was co-design. Aakarsh and I draw differently, and the tool is
           better for the places where we didn't agree at first.
         </p>

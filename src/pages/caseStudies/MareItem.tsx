@@ -35,10 +35,10 @@ export default function MareItem() {
           <span className="mi__artname">Ghost in the Shell 2: Innocence</span>
           <span className="mi__artby">Mamoru Oshii · Production I.G · 2004</span>
         </div>
-        <div className="mi__image" data-explain="MARE re-renders the source at full quality.">
+        <div className="mi__image" data-explain="Re-rendered from the source.">
           <img src={HERO.src} alt="Ghost in the Shell 2: Innocence key art" />
         </div>
-        <div className="mi__swatches" data-explain="The palette MARE pulled from the work.">
+        <div className="mi__swatches" data-explain="Palette, auto-extracted.">
           {SWATCHES.map((c) => (
             <span key={c} className="mi__sw" style={{ background: c }} />
           ))}
@@ -48,7 +48,7 @@ export default function MareItem() {
       {/* right: the metadata MARE writes */}
       <div className="mi__panel">
         <div className="mi__src">
-          <span className="mi__srctype" data-explain="Identified, then traced back to its source.">
+          <span className="mi__srctype" data-explain="Traced to its source.">
             image / jpeg
           </span>
           <span className="mi__srcdate">Jan 14, 2026</span>
@@ -68,7 +68,7 @@ export default function MareItem() {
           </div>
         </div>
 
-        <div className="mi__k" data-explain="The same item lands in a different collection under each lens.">
+        <div className="mi__k" data-explain="A different collection per lens.">
           Collections
         </div>
         <div className="mi__cols">
@@ -80,7 +80,7 @@ export default function MareItem() {
           ))}
         </div>
 
-        <div className="mi__k" data-explain="Themes MARE extracted from the work.">Themes</div>
+        <div className="mi__k" data-explain="Auto-extracted themes.">Themes</div>
         <div className="mi__tags">
           {THEMES.map((t) => (
             <span className="mi__tag" key={t}>
@@ -89,7 +89,7 @@ export default function MareItem() {
           ))}
         </div>
 
-        <div className="mi__k" data-explain="Other items MARE found related — across collections.">
+        <div className="mi__k" data-explain="Related across collections.">
           Related items
         </div>
         <div className="mi__related">
@@ -98,13 +98,13 @@ export default function MareItem() {
           ))}
         </div>
 
-        <div className="mi__k" data-explain="MARE writes the context summary itself.">Description</div>
+        <div className="mi__k" data-explain="Auto-written summary.">Description</div>
         <p className="mi__desc">
-          Theatrical key art for Mamoru Oshii's Ghost in the Shell 2: Innocence — a meditation on
+          Theatrical key art for Mamoru Oshii's Ghost in the Shell 2: Innocence: a meditation on
           cybernetic bodies, memory, and the dissolving boundary between human and machine.
         </p>
 
-        <div className="mi__chat" data-explain="Correct its reading in a line — every field is editable.">
+        <div className="mi__chat" data-explain="Every field stays editable.">
           <span className="mi__caret">›</span>
           <span className="mi__chatph">Chat with Mare to edit context…</span>
         </div>
