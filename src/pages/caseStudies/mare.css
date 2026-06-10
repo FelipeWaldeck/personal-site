@@ -42,6 +42,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   scroll-snap-type: y proximity;
+  /* reserve the scrollbar gutter on both sides so centred content stays symmetric */
+  scrollbar-gutter: stable both-edges;
 }
 .cs-mare * {
   box-sizing: border-box;
@@ -605,7 +607,7 @@
 /* the real horse mark, flipped to face the copy — top-right quadrant */
 .cs-mare .dl__horse {
   grid-area: horse;
-  width: clamp(170px, 16vw, 280px);
+  width: clamp(212px, 20vw, 350px);
   aspect-ratio: 600 / 540;
   justify-self: center;
   align-self: center;
