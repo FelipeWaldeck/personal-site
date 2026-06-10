@@ -566,43 +566,49 @@
 }
 
 /* ---------- 02 · design language ---------- */
+/* content stack on the left, horse mark vertically centred against all of it */
 .cs-mare .dl {
-  gap: clamp(28px, 4vh, 52px);
-}
-.cs-mare .dl__head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: clamp(40px, 6vw, 88px);
+  column-gap: clamp(48px, 7vw, 120px);
+}
+.cs-mare .dl__main {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(36px, 6vh, 68px);
+  min-width: 0;
 }
 .cs-mare .dl__lead {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 720px;
+  gap: 22px;
+  max-width: 680px;
 }
 .cs-mare .dl__body {
   font-family: var(--m-serif);
   font-size: clamp(16px, 1.5vw, 19px);
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--m-ink-3);
   margin: 0;
 }
-/* the real horse mark, flipped to face the copy */
+/* the real horse mark, flipped to face the copy, centred in its column */
 .cs-mare .dl__horse {
-  width: clamp(150px, 17vw, 250px);
+  width: clamp(170px, 18vw, 290px);
   aspect-ratio: 600 / 540;
   flex-shrink: 0;
+  justify-self: center;
+  align-self: center;
   background: var(--m-copper);
   -webkit-mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
   mask: url('/case-studies/mare/logo.webp') center / contain no-repeat;
   transform: scaleX(-1);
 }
-/* the swatch + type board, tightened */
+/* the swatch + type board */
 .cs-mare .board {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: clamp(28px, 4vw, 56px);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(36px, 5vw, 72px);
   align-items: stretch;
 }
 .cs-mare .swatches {
@@ -634,15 +640,15 @@
 .cs-mare .type {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 14px;
+  justify-content: center;
+  gap: clamp(20px, 3.2vh, 34px);
 }
 .cs-mare .type__spec {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
+  justify-content: flex-start;
+  gap: clamp(14px, 1.4vw, 24px); /* face label hugs the sample */
+  padding-bottom: clamp(16px, 2.2vh, 24px);
   border-bottom: 1px solid var(--m-divider);
 }
 .cs-mare .type__spec:last-child {
@@ -991,7 +997,7 @@
     min-height: 0;
   }
   .cs-mare .hero,
-  .cs-mare .dl__head,
+  .cs-mare .dl,
   .cs-mare .surface {
     grid-template-columns: 1fr;
     display: grid;
@@ -1020,8 +1026,12 @@
     grid-template-columns: 1fr;
     gap: 28px;
   }
+  .cs-mare .dl {
+    row-gap: 40px;
+  }
   .cs-mare .dl__horse {
     justify-self: start;
+    order: -1; /* horse above the content when stacked */
   }
 }
 @media (max-width: 640px) {

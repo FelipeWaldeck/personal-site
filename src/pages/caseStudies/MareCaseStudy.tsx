@@ -122,13 +122,8 @@ export default function MareCaseStudy() {
 
       {/* 02 — DESIGN LANGUAGE */}
       <section className="section dl">
-        <div className="dl__head">
+        <div className="dl__main">
           <div className="dl__lead">
-            <div className="kicker">
-              <span className="num">02</span>
-              <span className="sl">/</span>
-              <span className="lab">Design language</span>
-            </div>
             <h2 className="head">A cyber-cowboy in a sea of SaaS purple.</h2>
             <p className="dl__body">
               A mare is something you trust to carry you somewhere new. We've ridden horses from the
@@ -136,9 +131,9 @@ export default function MareCaseStudy() {
               accent, and IBM Plex: a deliberate turn away from the purple-and-white SaaS look.
             </p>
           </div>
-          <div className="dl__horse" role="img" aria-label="The MARE horse mark" />
+          <MareDesignSystem />
         </div>
-        <MareDesignSystem />
+        <div className="dl__horse" role="img" aria-label="The MARE horse mark" />
       </section>
 
       {/* 03 — ARCHIVE */}
