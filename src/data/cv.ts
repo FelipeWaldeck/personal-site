@@ -25,7 +25,7 @@ export interface CVData {
 }
 
 export const cvData: CVData = {
-    summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. I explore broadly and dig in, moving between philosophy, creative writing, ecology, microbiology, urban planning, history, and the occasional animal husbandry. I'm driven by one question: how people and the systems around them produce shared life and meaning. A foodway, a city block, an ecosystem, and a piece of software are all, to me, sites where culture is negotiated. That question has led me into building: I co-founded MARE and fell for the craft of making software, treating the design of interfaces and tools as a way of thinking through these systems rather than only writing about them.",
+    summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. That question led me into building: I co-founded MARE and fell for the craft of making software.",
     education: [
         {
             institution: "Yale-NUS College",
