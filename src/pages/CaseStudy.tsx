@@ -3,7 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { nodeById, CAT } from '../data/mapData';
 import MareCaseStudy from './caseStudies/MareCaseStudy';
 import NamshubCaseStudy from './caseStudies/NamshubCaseStudy';
+import MobileNav from '../components/MobileNav';
 import { useBodyClass } from '../lib/useBodyClass';
+import { useIsMobile } from '../lib/useMediaQuery';
 import '../components/map/map.css';
 
 // Slugs with a fully built case study. Other case-study nodes fall back to the stub.
@@ -16,8 +18,34 @@ const FINISHED: Record<string, React.FC> = {
 export default function CaseStudy() {
   const { slug } = useParams();
   const node = slug ? nodeById(slug) : undefined;
+  const isMobile = useIsMobile();
 
   useBodyClass('detail-open', true); // dims the bouncing horse while reading a case study
+
+  // The case studies are scroll-driven, desktop-width sticky decks. Rather than
+  // reflow them for a phone, gate the whole route — this returns before any of
+  // the heavy components below mount, so their scroll/parallax listeners never run.
+  if (isMobile) {
+    return (
+      <main className="cs-gate">
+        <div className="cs-gate__inner">
+          {node && (
+            <div className="cs-gate__kicker" style={{ color: CAT[node.cat].color }}>
+              {CAT[node.cat].label}
+            </div>
+          )}
+          <h1 className="cs-gate__title">{node?.title ?? 'Case study'}</h1>
+          <p className="cs-gate__msg">
+            This case study is built for a larger screen. Come back from a desktop to read it.
+          </p>
+          <Link to="/" className="cs-gate__back">
+            ← Back to the work
+          </Link>
+        </div>
+        <MobileNav activeTab="ARCHIVE" />
+      </main>
+    );
+  }
 
   // Finished case studies are keyed by slug and may use a canonical slug (e.g. 'mare-design')
   // that isn't itself a map node, so check the registry before the not-found guard. A node may
