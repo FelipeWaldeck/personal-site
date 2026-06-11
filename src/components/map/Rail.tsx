@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const LATEST = [
+// Shared so the mobile Home can render the same list below the index (the rail's
+// own copy is hidden on mobile to get the work above the fold).
+export const LATEST = [
   'Zones of Coupling (2/2) — Manifestation',
   'Zones of Coupling (1/2) — Possession',
   'The Technical Flesh (1/2)',
 ];
+export const SUBSTACK = 'https://maredotrun.substack.com';
 
 export default function Rail() {
   return (
