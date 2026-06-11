@@ -25,7 +25,7 @@ export interface CVData {
 }
 
 export const cvData: CVData = {
-    summary: "Writer and researcher passionate about understanding how people shape, experience, and sustain public spaces. Through research, storytelling, and engagement, I translate complex urban insights into compelling reports, presentations, and initiatives that connect policy, culture, and community needs. With experience in placemaking, public space analysis, and community-driven projects, I enjoy working across disciplines to bring ideas into action and foster meaningful connections between people and places.",
+    summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. I explore broadly and dig in, moving between philosophy, creative writing, ecology, microbiology, urban planning, history, and the occasional animal husbandry. I'm driven by one question: how people and the systems around them produce shared life and meaning. A foodway, a city block, an ecosystem, and a piece of software are all, to me, sites where culture is negotiated. That question has led me into building: I co-founded MARE and fell for the craft of making software, treating the design of interfaces and tools as a way of thinking through these systems rather than only writing about them.",
     education: [
         {
             institution: "Yale-NUS College",
