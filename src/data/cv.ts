@@ -28,6 +28,14 @@ export const cvData: CVData = {
     summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. That question led me into building: I co-founded MARE and fell for making software.",
     education: [
         {
+            institution: "The New Centre for Research & Practice",
+            degree: "Information Architecture",
+            date: "2026 - Present",
+            details: [
+                "Ongoing coursework in information architecture and contemporary theory."
+            ]
+        },
+        {
             institution: "Yale-NUS College",
             degree: "Bachelor of Arts in Environmental Studies",
             date: "Aug 2020 - May 2024",
@@ -36,19 +44,19 @@ export const cvData: CVData = {
             ]
         },
         {
-            institution: "NUS Department of Architecture",
-            degree: "Certificate in Design Thinking",
-            date: "Design Summer Camp, Jul 2022",
-            details: [
-                "Completed a 3-week program on architectural ideation, planning, and modeling for sustainable urbanism."
-            ]
-        },
-        {
             institution: "Yale University",
             degree: "Semester Abroad",
             date: "Jan 2023 - Jun 2023",
             details: [
                 "Engaged in graduate-level coursework early in undergraduate studies, focusing on sustainability topics, including Urban Food Systems, Sustainable Development Goals, and Land Use."
+            ]
+        },
+        {
+            institution: "NUS Department of Architecture",
+            degree: "Certificate in Design Thinking",
+            date: "Design Summer Camp, Jul 2022",
+            details: [
+                "Completed a 3-week program on architectural ideation, planning, and modeling for sustainable urbanism."
             ]
         }
     ],
@@ -111,11 +119,11 @@ export const cvData: CVData = {
         },
         {
             category: "Software & Creative Tech",
-            items: "Frontend development, AI and LLM-based tools, and real-time and motion work."
+            items: "Frontend development, AI and LLM-based tools, and motion graphics."
         },
         {
             category: "Tools",
-            items: "React, TypeScript, Python, Figma, Adobe Suite, TouchDesigner, Unreal Engine, Remotion, Git."
+            items: "React, TypeScript, Python, Figma, Adobe Suite, Remotion, Git."
         },
         {
             category: "Languages",
