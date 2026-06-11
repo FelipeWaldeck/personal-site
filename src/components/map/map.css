@@ -376,11 +376,6 @@
     line-height: 1.35;
     opacity: 0.85;
   }
-  /* the in-place panel must cover the whole viewport, not just the stacked stage
-     (the rail sits above it in normal flow, so absolute-in-stage would leak) */
-  .node-detail {
-    position: fixed;
-  }
 }
 
 /* Desktop: lock the stage to the viewport so the map fills the right column edge-to-edge
@@ -553,6 +548,8 @@
     grid-template-columns: 1fr;
     gap: 28px;
     align-items: start;
+    align-content: start; /* don't spread the rows down the panel */
+    flex: 0 0 auto; /* content-height, not stretched to fill — panel scrolls instead */
     padding-top: 16px;
   }
   .node-detail__title {
@@ -602,4 +599,17 @@
 }
 .cs-gate__back:hover {
   color: var(--accent-pink);
+}
+
+/* Mobile: the in-place panel becomes a true full-screen overlay. This block sits
+   after the base `.node-detail { position: absolute }` so it actually wins on
+   source order — and above MobileNav (z-50) so the read isn't split by the tab bar.
+   Without this it stays absolute-in-stage and opens below the stacked rail. */
+@media (max-width: 767.98px) {
+  .node-detail {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    padding: 22px 22px 48px;
+  }
 }
