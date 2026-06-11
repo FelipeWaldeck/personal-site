@@ -25,7 +25,7 @@ export interface CVData {
 }
 
 export const cvData: CVData = {
-    summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. That question led me into building: I co-founded MARE and fell for the craft of making software.",
+    summary: "Researcher and writer interested in connection and the making of culture in a computational age. Most of what I do is writing: essays on how technical systems reshape attention, interiority, and the ways people make sense of one another. That question led me into building: I co-founded MARE and fell for making software.",
     education: [
         {
             institution: "Yale-NUS College",
@@ -53,6 +53,16 @@ export const cvData: CVData = {
         }
     ],
     experience: [
+        {
+            role: "Co-founder",
+            company: "MARE",
+            date: "2025 - Present",
+            details: [
+                "Co-founded a media-agnostic research platform for how people and machines make sense of large volumes of media under computational conditions.",
+                "Set the editorial and design direction: writing the essays, shaping the product's voice, and designing its interfaces.",
+                "Build the software hands-on, making curation and reading tools alongside the research."
+            ]
+        },
         {
             role: "Research Assistant",
             company: "Lee Kuan Yew Centre for Innovative Cities",
