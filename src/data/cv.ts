@@ -58,9 +58,10 @@ export const cvData: CVData = {
             company: "MARE",
             date: "2025 - Present",
             details: [
-                "Co-founded MARE and took it from concept to launch, defining the research thesis behind a media-agnostic platform for reading and curating media at scale.",
-                "Designed and shipped the product's interface and curation tools end to end, turning that thesis into working software.",
-                "Established the editorial voice and authored its essays, growing a readership through the publication and its Substack."
+                "Co-founded MARE and took it from concept to public beta, defining the research thesis behind a media-agnostic platform for reading and curating media at scale.",
+                "Interviewed 200+ creatives to ground the product in real workflows, translating the findings into its core features and direction.",
+                "Designed and shipped the interface and curation tools end to end, growing to a user base of 500 across a three-month public beta.",
+                "Established the editorial voice and authored its essays, building a readership through the publication and its Substack."
             ]
         },
         {
