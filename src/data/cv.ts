@@ -69,7 +69,7 @@ export const cvData: CVData = {
             company: "Lee Kuan Yew Centre for Innovative Cities",
             date: "August 2024 - Present",
             details: [
-                "Managed and contributed to 5 major major reports and literature reviews on public space, placemaking, and built environments, providing insights shaping strategic discussions.",
+                "Managed and contributed to 5 major reports and literature reviews on public space, placemaking, and built environments, providing insights shaping strategic discussions.",
                 "Collaborated with interdisciplinary teams to explore demographic shifts, public space use, and cultural preservation strategies.",
                 "Developed reports and presentations tailored for policymakers, cultural institutions, and urban planners, ensuring research was accessible and actionable.",
                 "Coordinated with government agencies, researchers, and public space advocates, aligning findings with broader urban and cultural strategies."
@@ -94,45 +94,28 @@ export const cvData: CVData = {
                 "Identified sustainable agricultural practices suited to high-density urban areas.",
                 "Produced a 7,500-word report analyzing successful models, presented at the Summer Research Symposium."
             ]
-        },
-        {
-            role: "Team Member",
-            company: "On-Hand Agrarian",
-            date: "Nov 2021 - Jan 2022",
-            details: [
-                "Supported development of three urban farms in Singapore, coordinated logistics for 60+ weekly customers.",
-                "Conducted educational tours of mangroves, engaging the public in local ecosystem awareness and sustainable food practices."
-            ]
-        },
-        {
-            role: "Microbiologist Assistant",
-            company: "Yale-NUS College",
-            date: "Jan 2022 - May 2022",
-            details: [
-                "Organized a research project analyzing 451 shark fin samples, coordinating large-scale DNA gathering, processing, and barcoding."
-            ]
         }
     ],
     skills: [
         {
-            category: "Project & Stakeholder Management",
-            items: "Coordinating research projects, working with policymakers and cultural institutions."
+            category: "Research & Synthesis",
+            items: "Qualitative and user research, interviews, literature reviews, and turning findings into product and editorial direction."
         },
         {
-            category: "Public Engagement & Communication",
-            items: "Presenting research, engaging communities, and translating findings into reports."
+            category: "Writing & Editorial",
+            items: "Long-form essays and criticism, editorial direction, and clear writing on technical and cultural subjects."
         },
         {
-            category: "Data Visualization & GIS",
-            items: "Mapping public space usage, analyzing demographic and spatial trends."
+            category: "Design & Product",
+            items: "Interface design, design systems, and product direction."
         },
         {
-            category: "Survey & Qualitative Analysis",
-            items: "Conducting interviews, synthesizing insights, and structuring key takeaways."
+            category: "Software & Creative Tech",
+            items: "Frontend development, AI and LLM-based tools, and real-time and motion work."
         },
         {
-            category: "Technical Skills",
-            items: "Adobe Suite (Photoshop, Illustrator), QGIS, Microsoft Office, Figma (Learning), Python (Learning)"
+            category: "Tools",
+            items: "React, TypeScript, Python, Figma, Adobe Suite, TouchDesigner, Unreal Engine, Remotion, Git."
         },
         {
             category: "Languages",
